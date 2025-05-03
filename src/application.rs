@@ -1,8 +1,8 @@
 use gettextrs::gettext;
 use tracing::{debug, info};
 
-use gtk::prelude::*;
-use gtk::subclass::prelude::*;
+use adw::prelude::*;
+use adw::subclass::prelude::*;
 use gtk::{gdk, gio, glib};
 
 use crate::config::{APP_ID, PKGDATADIR, PROFILE, VERSION};
@@ -22,7 +22,7 @@ mod imp {
     impl ObjectSubclass for ExampleApplication {
         const NAME: &'static str = "ExampleApplication";
         type Type = super::ExampleApplication;
-        type ParentType = gtk::Application;
+        type ParentType = adw::Application;
     }
 
     impl ObjectImpl for ExampleApplication {}
@@ -62,11 +62,12 @@ mod imp {
     }
 
     impl GtkApplicationImpl for ExampleApplication {}
+    impl AdwApplicationImpl for ExampleApplication {}
 }
 
 glib::wrapper! {
     pub struct ExampleApplication(ObjectSubclass<imp::ExampleApplication>)
-        @extends gio::Application, gtk::Application,
+        @extends gio::Application, gtk::Application, adw::Application,
         @implements gio::ActionMap, gio::ActionGroup;
 }
 
@@ -118,21 +119,17 @@ impl ExampleApplication {
     }
 
     fn show_about_dialog(&self) {
-        let dialog = gtk::AboutDialog::builder()
-            .logo_icon_name(APP_ID)
-            // FIXME Insert your license of choice here
-            // .license_type(gtk::License::MitX11)
-            // FIXME Insert your website here
-            // .website("https://gitlab.gnome.org/bilelmoussaoui/quickshare-gtk/")
+        let dialog = adw::AboutDialog::builder()
+            .application_icon(APP_ID)
+            // FIXME: Insert your license of choice here
             .version(VERSION)
-            .transient_for(&self.main_window())
+            .application_name("QuickShare")
+            .developer_name("nozwock")
+            .issue_url("https://github.com/nozwock/quickshare-gtk/issues")
             .translator_credits(gettext("translator-credits"))
-            .modal(true)
-            .authors(Self::authors())
-            .artists(vec!["nozwock"])
             .build();
 
-        dialog.present();
+        dialog.present(Some(&self.main_window()));
     }
 
     pub fn run(&self) -> glib::ExitCode {
