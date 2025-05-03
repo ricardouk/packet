@@ -1,0 +1,55 @@
+stages:
+  - check
+  - test
+  - deploy
+
+include:
+  - project: "GNOME/citemplates"
+    file: "templates/default-rules.yml"
+  - project: "GNOME/citemplates"
+    file: "flatpak/flatpak_ci_initiative.yml"
+  - component: "gitlab.gnome.org/GNOME/citemplates/basic-release@25.1"
+
+variables:
+  BUNDLE: "quickshare-gtk-nightly.flatpak"
+  MANIFEST_PATH: "build-aux/io.github.nozwock.QuickShare.Devel.json"
+  FLATPAK_MODULE: "quickshare-gtk"
+  APP_ID: "io.github.nozwock.QuickShare.Devel"
+  RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
+
+flatpak:
+  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-47'
+  extends: ".flatpak@x86_64"
+
+# Configure and run rustfmt
+# Exits and builds fails if on bad format
+rustfmt:
+  image: "rust:slim"
+  stage: check
+  script:
+    - rustup component add rustfmt
+    # Create blank versions of our configured files
+    # so rustfmt does not yell about non-existent files or completely empty files
+    - echo -e "" >> src/config.rs
+    - rustc -Vv && cargo -Vv
+    - cargo fmt --version
+    - cargo fmt --all -- --color=always --check
+
+.flatpak-command: &flatpak-command
+  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-47'
+  tags:
+    - flatpak
+  script:
+    - flatpak-builder --user --disable-rofiles-fuse --keep-build-dirs --stop-at=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH}
+    - flatpak build-finish --share=network flatpak_app
+    - echo "cd .. && ${COMMAND}" | flatpak-builder --user --disable-rofiles-fuse --build-shell=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH}
+
+cargo-clippy:
+  <<: *flatpak-command
+  variables:
+    COMMAND: "cargo clippy --all-targets --workspace --all-features -- -D warnings"
+
+cargo-test:
+  <<: *flatpak-command
+  variables:
+    COMMAND: "cargo test --workspace --all-features --all-targets"

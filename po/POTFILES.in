@@ -1,0 +1,6 @@
+data/io.github.nozwock.QuickShare.desktop.in.in
+data/io.github.nozwock.QuickShare.gschema.xml.in
+data/io.github.nozwock.QuickShare.metainfo.xml.in.in
+data/resources/ui/shortcuts.ui
+data/resources/ui/window.ui
+src/application.rs
