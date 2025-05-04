@@ -8,21 +8,14 @@ use crate::config::{APP_ID, PROFILE};
 mod imp {
     use super::*;
 
-    #[derive(Debug, gtk::CompositeTemplate)]
+    #[derive(Debug, gtk::CompositeTemplate, better_default::Default)]
     #[template(resource = "/io/github/nozwock/QuickShare/ui/window.ui")]
     pub struct QuickShareApplicationWindow {
-        #[template_child]
-        pub headerbar: TemplateChild<adw::HeaderBar>,
+        #[default(gio::Settings::new(APP_ID))]
         pub settings: gio::Settings,
-    }
 
-    impl Default for QuickShareApplicationWindow {
-        fn default() -> Self {
-            Self {
-                headerbar: TemplateChild::default(),
-                settings: gio::Settings::new(APP_ID),
-            }
-        }
+        #[template_child]
+        pub root_stack: TemplateChild<gtk::Stack>,
     }
 
     #[glib::object_subclass]
@@ -53,6 +46,7 @@ mod imp {
 
             // Load latest window state
             obj.load_window_size();
+            obj.setup_ui();
         }
     }
 
@@ -110,5 +104,12 @@ impl QuickShareApplicationWindow {
         if is_maximized {
             self.maximize();
         }
+    }
+
+    fn setup_ui(&self) {
+        let imp = self.imp();
+
+        let root_stack = imp.root_stack.get();
+        // root_stack.set_visible_child_name("main_page");
     }
 }
