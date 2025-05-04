@@ -2,7 +2,7 @@ use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::{gio, glib};
 
-use crate::application::ExampleApplication;
+use crate::application::QuickShareApplication;
 use crate::config::{APP_ID, PROFILE};
 
 mod imp {
@@ -10,13 +10,13 @@ mod imp {
 
     #[derive(Debug, gtk::CompositeTemplate)]
     #[template(resource = "/io/github/nozwock/QuickShare/ui/window.ui")]
-    pub struct ExampleApplicationWindow {
+    pub struct QuickShareApplicationWindow {
         #[template_child]
         pub headerbar: TemplateChild<adw::HeaderBar>,
         pub settings: gio::Settings,
     }
 
-    impl Default for ExampleApplicationWindow {
+    impl Default for QuickShareApplicationWindow {
         fn default() -> Self {
             Self {
                 headerbar: TemplateChild::default(),
@@ -26,9 +26,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for ExampleApplicationWindow {
-        const NAME: &'static str = "ExampleApplicationWindow";
-        type Type = super::ExampleApplicationWindow;
+    impl ObjectSubclass for QuickShareApplicationWindow {
+        const NAME: &'static str = "QuickShareApplicationWindow";
+        type Type = super::QuickShareApplicationWindow;
         type ParentType = adw::ApplicationWindow;
 
         fn class_init(klass: &mut Self::Class) {
@@ -41,7 +41,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for ExampleApplicationWindow {
+    impl ObjectImpl for QuickShareApplicationWindow {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
@@ -56,8 +56,8 @@ mod imp {
         }
     }
 
-    impl WidgetImpl for ExampleApplicationWindow {}
-    impl WindowImpl for ExampleApplicationWindow {
+    impl WidgetImpl for QuickShareApplicationWindow {}
+    impl WindowImpl for QuickShareApplicationWindow {
         // Save window state on delete event
         fn close_request(&self) -> glib::Propagation {
             if let Err(err) = self.obj().save_window_size() {
@@ -69,18 +69,18 @@ mod imp {
         }
     }
 
-    impl ApplicationWindowImpl for ExampleApplicationWindow {}
-    impl AdwApplicationWindowImpl for ExampleApplicationWindow {}
+    impl ApplicationWindowImpl for QuickShareApplicationWindow {}
+    impl AdwApplicationWindowImpl for QuickShareApplicationWindow {}
 }
 
 glib::wrapper! {
-    pub struct ExampleApplicationWindow(ObjectSubclass<imp::ExampleApplicationWindow>)
+    pub struct QuickShareApplicationWindow(ObjectSubclass<imp::QuickShareApplicationWindow>)
         @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, adw::ApplicationWindow,
         @implements gio::ActionMap, gio::ActionGroup, gtk::Root;
 }
 
-impl ExampleApplicationWindow {
-    pub fn new(app: &ExampleApplication) -> Self {
+impl QuickShareApplicationWindow {
+    pub fn new(app: &QuickShareApplication) -> Self {
         glib::Object::builder().property("application", app).build()
     }
 

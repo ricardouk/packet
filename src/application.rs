@@ -6,7 +6,7 @@ use adw::subclass::prelude::*;
 use gtk::{gdk, gio, glib};
 
 use crate::config::{APP_ID, PKGDATADIR, PROFILE, VERSION};
-use crate::window::ExampleApplicationWindow;
+use crate::window::QuickShareApplicationWindow;
 
 mod imp {
     use super::*;
@@ -14,22 +14,22 @@ mod imp {
     use std::cell::OnceCell;
 
     #[derive(Debug, Default)]
-    pub struct ExampleApplication {
-        pub window: OnceCell<WeakRef<ExampleApplicationWindow>>,
+    pub struct QuickShareApplication {
+        pub window: OnceCell<WeakRef<QuickShareApplicationWindow>>,
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for ExampleApplication {
-        const NAME: &'static str = "ExampleApplication";
-        type Type = super::ExampleApplication;
+    impl ObjectSubclass for QuickShareApplication {
+        const NAME: &'static str = "QuickShareApplication";
+        type Type = super::QuickShareApplication;
         type ParentType = adw::Application;
     }
 
-    impl ObjectImpl for ExampleApplication {}
+    impl ObjectImpl for QuickShareApplication {}
 
-    impl ApplicationImpl for ExampleApplication {
+    impl ApplicationImpl for QuickShareApplication {
         fn activate(&self) {
-            debug!("GtkApplication<ExampleApplication>::activate");
+            debug!("GtkApplication<QuickShareApplication>::activate");
             self.parent_activate();
             let app = self.obj();
 
@@ -39,7 +39,7 @@ mod imp {
                 return;
             }
 
-            let window = ExampleApplicationWindow::new(&app);
+            let window = QuickShareApplicationWindow::new(&app);
             self.window
                 .set(window.downgrade())
                 .expect("Window already set.");
@@ -48,7 +48,7 @@ mod imp {
         }
 
         fn startup(&self) {
-            debug!("GtkApplication<ExampleApplication>::startup");
+            debug!("GtkApplication<QuickShareApplication>::startup");
             self.parent_startup();
             let app = self.obj();
 
@@ -61,18 +61,18 @@ mod imp {
         }
     }
 
-    impl GtkApplicationImpl for ExampleApplication {}
-    impl AdwApplicationImpl for ExampleApplication {}
+    impl GtkApplicationImpl for QuickShareApplication {}
+    impl AdwApplicationImpl for QuickShareApplication {}
 }
 
 glib::wrapper! {
-    pub struct ExampleApplication(ObjectSubclass<imp::ExampleApplication>)
+    pub struct QuickShareApplication(ObjectSubclass<imp::QuickShareApplication>)
         @extends gio::Application, gtk::Application, adw::Application,
         @implements gio::ActionMap, gio::ActionGroup;
 }
 
-impl ExampleApplication {
-    fn main_window(&self) -> ExampleApplicationWindow {
+impl QuickShareApplication {
+    fn main_window(&self) -> QuickShareApplicationWindow {
         self.imp().window.get().unwrap().upgrade().unwrap()
     }
 
@@ -141,7 +141,7 @@ impl ExampleApplication {
     }
 }
 
-impl Default for ExampleApplication {
+impl Default for QuickShareApplication {
     fn default() -> Self {
         glib::Object::builder()
             .property("application-id", APP_ID)
