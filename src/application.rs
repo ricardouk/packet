@@ -121,10 +121,11 @@ impl QuickShareApplication {
     fn show_about_dialog(&self) {
         let dialog = adw::AboutDialog::builder()
             .application_icon(APP_ID)
-            // FIXME: Insert your license of choice here
+            .license_type(gtk::License::Gpl30)
             .version(VERSION)
             .application_name("QuickShare")
             .developer_name("nozwock")
+            .developers(Self::authors())
             .issue_url("https://github.com/nozwock/quickshare-gtk/issues")
             .translator_credits(gettext("translator-credits"))
             .build();
