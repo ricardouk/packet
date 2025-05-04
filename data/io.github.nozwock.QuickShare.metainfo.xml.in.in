@@ -3,15 +3,13 @@
 <component type="desktop-application">
   <id>@app-id@</id>
   <metadata_license>CC0</metadata_license>
-  <!-- FIXME Insert your license of choice here -->
-  <!-- <project_license>MIT</project_license> -->
+  <project_license>GPL-3.0+</project_license>
   <name>QuickShare</name>
-  <!-- FIXME Set the project summary -->
-  <summary>Write a GTK + Rust application</summary>
+  <summary>A NearbyShare/QuickShare implementation for Linux with a GTK4 interface</summary>
   <!-- FIXME Set the project description -->
-  <description>
+  <!-- <description>
     <p>A boilerplate template for GTK + Rust. It uses Meson as a build system and has flatpak support by default.</p>
-  </description>
+  </description> -->
   <screenshots>
     <screenshot type="default">
       <!-- FIXME Set the project git url and replace the screenshot -->

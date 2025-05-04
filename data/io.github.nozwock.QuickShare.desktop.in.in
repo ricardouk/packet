@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=QuickShare
 # FIXME Set the project summary
-Comment=Write a GTK + Rust application
+Comment=A NearbyShare/QuickShare implementation for Linux with a GTK4 interface
 Type=Application
 Exec=quickshare-gtk
 Terminal=false
