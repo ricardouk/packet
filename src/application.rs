@@ -119,16 +119,24 @@ impl QuickShareApplication {
     }
 
     fn show_about_dialog(&self) {
+        // Reference:
+        // https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1.7/class.AboutDialog.html
+        // https://github.com/youpie/Iconic/blob/main/src/application.rs
         let dialog = adw::AboutDialog::builder()
+            .application_name(gettext("QuickShare"))
             .application_icon(APP_ID)
-            .license_type(gtk::License::Gpl30)
             .version(VERSION)
-            .application_name("QuickShare")
             .developer_name("nozwock")
+            // format: "Name https://example.com" or "Name <email@example.com>"
             .developers(Self::authors())
+            .license_type(gtk::License::Gpl30)
             .issue_url("https://github.com/nozwock/quickshare-gtk/issues")
+            .website("https://github.com/nozwock/quickshare-gtk")
             .translator_credits(gettext("translator-credits"))
             .build();
+
+        // FIXME: Add acknowledgements
+        // dialog.add_acknowledgement_section(name, people);
 
         dialog.present(Some(&self.main_window()));
     }
