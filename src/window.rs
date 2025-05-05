@@ -206,12 +206,13 @@ impl QuickShareApplicationWindow {
                 .build();
             root_card_box.append(&main_box);
 
-            let top_box = gtk::Box::builder().spacing(24).build();
+            let top_box = gtk::Box::builder().spacing(18).build();
             main_box.append(&top_box);
 
-            let device_icon_image = gtk::Image::builder()
+            // `object-select-symbolic` for success status icon
+            let device_icon_image = adw::Avatar::builder()
                 .icon_name("preferences-system-network-symbolic")
-                .icon_size(gtk::IconSize::Large)
+                .size(48)
                 .build();
             top_box.append(&device_icon_image);
 
