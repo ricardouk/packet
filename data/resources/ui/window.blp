@@ -21,10 +21,11 @@ menu primary_menu {
 }
 
 template $QuickShareApplicationWindow: Adw.ApplicationWindow {
-    height-request: 240;
+    width-request: 360;
+    height-request: 300;
 
     Adw.Breakpoint {
-        condition ("max-width: 550sp")
+        condition ("max-width: 560sp")
 
         setters {
             // Sidebar
