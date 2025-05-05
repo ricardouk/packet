@@ -21,11 +21,17 @@ menu primary_menu {
 }
 
 template $QuickShareApplicationWindow: Adw.ApplicationWindow {
+    height-request: 240;
+
     Adw.Breakpoint {
-        condition ("max-width: 560sp")
+        condition ("max-width: 550sp")
 
         setters {
+            // Sidebar
             main_page_split_view.collapsed: true;
+            // Switcher
+            transfer_kind_header_bar.title-widget: null;
+            transfer_kind_switcher_bar.reveal: true;
         }
     }
 
@@ -42,12 +48,8 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                     vexpand: true;
                     title: _("Setting up QuickShare...");
 
-                    Spinner {
-                        spinning: true;
-
-                        styles [
-                            "large-spinner",
-                        ]
+                    Adw.Spinner {
+                        height-request: 32;
                     }
                 }
             };
@@ -74,20 +76,323 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                 primary: true;
                             }
                         }
+
+                        content: Box {
+                            margin-start: 12;
+                            margin-end: 12;
+                            margin-top: 12;
+                            margin-bottom: 12;
+                            orientation: vertical;
+                            spacing: 12;
+
+                            Adw.PreferencesGroup {
+                                separate-rows: true;
+
+                                Adw.EntryRow device_name_entry {
+                                    title: _("Device name");
+                                    show-apply-button: true;
+                                }
+
+                                Adw.SwitchRow device_visibility_switch {
+                                    // FIXME: handle active state in code once RQS service is running
+                                    title: _("Visibility");
+                                    subtitle: _("Visbile to nearby devices");
+                                }
+                            }
+
+                            Label {
+                                label: _("No one can share with you until you make yourself visible");
+                                visible: bind device_visibility_switch.active inverted;
+                                wrap: true;
+
+                                styles [
+                                    "caption",
+                                    "dim-label",
+                                ]
+                            }
+
+                            Adw.Bin {
+                                vexpand: true;
+                            }
+
+                            Button test_cycle_pages_button {
+                                label: "[Test] Cycle Pages";
+
+                                styles [
+                                    "flat",
+                                ]
+                            }
+                        };
                     }
                 };
 
+                // Content of Split View
                 content: Adw.NavigationPage {
-                    Adw.ToolbarView {
-                        [top]
-                        Adw.HeaderBar {
-                            show-title: false;
+                    Adw.NavigationView transfer_kind_nav_view {
+                        // Page containing Send/Receive tabs
+                        Adw.NavigationPage {
+                            Adw.ToolbarView {
+                                [top]
+                                Adw.HeaderBar transfer_kind_header_bar {
+                                    [start]
+                                    ToggleButton show_sidebar_button {
+                                        icon-name: "sidebar-show-symbolic";
+                                        tooltip-text: _("Toggle Sidebar");
+                                        active: bind main_page_split_view.show-sidebar;
+                                    }
 
-                            [start]
-                            ToggleButton show_sidebar_button {
-                                icon-name: "sidebar-show-symbolic";
-                                tooltip-text: _("Toggle Sidebar");
-                                active: bind main_page_split_view.show-sidebar;
+                                    title-widget: Adw.ViewSwitcher {
+                                        stack: transfer_kind_view_stack;
+                                        policy: wide;
+                                    };
+                                }
+
+                                Adw.ViewStack transfer_kind_view_stack {
+                                    Adw.ViewStackPage {
+                                        name: "receive";
+                                        title: _("Receive");
+                                        icon-name: "vertical-arrows-long-up-symbolic";
+
+                                        child: Stack receive_stack {
+                                            StackPage {
+                                                name: "receive_idle_status_page";
+
+                                                child: Adw.StatusPage receive_idle_status_page {
+                                                    // `title` is also gets set on the code side
+                                                    icon-name: "network-offline-symbolic";
+                                                    title: _("Not ready to receive");
+
+                                                    Adw.Spinner {
+                                                        visible: bind device_visibility_switch.active;
+                                                        height-request: 32;
+                                                    }
+                                                };
+                                            }
+
+                                            StackPage {
+                                                // FIXME: complete this
+                                                name: "receive_request_page";
+
+                                                child: ScrolledWindow {
+                                                    hexpand: true;
+                                                    vexpand: true;
+                                                    hscrollbar-policy: never;
+
+                                                    Box {
+                                                        margin-start: 12;
+                                                        margin-end: 12;
+                                                        margin-top: 12;
+                                                        margin-bottom: 12;
+                                                        orientation: vertical;
+
+                                                        Adw.Clamp {
+                                                            maximum-size: 500;
+
+                                                            Box {
+                                                                spacing: 12;
+                                                                orientation: vertical;
+
+                                                                Label {
+                                                                    label: _("Share requests");
+
+                                                                    styles [
+                                                                        "title-1",
+                                                                    ]
+                                                                }
+
+                                                                ListBox receive_request_listbox {
+                                                                    selection-mode: none;
+
+                                                                    styles [
+                                                                        "boxed-list-separate",
+                                                                    ]
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                };
+                                            }
+                                        };
+                                    }
+
+                                    Adw.ViewStackPage {
+                                        name: "send";
+                                        title: _("Send");
+                                        icon-name: "vertical-arrows-long-down-symbolic";
+
+                                        child: Stack send_stack {
+                                            StackPage {
+                                                name: "send_select_files_status_page";
+
+                                                child: Adw.Clamp {
+                                                    maximum-size: 500;
+
+                                                    Adw.StatusPage send_drop_files_status_page {
+                                                        title: _("Send Files");
+                                                        icon-name: "send-to-symbolic";
+                                                        description: _("Select or drop the files to send");
+
+                                                        Button send_select_files_button {
+                                                            halign: center;
+
+                                                            styles [
+                                                                "suggested-action",
+                                                                "pill",
+                                                            ]
+
+                                                            Adw.ButtonContent {
+                                                                label: _("Select files");
+                                                                icon-name: "list-add-symbolic";
+                                                            }
+                                                        }
+                                                    }
+                                                };
+                                            }
+
+                                            StackPage {
+                                                name: "send_nearby_devices_page";
+
+                                                child: ScrolledWindow {
+                                                    hexpand: true;
+                                                    vexpand: true;
+                                                    hscrollbar-policy: never;
+
+                                                    Box {
+                                                        margin-start: 12;
+                                                        margin-end: 12;
+                                                        margin-top: 12;
+                                                        margin-bottom: 12;
+                                                        orientation: vertical;
+
+                                                        Adw.Clamp {
+                                                            maximum-size: 500;
+
+                                                            Box {
+                                                                orientation: vertical;
+                                                                spacing: 12;
+
+                                                                Label {
+                                                                    label: _("Selected files");
+
+                                                                    styles [
+                                                                        "title-1",
+                                                                    ]
+                                                                }
+
+                                                                Box selected_files_box_card {
+                                                                    orientation: vertical;
+
+                                                                    styles [
+                                                                        "card",
+                                                                    ]
+
+                                                                    Box {
+                                                                        margin-top: 18;
+                                                                        margin-bottom: 18;
+                                                                        margin-start: 18;
+                                                                        margin-end: 18;
+                                                                        spacing: 12;
+                                                                        orientation: vertical;
+
+                                                                        Box {
+                                                                            spacing: 24;
+
+                                                                            Image {
+                                                                                icon-name: "folder-templates-symbolic";
+                                                                                icon-size: large;
+                                                                            }
+
+                                                                            Box {
+                                                                                orientation: vertical;
+                                                                                spacing: 6;
+
+                                                                                Label {
+                                                                                    halign: start;
+                                                                                    label: _("5 Files are ready to send");
+
+                                                                                    styles [
+                                                                                        "title-4",
+                                                                                    ]
+                                                                                }
+
+                                                                                Label {
+                                                                                    halign: start;
+                                                                                    label: _("File 1, File 2, File 3, File 4, File 5");
+
+                                                                                    styles [
+                                                                                        "caption",
+                                                                                    ]
+                                                                                }
+                                                                            }
+                                                                        }
+
+                                                                        Box {
+                                                                            spacing: 12;
+
+                                                                            Button {
+                                                                                hexpand: true;
+                                                                                can-shrink: false;
+                                                                                label: _("Cancel");
+
+                                                                                styles [
+                                                                                    "pill",
+                                                                                ]
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                                Box {
+                                                                    orientation: vertical;
+                                                                    spacing: 12;
+
+                                                                    Label {
+                                                                        margin-top: 12;
+                                                                        label: _("Nearby devices");
+
+                                                                        styles [
+                                                                            "title-1",
+                                                                        ]
+                                                                    }
+
+                                                                    // FIXME: show some status page instead of ListBox
+                                                                    // when nearby_devices_listbox is empty
+                                                                    ListBox nearby_devices_listbox {
+                                                                        selection-mode: none;
+
+                                                                        styles [
+                                                                            "boxed-list-separate",
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                };
+                                            }
+                                        };
+                                    }
+                                }
+
+                                [bottom]
+                                Adw.ViewSwitcherBar transfer_kind_switcher_bar {
+                                    stack: transfer_kind_view_stack;
+                                }
+                            }
+                        }
+
+                        Adw.NavigationPage {
+                            tag: "transfer_history_page";
+
+                            Adw.ToolbarView {
+                                [top]
+                                Adw.HeaderBar {
+                                    show-title: false;
+                                }
+
+                                Adw.StatusPage {
+                                    title: _("Transfer history");
+                                }
                             }
                         }
                     }

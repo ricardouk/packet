@@ -6,4 +6,9 @@
     <file compressed="true" preprocess="xml-stripblanks">ui/window.ui</file>
     <file compressed="true">style.css</file>
   </gresource>
+
+  <gresource prefix="/io/github/nozwock/QuickShare/icons/scalable/actions/">
+    <file preprocess="xml-stripblanks" alias="vertical-arrows-long-down-symbolic.svg">../icons/actions/vertical-arrows-long-down-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="vertical-arrows-long-up-symbolic.svg">../icons/actions/vertical-arrows-long-up-symbolic.svg</file>
+  </gresource>
 </gresources>

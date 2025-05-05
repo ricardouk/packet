@@ -1,5 +1,7 @@
 use adw::prelude::*;
 use adw::subclass::prelude::*;
+use gettextrs::gettext;
+use gtk::glib::clone;
 use gtk::{gio, glib};
 
 use crate::application::QuickShareApplication;
@@ -16,6 +18,29 @@ mod imp {
 
         #[template_child]
         pub root_stack: TemplateChild<gtk::Stack>,
+        #[template_child]
+        pub transfer_kind_view_stack: TemplateChild<adw::ViewStack>,
+        #[template_child]
+        pub transfer_kind_nav_view: TemplateChild<adw::NavigationView>,
+
+        #[template_child]
+        pub receive_stack: TemplateChild<gtk::Stack>,
+        #[template_child]
+        pub receive_request_listbox: TemplateChild<gtk::ListBox>,
+        #[template_child]
+        pub send_stack: TemplateChild<gtk::Stack>,
+        #[template_child]
+        pub nearby_devices_listbox: TemplateChild<gtk::ListBox>,
+
+        #[template_child]
+        pub device_name_entry: TemplateChild<adw::EntryRow>,
+        #[template_child]
+        pub device_visibility_switch: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub receive_idle_status_page: TemplateChild<adw::StatusPage>,
+
+        #[template_child]
+        pub test_cycle_pages_button: TemplateChild<gtk::Button>,
     }
 
     #[glib::object_subclass]
@@ -110,6 +135,206 @@ impl QuickShareApplicationWindow {
         let imp = self.imp();
 
         let root_stack = imp.root_stack.get();
-        // root_stack.set_visible_child_name("main_page");
+        root_stack.set_visible_child_name("main_page");
+
+        // imp.transfer_kind_nav_view.get().push_by_tag("transfer_history_page");
+
+        // FIXME: Setup initial device name using https://docs.rs/whoami/latest/whoami/
+        // Later, store the name as preference and restore it on app start
+        // let device_name_entry = imp.device_name_entry.get();
+        // device_name_entry.set_text("");
+
+        // FIXME: remove test code
+        let receive_stack = imp.receive_stack.get();
+        let send_stack = imp.send_stack.get();
+        imp.test_cycle_pages_button.get().connect_clicked(clone!(
+            #[weak]
+            imp,
+            #[weak]
+            receive_stack,
+            #[weak]
+            send_stack,
+            move |_| {
+                match imp
+                    .transfer_kind_view_stack
+                    .get()
+                    .visible_child_name()
+                    .unwrap()
+                    .as_str()
+                {
+                    "receive" => {
+                        if receive_stack.visible_child_name().unwrap() == "receive_idle_status_page"
+                        {
+                            receive_stack.set_visible_child_name("receive_request_page");
+                        } else {
+                            receive_stack.set_visible_child_name("receive_idle_status_page");
+                        }
+                    }
+                    "send" => {
+                        if send_stack.visible_child_name().unwrap()
+                            == "send_select_files_status_page"
+                        {
+                            send_stack.set_visible_child_name("send_nearby_devices_page");
+                        } else {
+                            send_stack.set_visible_child_name("send_select_files_status_page");
+                        }
+                    }
+                    _ => {
+                        unreachable!();
+                    }
+                };
+            }
+        ));
+
+        fn icon_info_card(title: &str, caption: &str) -> gtk::Box {
+            // `card` style will be applied with `boxed-list-separate` on ListBox
+            let root_card_box = gtk::Box::builder()
+                .orientation(gtk::Orientation::Vertical)
+                // v/h-align would prevent the card from expanding when space is available
+                // .valign(gtk::Align::Center)
+                // .halign(gtk::Align::Center)
+                // .css_classes(["card"])
+                .build();
+
+            let main_box = gtk::Box::builder()
+                .orientation(gtk::Orientation::Vertical)
+                .margin_start(18)
+                .margin_end(18)
+                .margin_top(18)
+                .margin_bottom(18)
+                .spacing(12)
+                .build();
+            root_card_box.append(&main_box);
+
+            let top_box = gtk::Box::builder().spacing(24).build();
+            main_box.append(&top_box);
+
+            let device_icon_image = gtk::Image::builder()
+                .icon_name("preferences-system-network-symbolic")
+                .icon_size(gtk::IconSize::Large)
+                .build();
+            top_box.append(&device_icon_image);
+
+            let label_box = gtk::Box::builder()
+                .orientation(gtk::Orientation::Vertical)
+                .spacing(6)
+                .build();
+            top_box.append(&label_box);
+
+            let title_label = gtk::Label::builder()
+                .halign(gtk::Align::Start)
+                .label(title)
+                .css_classes(["title-4"])
+                .build();
+            let caption_label = gtk::Label::builder()
+                .halign(gtk::Align::Start)
+                .label(caption)
+                .css_classes(["caption"])
+                .build();
+            label_box.append(&title_label);
+            label_box.append(&caption_label);
+
+            root_card_box
+        }
+
+        fn share_request_card(title: &str, caption: &str) -> gtk::Box {
+            // FIXME: UI for request pin code
+            let root_card_box = icon_info_card(title, caption);
+            let main_box = root_card_box
+                .first_child()
+                .and_downcast::<gtk::Box>()
+                .unwrap();
+
+            let button_box = gtk::Box::builder()
+                // Let the buttons expand, they look weird when always compact,
+                // leads to too much empty space in the card
+                // .halign(gtk::Align::Center)
+                .spacing(12)
+                .build();
+            main_box.append(&button_box);
+
+            let decline_button = gtk::Button::builder()
+                .hexpand(true)
+                .can_shrink(false)
+                .label(gettext("Decline"))
+                .css_classes(["pill"])
+                .build();
+            let accept_button = gtk::Button::builder()
+                .hexpand(true)
+                .can_shrink(false)
+                .label(gettext("Accept"))
+                .css_classes(["pill", "suggested-action"])
+                .build();
+            button_box.append(&decline_button);
+            button_box.append(&accept_button);
+
+            root_card_box
+        }
+
+        fn send_to_nearby_device_card(title: &str, caption: &str) -> gtk::Box {
+            let root_card_box = icon_info_card(title, caption);
+            let main_box = root_card_box
+                .first_child()
+                .and_downcast::<gtk::Box>()
+                .unwrap();
+
+            let button_box = gtk::Box::builder()
+                // Let the buttons expand, they look weird when always compact,
+                // leads to too much empty space in the card
+                // .halign(gtk::Align::Center)
+                .spacing(12)
+                .build();
+            main_box.append(&button_box);
+
+            let accept_button = gtk::Button::builder()
+                .hexpand(true)
+                .can_shrink(false)
+                .label(gettext("Send"))
+                .css_classes(["pill", "suggested-action"])
+                .build();
+            button_box.append(&accept_button);
+
+            root_card_box
+        }
+
+        // FIXME: remove test code
+        imp.receive_request_listbox
+            .get()
+            .append(&share_request_card("Device 1", "Wants to share 4 files"));
+        imp.receive_request_listbox
+            .get()
+            .append(&share_request_card("Device 3", "Wants to share 2 files"));
+
+        imp.nearby_devices_listbox
+            .get()
+            .append(&send_to_nearby_device_card(
+                "Device 1",
+                "Send selected files to Device 1",
+            ));
+        imp.nearby_devices_listbox
+            .get()
+            .append(&send_to_nearby_device_card(
+                "Device 3",
+                "Send selected files to Device 3",
+            ));
+
+        let device_visibility_switch = imp.device_visibility_switch.get();
+        device_visibility_switch.connect_active_notify(clone!(
+            #[weak]
+            imp,
+            move |obj| {
+                let receive_idle_status_page = imp.receive_idle_status_page.get();
+                if obj.is_active() {
+                    receive_idle_status_page.set_title(&gettext("Ready to receive"));
+                    receive_idle_status_page.set_icon_name(Some("network-receive-symbolic"));
+                    receive_idle_status_page
+                        .set_description(Some(&gettext("Waiting for share requests")));
+                } else {
+                    receive_idle_status_page.set_title(&gettext("Not ready to receive"));
+                    receive_idle_status_page.set_icon_name(Some("network-offline-symbolic"));
+                    receive_idle_status_page.set_description(None);
+                }
+            }
+        ));
     }
 }
