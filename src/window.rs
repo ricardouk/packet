@@ -139,10 +139,9 @@ impl QuickShareApplicationWindow {
 
         // imp.transfer_kind_nav_view.get().push_by_tag("transfer_history_page");
 
-        // FIXME: Setup initial device name using https://docs.rs/whoami/latest/whoami/
-        // Later, store the name as preference and restore it on app start
-        // let device_name_entry = imp.device_name_entry.get();
-        // device_name_entry.set_text("");
+        // FIXME: Keep the device name stored as preference and restore it on app start
+        let device_name_entry = imp.device_name_entry.get();
+        device_name_entry.set_text(&whoami::devicename());
 
         // FIXME: remove test code
         let receive_stack = imp.receive_stack.get();
