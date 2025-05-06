@@ -5,13 +5,22 @@ mod window;
 
 use gettextrs::{gettext, LocaleCategory};
 use gtk::{gio, glib};
+use tracing::level_filters::LevelFilter;
+use tracing_subscriber::EnvFilter;
 
 use self::application::QuickShareApplication;
 use self::config::{GETTEXT_PACKAGE, LOCALEDIR, RESOURCES_FILE};
 
 fn main() -> glib::ExitCode {
     // Initialize logger
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            EnvFilter::builder()
+                .with_default_directive(LevelFilter::DEBUG.into())
+                .from_env_lossy()
+                .add_directive("rqs_lib=debug".parse().unwrap()),
+        )
+        .init();
 
     // Prepare i18n
     gettextrs::setlocale(LocaleCategory::LcAll, "");
@@ -25,4 +34,10 @@ fn main() -> glib::ExitCode {
 
     let app = QuickShareApplication::default();
     app.run()
+}
+
+pub fn tokio_runtime() -> &'static tokio::runtime::Runtime {
+    use std::sync::OnceLock;
+    static RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
+    RUNTIME.get_or_init(|| tokio::runtime::Runtime::new().expect("Couldn't get tokio runtime"))
 }

@@ -1,3 +1,7 @@
+use std::cell::RefCell;
+use std::path::PathBuf;
+use std::sync::Arc;
+
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
@@ -6,8 +10,14 @@ use gtk::{gio, glib};
 
 use crate::application::QuickShareApplication;
 use crate::config::{APP_ID, PROFILE};
+use crate::tokio_runtime;
 
 mod imp {
+    use std::{
+        cell::RefCell,
+        sync::{Arc, Mutex},
+    };
+
     use super::*;
 
     #[derive(Debug, gtk::CompositeTemplate, better_default::Default)]
@@ -41,6 +51,12 @@ mod imp {
 
         #[template_child]
         pub test_cycle_pages_button: TemplateChild<gtk::Button>,
+
+        pub rqs: Arc<tokio::sync::Mutex<Option<rqs_lib::RQS>>>,
+        pub file_sender: RefCell<Option<tokio::sync::mpsc::Sender<rqs_lib::SendInfo>>>,
+        pub ble_receiver: RefCell<Option<tokio::sync::broadcast::Receiver<()>>>,
+        pub mdns_discovery_broadcast_tx:
+            Arc<tokio::sync::Mutex<Option<tokio::sync::broadcast::Sender<rqs_lib::EndpointInfo>>>>,
     }
 
     #[glib::object_subclass]
@@ -82,6 +98,19 @@ mod imp {
             if let Err(err) = self.obj().save_window_size() {
                 tracing::warn!("Failed to save window state, {}", &err);
             }
+
+            let (tx, rx) = async_channel::bounded(1);
+            tokio_runtime().spawn(clone!(
+                #[weak(rename_to = rqs)]
+                self.rqs,
+                async move {
+                    rqs.lock().await.as_mut().unwrap().stop().await;
+                    tracing::info!("Stopped RQS service");
+                    tx.send(()).await.unwrap();
+                }
+            ));
+
+            rx.recv_blocking().unwrap();
 
             // Pass close request on to the parent
             self.parent_close_request()
@@ -134,14 +163,183 @@ impl QuickShareApplicationWindow {
     fn setup_ui(&self) {
         let imp = self.imp();
 
-        let root_stack = imp.root_stack.get();
-        root_stack.set_visible_child_name("main_page");
-
         // imp.transfer_kind_nav_view.get().push_by_tag("transfer_history_page");
 
         // FIXME: Keep the device name stored as preference and restore it on app start
         let device_name_label = imp.device_name_label.get();
         device_name_label.set_subtitle(&whoami::devicename());
+
+        let (tx, rx) = async_channel::bounded(1);
+        tokio_runtime().spawn(async move {
+            tracing::info!("Starting RQS service");
+
+            // FIXME: Allow setting a const port number in app preferences
+            // and, download_path
+            let mut rqs = rqs_lib::RQS::new(
+                rqs_lib::Visibility::Visible,
+                None,
+                Some(PathBuf::from("/tmp")),
+            );
+
+            let (file_sender, ble_receiver) = rqs.run().await.unwrap();
+
+            tx.send((rqs, file_sender, ble_receiver)).await.unwrap();
+        });
+        glib::spawn_future_local(clone!(
+            #[weak]
+            imp,
+            async move {
+                let (rqs, file_sender, ble_receiver) = rx.recv().await.unwrap();
+                *imp.rqs.lock().await = Some(rqs);
+                *imp.file_sender.borrow_mut() = Some(file_sender);
+                *imp.ble_receiver.borrow_mut() = Some(ble_receiver);
+
+                let (mdns_discovery_broadcast_tx, _) =
+                    tokio::sync::broadcast::channel::<rqs_lib::EndpointInfo>(10);
+                *imp.mdns_discovery_broadcast_tx.lock().await = Some(mdns_discovery_broadcast_tx);
+
+                tracing::debug!("Fetched RQS instance after run()");
+
+                imp.device_visibility_switch.set_active(true);
+                imp.root_stack.get().set_visible_child_name("main_page");
+
+                spawn_rqs_receiver_tasks(&imp);
+            }
+        ));
+
+        fn spawn_rqs_receiver_tasks(imp: &imp::QuickShareApplicationWindow) {
+            tokio_runtime().spawn(clone!(
+                #[weak(rename_to = rqs)]
+                imp.rqs,
+                async move {
+                    let mut rx = rqs
+                        .lock()
+                        .await
+                        .as_ref()
+                        .expect("State must be set")
+                        .message_sender
+                        .subscribe();
+
+                    loop {
+                        match rx.recv().await {
+                            Ok(channel_message) => {
+                                if channel_message
+                                    .state
+                                    .as_ref()
+                                    .unwrap_or(&rqs_lib::State::Initial)
+                                    == &rqs_lib::State::WaitingForUserConsent
+                                {
+                                    let name = channel_message
+                                        .meta
+                                        .as_ref()
+                                        .and_then(|meta| meta.source.as_ref())
+                                        .map(|source| source.name.clone())
+                                        .unwrap_or_else(|| "Unknown".to_string());
+
+                                    tracing::info!(
+                                        ?channel_message,
+                                        "{name} wants to start a transfer"
+                                    );
+
+                                    // FIXME:
+                                    // send_request_notification(name, channel_msg.id.clone(), &capp_handle);
+                                }
+                            }
+                            Err(e) => {
+                                tracing::error!(%e)
+                            }
+                        };
+                    }
+                }
+            ));
+
+            // MDNS discovery receiver
+            // The Sender used in RQS::discovery()
+            tokio_runtime().spawn(clone!(
+                #[weak(rename_to = mdns_discovery_broadcast_tx)]
+                imp.mdns_discovery_broadcast_tx,
+                #[weak(rename_to = rqs)]
+                imp.rqs,
+                async move {
+                    let mdns_discovery_broadcast_tx = mdns_discovery_broadcast_tx
+                        .lock()
+                        .await
+                        .as_ref()
+                        .unwrap()
+                        .clone();
+                    let mut mdns_discovery_rx = mdns_discovery_broadcast_tx.subscribe();
+
+                    // FIXME: Start this when a file is selected for the first time
+                    // Start discovery
+                    rqs.lock()
+                        .await
+                        .as_mut()
+                        .unwrap()
+                        .discovery(mdns_discovery_broadcast_tx)
+                        .unwrap();
+
+                    loop {
+                        match mdns_discovery_rx.recv().await {
+                            Ok(endpoint_info) => {
+                                // FIXME: Handle discovered devices to share files to
+                                tracing::debug!(?endpoint_info);
+                            }
+                            Err(e) => {
+                                tracing::error!(%e,"MDNS discovery error");
+                            }
+                        }
+                    }
+                }
+            ));
+
+            tokio_runtime().spawn(clone!(
+                #[weak(rename_to = rqs)]
+                imp.rqs,
+                async move {
+                    let mut visibility_receiver = rqs
+                        .lock()
+                        .await
+                        .as_ref()
+                        .expect("State must be set")
+                        .visibility_sender
+                        .lock()
+                        .unwrap()
+                        .subscribe();
+
+                    loop {
+                        match visibility_receiver.changed().await {
+                            Ok(_) => {
+                                // FIXME: update visibility in UI?
+                                let visibility = visibility_receiver.borrow_and_update();
+                                tracing::debug!(?visibility, "Visibility change");
+                            }
+                            Err(e) => {
+                                tracing::error!(%e,"Visibility watcher error");
+                            }
+                        }
+                    }
+                }
+            ));
+
+            let mut ble_receiver = imp.ble_receiver.borrow().as_ref().unwrap().resubscribe();
+            tokio_runtime().spawn(async move {
+                // let mut last_sent = std::time::Instant::now() - std::time::Duration::from_secs(120);
+                loop {
+                    match ble_receiver.recv().await {
+                        Ok(_) => {
+                            // let is_visible = device_visibility_switch.is_active();
+                            // FIXME: get visibility via a channel
+                            // and temporarily make device visible
+
+                            tracing::debug!("Received BLE")
+                        }
+                        Err(e) => {
+                            tracing::error!(%e,"Error receiving BLE");
+                        }
+                    }
+                }
+            });
+        }
 
         // FIXME: remove test code
         let receive_stack = imp.receive_stack.get();
