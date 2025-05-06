@@ -37,13 +37,21 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
     }
 
     Stack root_stack {
+        transition-type: crossfade;
+
         StackPage {
             name: "loading_service_page";
             title: _("QuickShare");
 
             child: Adw.ToolbarView {
                 [top]
-                Adw.HeaderBar {}
+                Adw.HeaderBar {
+                    [end]
+                    Button {
+                        icon-name: "help-about-symbolic";
+                        action-name: "app.about";
+                    }
+                }
 
                 Adw.StatusPage {
                     vexpand: true;
