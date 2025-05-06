@@ -33,7 +33,7 @@ mod imp {
         pub nearby_devices_listbox: TemplateChild<gtk::ListBox>,
 
         #[template_child]
-        pub device_name_entry: TemplateChild<adw::EntryRow>,
+        pub device_name_label: TemplateChild<adw::ActionRow>,
         #[template_child]
         pub device_visibility_switch: TemplateChild<adw::SwitchRow>,
         #[template_child]
@@ -140,8 +140,8 @@ impl QuickShareApplicationWindow {
         // imp.transfer_kind_nav_view.get().push_by_tag("transfer_history_page");
 
         // FIXME: Keep the device name stored as preference and restore it on app start
-        let device_name_entry = imp.device_name_entry.get();
-        device_name_entry.set_text(&whoami::devicename());
+        let device_name_label = imp.device_name_label.get();
+        device_name_label.set_subtitle(&whoami::devicename());
 
         // FIXME: remove test code
         let receive_stack = imp.receive_stack.get();
