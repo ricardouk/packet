@@ -47,7 +47,7 @@ mod imp {
         #[template_child]
         pub send_file_transfer_listbox: TemplateChild<gtk::ListBox>,
         #[template_child]
-        pub loading_nearby_devices_spinner: TemplateChild<adw::Spinner>,
+        pub loading_nearby_devices_box: TemplateChild<gtk::Box>,
 
         #[template_child]
         pub device_name_label: TemplateChild<adw::ActionRow>,
@@ -761,12 +761,11 @@ impl QuickShareApplicationWindow {
                             }
                         }
 
-                        let loading_nearby_devices_spinner =
-                            imp.loading_nearby_devices_spinner.get();
+                        let loading_nearby_devices_box = imp.loading_nearby_devices_box.get();
                         if imp.send_file_transfer_model.n_items() == 0 {
-                            loading_nearby_devices_spinner.set_visible(true);
+                            loading_nearby_devices_box.set_visible(true);
                         } else {
-                            loading_nearby_devices_spinner.set_visible(false);
+                            loading_nearby_devices_box.set_visible(false);
                         }
                     }
                 }

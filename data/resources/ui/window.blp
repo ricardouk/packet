@@ -365,6 +365,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                                                 Box {
                                                                     orientation: vertical;
                                                                     spacing: 12;
+                                                                    hexpand: true;
 
                                                                     Label {
                                                                         margin-top: 12;
@@ -375,10 +376,21 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                                                         ]
                                                                     }
 
-                                                                    Adw.Spinner loading_nearby_devices_spinner {
+                                                                    Box loading_nearby_devices_box {
                                                                         // visibility is set when ListBox is empty
-                                                                        margin-top: 12;
-                                                                        height-request: 48;
+                                                                        orientation: vertical;
+                                                                        height-request: 150;
+                                                                        valign: center;
+                                                                        spacing: 12;
+
+                                                                        Label {
+                                                                            label: _("Looking for nearby devices...");
+                                                                        }
+
+                                                                        Adw.Spinner {
+                                                                            margin-top: 24;
+                                                                            height-request: 48;
+                                                                        }
                                                                     }
 
                                                                     ListBox send_file_transfer_listbox {
