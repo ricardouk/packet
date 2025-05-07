@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
+use formatx::formatx;
 use gettextrs::{gettext, ngettext};
 use gtk::glib::clone;
 use gtk::{gio, glib};
@@ -211,12 +212,12 @@ impl QuickShareApplicationWindow {
                                     .set_visible_child_name("send_nearby_devices_page");
 
                                 let title_fmt = ngettext(
-                                    "One file is ready to send",
-                                    "files are ready to send",
+                                    "{} file is ready to send",
+                                    "{} files are ready to send",
                                     files.n_items(),
                                 );
                                 let title = if files.n_items() > 1 {
-                                    format!("{} {}", files.n_items(), title_fmt)
+                                    formatx!(&title_fmt, files.n_items()).unwrap_or_default()
                                 } else {
                                     title_fmt
                                 };
@@ -310,12 +311,16 @@ impl QuickShareApplicationWindow {
 
                     let file_count = file_transfer_state.filenames().len();
                     (
-                        format!(
-                            "{} {} {file_count} {}",
-                            device_name,
-                            gettext("wants to share"),
-                            ngettext("file", "files", file_count as u32)
-                        ),
+                        formatx!(
+                            ngettext(
+                                "{} wants to share {} file",
+                                "{} wants to share {} files",
+                                file_count as u32
+                            ),
+                            &device_name,
+                            file_count
+                        )
+                        .unwrap_or_default(),
                         device_name,
                     )
                 }
@@ -330,12 +335,15 @@ impl QuickShareApplicationWindow {
                     // FIXME: there's probably a better way to do this right?
                     // As it is, translators might have issues translating this due to loss of context
                     (
-                        format!(
-                            "{} {file_count} {} {}",
-                            gettext("Ready to share"),
-                            ngettext("file", "files", file_count as u32),
-                            gettext("to this device")
-                        ),
+                        formatx!(
+                            ngettext(
+                                "Ready to share {} file to this device",
+                                "Ready to share {} files to this device",
+                                file_count as u32
+                            ),
+                            file_count
+                        )
+                        .unwrap_or_default(),
                         device_name,
                     )
                 }
