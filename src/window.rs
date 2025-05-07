@@ -303,7 +303,7 @@ impl QuickShareApplicationWindow {
         ) -> adw::Bin {
             // FIXME: UI for request pin code
 
-            let (caption, device_name) = match dbg!(file_transfer_state.transfer_kind()) {
+            let (caption, title) = match dbg!(file_transfer_state.transfer_kind()) {
                 TransferKind::Receive => {
                     let device_name = file_transfer::ChannelMessage::get_device_name(
                         &file_transfer_state.channel_message().0,
@@ -349,12 +349,53 @@ impl QuickShareApplicationWindow {
                 }
             };
 
-            let root_card_box = create_file_transfer_card_base(dbg!(&device_name), &dbg!(caption));
+            // `card` style will be applied with `boxed-list-separate` on ListBox
+            let root_card_box = gtk::Box::builder()
+                .orientation(gtk::Orientation::Vertical)
+                // v/h-align would prevent the card from expanding when space is available
+                // .valign(gtk::Align::Center)
+                // .halign(gtk::Align::Center)
+                // .css_classes(["card"])
+                .build();
 
-            let main_box = root_card_box
-                .first_child()
-                .and_downcast::<gtk::Box>()
-                .unwrap();
+            let main_box = gtk::Box::builder()
+                .orientation(gtk::Orientation::Vertical)
+                .margin_start(18)
+                .margin_end(18)
+                .margin_top(18)
+                .margin_bottom(18)
+                .spacing(12)
+                .build();
+            root_card_box.append(&main_box);
+
+            let top_box = gtk::Box::builder().spacing(18).build();
+            main_box.append(&top_box);
+
+            // `object-select-symbolic` for success status icon
+            let device_icon_image = adw::Avatar::builder()
+                .icon_name("preferences-system-network-symbolic")
+                .size(48)
+                .build();
+            top_box.append(&device_icon_image);
+
+            let label_box = gtk::Box::builder()
+                .orientation(gtk::Orientation::Vertical)
+                .spacing(6)
+                .build();
+            top_box.append(&label_box);
+
+            let title_label = gtk::Label::builder()
+                .halign(gtk::Align::Start)
+                .label(title)
+                .css_classes(["title-4"])
+                .build();
+            let caption_label = gtk::Label::builder()
+                .halign(gtk::Align::Start)
+                .label(caption)
+                .css_classes(["caption"])
+                .build();
+            label_box.append(&title_label);
+            label_box.append(&caption_label);
 
             match file_transfer_state.transfer_kind() {
                 TransferKind::Receive => {
@@ -444,92 +485,6 @@ impl QuickShareApplicationWindow {
                 };
             }
         ));
-
-        fn create_file_transfer_card_base(title: &str, caption: &str) -> gtk::Box {
-            // `card` style will be applied with `boxed-list-separate` on ListBox
-            let root_card_box = gtk::Box::builder()
-                .orientation(gtk::Orientation::Vertical)
-                // v/h-align would prevent the card from expanding when space is available
-                // .valign(gtk::Align::Center)
-                // .halign(gtk::Align::Center)
-                // .css_classes(["card"])
-                .build();
-
-            let main_box = gtk::Box::builder()
-                .orientation(gtk::Orientation::Vertical)
-                .margin_start(18)
-                .margin_end(18)
-                .margin_top(18)
-                .margin_bottom(18)
-                .spacing(12)
-                .build();
-            root_card_box.append(&main_box);
-
-            let top_box = gtk::Box::builder().spacing(18).build();
-            main_box.append(&top_box);
-
-            // `object-select-symbolic` for success status icon
-            let device_icon_image = adw::Avatar::builder()
-                .icon_name("preferences-system-network-symbolic")
-                .size(48)
-                .build();
-            top_box.append(&device_icon_image);
-
-            let label_box = gtk::Box::builder()
-                .orientation(gtk::Orientation::Vertical)
-                .spacing(6)
-                .build();
-            top_box.append(&label_box);
-
-            let title_label = gtk::Label::builder()
-                .halign(gtk::Align::Start)
-                .label(title)
-                .css_classes(["title-4"])
-                .build();
-            let caption_label = gtk::Label::builder()
-                .halign(gtk::Align::Start)
-                .label(caption)
-                .css_classes(["caption"])
-                .build();
-            label_box.append(&title_label);
-            label_box.append(&caption_label);
-
-            root_card_box
-        }
-
-        fn share_request_card(title: &str, caption: &str) -> gtk::Box {
-            // FIXME: UI for request pin code
-            let root_card_box = create_file_transfer_card_base(title, caption);
-            let main_box = root_card_box
-                .first_child()
-                .and_downcast::<gtk::Box>()
-                .unwrap();
-
-            let button_box = gtk::Box::builder()
-                // Let the buttons expand, they look weird when always compact,
-                // leads to too much empty space in the card
-                // .halign(gtk::Align::Center)
-                .spacing(12)
-                .build();
-            main_box.append(&button_box);
-
-            let decline_button = gtk::Button::builder()
-                .hexpand(true)
-                .can_shrink(false)
-                .label(gettext("Decline"))
-                .css_classes(["pill"])
-                .build();
-            let accept_button = gtk::Button::builder()
-                .hexpand(true)
-                .can_shrink(false)
-                .label(gettext("Accept"))
-                .css_classes(["pill", "suggested-action"])
-                .build();
-            button_box.append(&decline_button);
-            button_box.append(&accept_button);
-
-            root_card_box
-        }
 
         let device_visibility_switch = imp.device_visibility_switch.get();
         device_visibility_switch.connect_active_notify(clone!(
