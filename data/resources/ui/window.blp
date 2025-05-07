@@ -169,6 +169,8 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                         icon-name: "vertical-arrows-long-up-symbolic";
 
                                         child: Stack receive_stack {
+                                            transition-type: crossfade;
+
                                             StackPage {
                                                 name: "receive_idle_status_page";
 
@@ -236,6 +238,8 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                         icon-name: "vertical-arrows-long-down-symbolic";
 
                                         child: Stack send_stack {
+                                            transition-type: crossfade;
+
                                             StackPage {
                                                 name: "send_select_files_status_page";
 
@@ -294,7 +298,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                                                     ]
                                                                 }
 
-                                                                Box selected_files_box_card {
+                                                                Box selected_files_card {
                                                                     orientation: vertical;
 
                                                                     styles [
@@ -321,18 +325,19 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                                                                 orientation: vertical;
                                                                                 spacing: 6;
 
-                                                                                Label {
+                                                                                Label selected_files_card_title {
                                                                                     halign: start;
-                                                                                    label: _("5 Files are ready to send");
 
                                                                                     styles [
                                                                                         "title-4",
                                                                                     ]
                                                                                 }
 
-                                                                                Label {
+                                                                                Label selected_files_card_caption {
                                                                                     halign: start;
-                                                                                    label: _("File 1, File 2, File 3, File 4, File 5");
+                                                                                    wrap: true;
+                                                                                    ellipsize: end;
+                                                                                    max-width-chars: 100;
 
                                                                                     styles [
                                                                                         "caption",
@@ -344,7 +349,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                                                         Box {
                                                                             spacing: 12;
 
-                                                                            Button {
+                                                                            Button selected_files_card_cancel_button {
                                                                                 hexpand: true;
                                                                                 can-shrink: false;
                                                                                 label: _("Cancel");

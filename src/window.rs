@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
-use gettextrs::gettext;
+use gettextrs::{gettext, ngettext};
 use gtk::glib::clone;
 use gtk::{gio, glib};
 
@@ -15,6 +15,7 @@ use crate::tokio_runtime;
 mod imp {
     use std::{
         cell::RefCell,
+        rc::Rc,
         sync::{Arc, Mutex},
     };
 
@@ -40,7 +41,15 @@ mod imp {
         #[template_child]
         pub send_stack: TemplateChild<gtk::Stack>,
         #[template_child]
+        pub send_select_files_button: TemplateChild<gtk::Button>,
+        #[template_child]
         pub nearby_devices_listbox: TemplateChild<gtk::ListBox>,
+        #[template_child]
+        pub selected_files_card_title: TemplateChild<gtk::Label>,
+        #[template_child]
+        pub selected_files_card_caption: TemplateChild<gtk::Label>,
+        #[template_child]
+        pub selected_files_card_cancel_button: TemplateChild<gtk::Button>,
 
         #[template_child]
         pub device_name_label: TemplateChild<adw::ActionRow>,
@@ -57,6 +66,8 @@ mod imp {
         pub ble_receiver: RefCell<Option<tokio::sync::broadcast::Receiver<()>>>,
         pub mdns_discovery_broadcast_tx:
             Arc<tokio::sync::Mutex<Option<tokio::sync::broadcast::Sender<rqs_lib::EndpointInfo>>>>,
+
+        pub selected_files_to_send: Rc<RefCell<Vec<PathBuf>>>,
     }
 
     #[glib::object_subclass]
@@ -169,6 +180,84 @@ impl QuickShareApplicationWindow {
         // FIXME: Keep the device name stored as preference and restore it on app start
         let device_name_label = imp.device_name_label.get();
         device_name_label.set_subtitle(&whoami::devicename());
+
+        // FIXME: implement send page's select drop zone
+        imp.send_select_files_button.connect_clicked(clone!(
+            #[weak]
+            imp,
+            move |_| {
+                gtk::FileDialog::new().open_multiple(
+                    imp.obj()
+                        .root()
+                        .and_downcast_ref::<adw::ApplicationWindow>(),
+                    None::<&gio::Cancellable>,
+                    move |files| {
+                        // FIXME: abstract this away into a reusable function
+                        // since this'll be called from both the button and drop zone
+                        // Maybe have it as a action later
+
+                        if let Ok(files) = files {
+                            if files.n_items() == 0 {
+                                // FIXME: Show toast about not being able to access files
+                            } else {
+                                // FIXME: Start MDNS discovery here once a file is selected for the first time?
+                                imp.send_stack
+                                    .get()
+                                    .set_visible_child_name("send_nearby_devices_page");
+
+                                let title_fmt = ngettext(
+                                    "One file is ready to send",
+                                    "files are ready to send",
+                                    files.n_items(),
+                                );
+                                let title = if files.n_items() > 1 {
+                                    format!("{} {}", files.n_items(), title_fmt)
+                                } else {
+                                    title_fmt
+                                };
+
+                                imp.selected_files_card_title.get().set_label(&title);
+
+                                imp.selected_files_to_send.as_ref().borrow_mut().clear();
+                                for i in 0..files.n_items() {
+                                    let file =
+                                        files.item(i).unwrap().downcast::<gio::File>().unwrap();
+
+                                    tracing::info!(file = ?file.path(), "Selected file");
+                                    if let Some(path) = file.path() {
+                                        imp.selected_files_to_send.as_ref().borrow_mut().push(path);
+                                    }
+                                }
+
+                                imp.selected_files_card_caption.get().set_label(
+                                    &imp.selected_files_to_send
+                                        .as_ref()
+                                        .borrow()
+                                        .iter()
+                                        .map(|it| {
+                                            it.file_name().and_then(|it| Some(it.to_string_lossy()))
+                                        })
+                                        .flatten()
+                                        .collect::<Vec<_>>()
+                                        .join(", "),
+                                );
+                            }
+                        };
+                    },
+                );
+            }
+        ));
+        imp.selected_files_card_cancel_button
+            .connect_clicked(clone!(
+                #[weak]
+                imp,
+                move |_| {
+                    imp.send_stack
+                        .get()
+                        .set_visible_child_name("send_select_files_status_page");
+                    imp.selected_files_to_send.as_ref().borrow_mut().clear();
+                }
+            ));
 
         // FIXME: remove test code
         let receive_stack = imp.receive_stack.get();
