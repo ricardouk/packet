@@ -1,5 +1,6 @@
 use adw::prelude::*;
 use adw::subclass::prelude::*;
+use gettextrs::gettext;
 use gtk::glib;
 
 use crate::impl_deref_for_newtype;
@@ -13,6 +14,22 @@ impl_deref_for_newtype!(State, rqs_lib::State);
 #[boxed_type(name = "EndpointInfoBoxed")]
 pub struct EndpointInfo(pub rqs_lib::EndpointInfo);
 impl_deref_for_newtype!(EndpointInfo, rqs_lib::EndpointInfo);
+
+#[derive(Debug, Clone, Default, glib::Boxed)]
+#[boxed_type(name = "ChannelMessageBoxed")]
+pub struct ChannelMessage(pub rqs_lib::channel::ChannelMessage);
+impl_deref_for_newtype!(ChannelMessage, rqs_lib::channel::ChannelMessage);
+
+impl ChannelMessage {
+    pub fn get_device_name(channel_message: &rqs_lib::channel::ChannelMessage) -> String {
+        channel_message
+            .meta
+            .as_ref()
+            .and_then(|meta| meta.source.as_ref())
+            .map(|source| source.name.clone())
+            .unwrap_or(gettext("Unknown device"))
+    }
+}
 
 #[derive(Debug, Clone, Default, glib::Boxed)]
 #[boxed_type(name = "TransferKindBoxed")]
@@ -38,6 +55,8 @@ mod imp {
         transfer_state: RefCell<State>,
         #[property(get, set)]
         endpoint_info: RefCell<EndpointInfo>,
+        #[property(get, set)]
+        channel_message: RefCell<ChannelMessage>,
         #[property(get, set)]
         filenames: RefCell<Vec<String>>,
     }

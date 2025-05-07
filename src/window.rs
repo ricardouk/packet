@@ -32,7 +32,7 @@ mod imp {
         #[template_child]
         pub receive_stack: TemplateChild<gtk::Stack>,
         #[template_child]
-        pub receive_request_listbox: TemplateChild<gtk::ListBox>,
+        pub receive_file_transfer_listbox: TemplateChild<gtk::ListBox>,
         #[template_child]
         pub send_stack: TemplateChild<gtk::Stack>,
         #[template_child]
@@ -67,9 +67,12 @@ mod imp {
         pub selected_files_to_send: Rc<RefCell<Vec<PathBuf>>>,
 
         #[default(gio::ListStore::new::<FileTransferObject>())]
+        pub receive_file_transfer_model: gio::ListStore,
+        #[default(gio::ListStore::new::<FileTransferObject>())]
         pub send_file_transfer_model: gio::ListStore,
         pub active_discovered_endpoints:
             Arc<tokio::sync::Mutex<HashMap<String, FileTransferObject>>>,
+        pub active_file_requests: Arc<tokio::sync::Mutex<HashMap<String, FileTransferObject>>>,
     }
 
     #[glib::object_subclass]
@@ -277,37 +280,63 @@ impl QuickShareApplicationWindow {
             ),
         );
 
+        let receive_file_transfer_model = &imp.receive_file_transfer_model;
+        let receive_file_transfer_listbox = imp.receive_file_transfer_listbox.get();
+        receive_file_transfer_listbox.bind_model(
+            Some(receive_file_transfer_model),
+            clone!(
+                #[weak]
+                imp,
+                #[upgrade_or]
+                adw::Bin::new().into(),
+                move |obj| {
+                    let model_item = obj.downcast_ref::<FileTransferObject>().unwrap();
+                    create_file_transfer_card(&imp, model_item).into()
+                }
+            ),
+        );
+
         fn create_file_transfer_card(
             imp: &imp::QuickShareApplicationWindow,
             file_transfer_state: &FileTransferObject,
         ) -> adw::Bin {
             // FIXME: UI for request pin code
 
-            let device_name = file_transfer_state
-                .endpoint_info()
-                .name
-                .clone()
-                .unwrap_or("Unknown Device".into());
-
-            let caption = match dbg!(file_transfer_state.transfer_kind()) {
+            let (caption, device_name) = match dbg!(file_transfer_state.transfer_kind()) {
                 TransferKind::Receive => {
+                    let device_name = file_transfer::ChannelMessage::get_device_name(
+                        &file_transfer_state.channel_message().0,
+                    );
+
                     let file_count = file_transfer_state.filenames().len();
-                    format!(
-                        "{} {} {file_count} {}",
+                    (
+                        format!(
+                            "{} {} {file_count} {}",
+                            device_name,
+                            gettext("wants to share"),
+                            ngettext("file", "files", file_count as u32)
+                        ),
                         device_name,
-                        gettext("wants to share"),
-                        ngettext("file", "files", file_count as u32)
                     )
                 }
                 TransferKind::Send => {
+                    let device_name = file_transfer_state
+                        .endpoint_info()
+                        .name
+                        .clone()
+                        .unwrap_or(gettext("Unknown device").into());
+
                     let file_count = imp.selected_files_to_send.as_ref().borrow().len();
                     // FIXME: there's probably a better way to do this right?
                     // As it is, translators might have issues translating this due to loss of context
-                    format!(
-                        "{} {file_count} {} {}",
-                        gettext("Ready to share"),
-                        ngettext("file", "files", file_count as u32),
-                        gettext("to this device")
+                    (
+                        format!(
+                            "{} {file_count} {} {}",
+                            gettext("Ready to share"),
+                            ngettext("file", "files", file_count as u32),
+                            gettext("to this device")
+                        ),
+                        device_name,
                     )
                 }
             };
@@ -494,14 +523,6 @@ impl QuickShareApplicationWindow {
             root_card_box
         }
 
-        // FIXME: remove test code
-        imp.receive_request_listbox
-            .get()
-            .append(&share_request_card("Device 1", "Wants to share 4 files"));
-        imp.receive_request_listbox
-            .get()
-            .append(&share_request_card("Device 3", "Wants to share 2 files"));
-
         let device_visibility_switch = imp.device_visibility_switch.get();
         device_visibility_switch.connect_active_notify(clone!(
             #[weak]
@@ -567,6 +588,7 @@ impl QuickShareApplicationWindow {
         ));
 
         fn spawn_rqs_receiver_tasks(imp: &imp::QuickShareApplicationWindow) {
+            let (tx, rx) = async_channel::bounded(1);
             tokio_runtime().spawn(clone!(
                 #[weak(rename_to = rqs)]
                 imp.rqs,
@@ -588,19 +610,25 @@ impl QuickShareApplicationWindow {
                                     .unwrap_or(&rqs_lib::State::Initial)
                                     == &rqs_lib::State::WaitingForUserConsent
                                 {
-                                    let name = channel_message
-                                        .meta
-                                        .as_ref()
-                                        .and_then(|meta| meta.source.as_ref())
-                                        .map(|source| source.name.clone())
-                                        .unwrap_or_else(|| "Unknown".to_string());
+                                    let name = file_transfer::ChannelMessage::get_device_name(
+                                        &channel_message,
+                                    );
+
+                                    // FIXME: Not reacting to cancellation of transfer request by the sender itself
+                                    // We don't receive a cancelation message when the other device has cancelled
+                                    // their own request until the user "accepts" the request, after which the
+                                    // accept request gets rejected and then we get the cancellation message.
+                                    // But this is not how it's supposed to be, first party quickshare clients
+                                    // are able to figure out the cancellation, just not here... something's
+                                    // up in the lib.
 
                                     tracing::info!(
                                         ?channel_message,
                                         "{name} wants to start a transfer"
                                     );
+                                    tx.send(channel_message).await.unwrap();
 
-                                    // FIXME: Handle the transfer requests received here
+                                    // FIXME: Send desktop notification aswell
                                     // send_request_notification(name, channel_msg.id.clone(), &capp_handle);
                                 }
                             }
@@ -608,6 +636,67 @@ impl QuickShareApplicationWindow {
                                 tracing::error!(%err)
                             }
                         };
+                    }
+                }
+            ));
+            glib::spawn_future_local(clone!(
+                #[weak]
+                imp,
+                async move {
+                    loop {
+                        {
+                            let channel_message = rx.recv().await.unwrap();
+
+                            let mut active_file_requests = imp.active_file_requests.lock().await;
+                            if let Some(file_transfer) =
+                                active_file_requests.get(&channel_message.id)
+                            {
+                                // FIXME: Listen to channel_message updates
+                                // and update the UI accordingly
+
+                                // Update file request state
+                                file_transfer.set_filenames(
+                                    channel_message
+                                        .meta
+                                        .as_ref()
+                                        .unwrap()
+                                        .files
+                                        .as_ref()
+                                        .unwrap()
+                                        .clone(),
+                                );
+                                file_transfer.set_channel_message(file_transfer::ChannelMessage(
+                                    channel_message,
+                                ));
+                            } else {
+                                // Add new file request
+                                let obj = FileTransferObject::new(TransferKind::Receive);
+                                let id = channel_message.id.clone();
+                                obj.set_filenames(
+                                    channel_message
+                                        .meta
+                                        .as_ref()
+                                        .unwrap()
+                                        .files
+                                        .as_ref()
+                                        .unwrap()
+                                        .clone(),
+                                );
+                                obj.set_channel_message(file_transfer::ChannelMessage(
+                                    channel_message,
+                                ));
+                                imp.receive_file_transfer_model.append(&obj);
+                                active_file_requests.insert(id, obj);
+                            }
+                        }
+
+                        if imp.receive_file_transfer_model.n_items() == 0 {
+                            imp.receive_stack
+                                .set_visible_child_name("receive_idle_status_page");
+                        } else {
+                            imp.receive_stack
+                                .set_visible_child_name("receive_request_page");
+                        }
                     }
                 }
             ));
@@ -680,6 +769,9 @@ impl QuickShareApplicationWindow {
                                     file_transfer.set_endpoint_info(file_transfer::EndpointInfo(
                                         endpoint_info,
                                     ));
+
+                                    // FIXME: Listen to endpoint_info updates
+                                    // and update the UI accordingly
                                 }
                             } else {
                                 // Set new endpoint
