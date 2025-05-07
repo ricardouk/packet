@@ -527,15 +527,18 @@ impl QuickShareApplicationWindow {
 
         let (tx, rx) = async_channel::bounded(1);
         tokio_runtime().spawn(async move {
-            tracing::info!("Starting RQS service");
+            let download_path = directories::UserDirs::new()
+                .unwrap()
+                .download_dir()
+                .unwrap()
+                .to_path_buf();
+
+            tracing::info!(?download_path, "Starting RQS service");
 
             // FIXME: Allow setting a const port number in app preferences
             // and, download_path
-            let mut rqs = rqs_lib::RQS::new(
-                rqs_lib::Visibility::Visible,
-                None,
-                Some(PathBuf::from("/tmp")),
-            );
+            let mut rqs =
+                rqs_lib::RQS::new(rqs_lib::Visibility::Visible, None, Some(download_path));
 
             let (file_sender, ble_receiver) = rqs.run().await.unwrap();
 
