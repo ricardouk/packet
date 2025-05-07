@@ -211,16 +211,15 @@ impl QuickShareApplicationWindow {
                                     .get()
                                     .set_visible_child_name("send_nearby_devices_page");
 
-                                let title_fmt = ngettext(
-                                    "{} file is ready to send",
-                                    "{} files are ready to send",
-                                    files.n_items(),
-                                );
-                                let title = if files.n_items() > 1 {
-                                    formatx!(&title_fmt, files.n_items()).unwrap_or_default()
-                                } else {
-                                    title_fmt
-                                };
+                                let title = formatx!(
+                                    &ngettext(
+                                        "{} file is ready to send",
+                                        "{} files are ready to send",
+                                        files.n_items(),
+                                    ),
+                                    files.n_items()
+                                )
+                                .unwrap_or_default();
 
                                 imp.selected_files_card_title.get().set_label(&title);
 
