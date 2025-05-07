@@ -497,10 +497,22 @@ impl QuickShareApplicationWindow {
                     receive_idle_status_page.set_icon_name(Some("network-receive-symbolic"));
                     receive_idle_status_page
                         .set_description(Some(&gettext("Waiting for share requests")));
+                    imp.rqs
+                        .blocking_lock()
+                        .as_mut()
+                        .unwrap()
+                        .change_visibility(rqs_lib::Visibility::Visible);
                 } else {
                     receive_idle_status_page.set_title(&gettext("Not ready to receive"));
                     receive_idle_status_page.set_icon_name(Some("network-offline-symbolic"));
-                    receive_idle_status_page.set_description(None);
+                    receive_idle_status_page.set_description(Some(&gettext(
+                        "No longer broadcasting this device as available",
+                    )));
+                    imp.rqs
+                        .blocking_lock()
+                        .as_mut()
+                        .unwrap()
+                        .change_visibility(rqs_lib::Visibility::Invisible);
                 }
             }
         ));
@@ -584,6 +596,9 @@ impl QuickShareApplicationWindow {
                                     // But this is not how it's supposed to be, first party quickshare clients
                                     // are able to figure out the cancellation, just not here... something's
                                     // up in the lib.
+                                    //
+                                    // Lib has access to the event but it's not being exposed
+                                    // [log] rqs_lib::hdl::inbound: Transfer canceled
 
                                     tracing::info!(
                                         ?channel_message,
