@@ -533,8 +533,8 @@ impl QuickShareApplicationWindow {
                                     // send_request_notification(name, channel_msg.id.clone(), &capp_handle);
                                 }
                             }
-                            Err(e) => {
-                                tracing::error!(%e)
+                            Err(err) => {
+                                tracing::error!(%err)
                             }
                         };
                     }
@@ -572,8 +572,8 @@ impl QuickShareApplicationWindow {
                                 // FIXME: Handle discovered devices to share files to
                                 tracing::debug!(?endpoint_info);
                             }
-                            Err(e) => {
-                                tracing::error!(%e,"MDNS discovery error");
+                            Err(err) => {
+                                tracing::error!(%err,"MDNS discovery error");
                             }
                         }
                     }
@@ -601,8 +601,8 @@ impl QuickShareApplicationWindow {
                                 let visibility = visibility_receiver.borrow_and_update();
                                 tracing::debug!(?visibility, "Visibility change");
                             }
-                            Err(e) => {
-                                tracing::error!(%e,"Visibility watcher error");
+                            Err(err) => {
+                                tracing::error!(%err,"Visibility watcher error");
                             }
                         }
                     }
@@ -621,8 +621,8 @@ impl QuickShareApplicationWindow {
 
                             tracing::debug!("Received BLE")
                         }
-                        Err(e) => {
-                            tracing::error!(%e,"Error receiving BLE");
+                        Err(err) => {
+                            tracing::error!(%err,"Error receiving BLE");
                         }
                     }
                 }
