@@ -375,9 +375,13 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                                                         ]
                                                                     }
 
-                                                                    // FIXME: show some status page instead of ListBox
-                                                                    // when nearby_devices_listbox is empty
-                                                                    ListBox nearby_devices_listbox {
+                                                                    Adw.Spinner loading_nearby_devices_spinner {
+                                                                        // visibility is set when ListBox is empty
+                                                                        margin-top: 12;
+                                                                        height-request: 48;
+                                                                    }
+
+                                                                    ListBox send_file_transfer_listbox {
                                                                         selection-mode: none;
 
                                                                         styles [

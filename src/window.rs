@@ -1,6 +1,4 @@
-use std::cell::RefCell;
 use std::path::PathBuf;
-use std::sync::Arc;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
@@ -10,14 +8,11 @@ use gtk::{gio, glib};
 
 use crate::application::QuickShareApplication;
 use crate::config::{APP_ID, PROFILE};
+use crate::objects::file_transfer::{self, FileTransferObject, TransferKind};
 use crate::tokio_runtime;
 
 mod imp {
-    use std::{
-        cell::RefCell,
-        rc::Rc,
-        sync::{Arc, Mutex},
-    };
+    use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
     use super::*;
 
@@ -43,13 +38,15 @@ mod imp {
         #[template_child]
         pub send_select_files_button: TemplateChild<gtk::Button>,
         #[template_child]
-        pub nearby_devices_listbox: TemplateChild<gtk::ListBox>,
-        #[template_child]
         pub selected_files_card_title: TemplateChild<gtk::Label>,
         #[template_child]
         pub selected_files_card_caption: TemplateChild<gtk::Label>,
         #[template_child]
         pub selected_files_card_cancel_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub send_file_transfer_listbox: TemplateChild<gtk::ListBox>,
+        #[template_child]
+        pub loading_nearby_devices_spinner: TemplateChild<adw::Spinner>,
 
         #[template_child]
         pub device_name_label: TemplateChild<adw::ActionRow>,
@@ -68,6 +65,11 @@ mod imp {
             Arc<tokio::sync::Mutex<Option<tokio::sync::broadcast::Sender<rqs_lib::EndpointInfo>>>>,
 
         pub selected_files_to_send: Rc<RefCell<Vec<PathBuf>>>,
+
+        #[default(gio::ListStore::new::<FileTransferObject>())]
+        pub send_file_transfer_model: gio::ListStore,
+        pub active_discovered_endpoints:
+            Arc<tokio::sync::Mutex<HashMap<String, FileTransferObject>>>,
     }
 
     #[glib::object_subclass]
@@ -259,6 +261,111 @@ impl QuickShareApplicationWindow {
                 }
             ));
 
+        let send_file_transfer_model = &imp.send_file_transfer_model;
+        let send_file_transfer_listbox = imp.send_file_transfer_listbox.get();
+        send_file_transfer_listbox.bind_model(
+            Some(send_file_transfer_model),
+            clone!(
+                #[weak]
+                imp,
+                #[upgrade_or]
+                adw::Bin::new().into(),
+                move |obj| {
+                    let model_item = obj.downcast_ref::<FileTransferObject>().unwrap();
+                    create_file_transfer_card(&imp, model_item).into()
+                }
+            ),
+        );
+
+        fn create_file_transfer_card(
+            imp: &imp::QuickShareApplicationWindow,
+            file_transfer_state: &FileTransferObject,
+        ) -> adw::Bin {
+            // FIXME: UI for request pin code
+
+            let device_name = file_transfer_state
+                .endpoint_info()
+                .name
+                .clone()
+                .unwrap_or("Unknown Device".into());
+
+            let caption = match dbg!(file_transfer_state.transfer_kind()) {
+                TransferKind::Receive => {
+                    let file_count = file_transfer_state.filenames().len();
+                    format!(
+                        "{} {} {file_count} {}",
+                        device_name,
+                        gettext("wants to share"),
+                        ngettext("file", "files", file_count as u32)
+                    )
+                }
+                TransferKind::Send => {
+                    let file_count = imp.selected_files_to_send.as_ref().borrow().len();
+                    // FIXME: there's probably a better way to do this right?
+                    // As it is, translators might have issues translating this due to loss of context
+                    format!(
+                        "{} {file_count} {} {}",
+                        gettext("Ready to share"),
+                        ngettext("file", "files", file_count as u32),
+                        gettext("to this device")
+                    )
+                }
+            };
+
+            let root_card_box = create_file_transfer_card_base(dbg!(&device_name), &dbg!(caption));
+
+            let main_box = root_card_box
+                .first_child()
+                .and_downcast::<gtk::Box>()
+                .unwrap();
+
+            match file_transfer_state.transfer_kind() {
+                TransferKind::Receive => {
+                    let button_box = gtk::Box::builder()
+                        // Let the buttons expand, they look weird when always compact,
+                        // leads to too much empty space in the card
+                        // .halign(gtk::Align::Center)
+                        .spacing(12)
+                        .build();
+                    main_box.append(&button_box);
+
+                    let decline_button = gtk::Button::builder()
+                        .hexpand(true)
+                        .can_shrink(false)
+                        .label(gettext("Decline"))
+                        .css_classes(["pill"])
+                        .build();
+                    let accept_button = gtk::Button::builder()
+                        .hexpand(true)
+                        .can_shrink(false)
+                        .label(gettext("Accept"))
+                        .css_classes(["pill", "suggested-action"])
+                        .build();
+                    button_box.append(&decline_button);
+                    button_box.append(&accept_button);
+                }
+                TransferKind::Send => {
+                    let button_box = gtk::Box::builder()
+                        // Let the buttons expand, they look weird when always compact,
+                        // leads to too much empty space in the card
+                        // .halign(gtk::Align::Center)
+                        .spacing(12)
+                        .build();
+                    main_box.append(&button_box);
+
+                    let accept_button = gtk::Button::builder()
+                        .hexpand(true)
+                        .can_shrink(false)
+                        .label(gettext("Send"))
+                        .css_classes(["pill", "suggested-action"])
+                        .build();
+                    button_box.append(&accept_button);
+                }
+            };
+
+            adw::Bin::builder().child(&root_card_box).build()
+        }
+
         // FIXME: remove test code
         let receive_stack = imp.receive_stack.get();
         let send_stack = imp.send_stack.get();
@@ -301,7 +408,7 @@ impl QuickShareApplicationWindow {
             }
         ));
 
-        fn icon_info_card(title: &str, caption: &str) -> gtk::Box {
+        fn create_file_transfer_card_base(title: &str, caption: &str) -> gtk::Box {
             // `card` style will be applied with `boxed-list-separate` on ListBox
             let root_card_box = gtk::Box::builder()
                 .orientation(gtk::Orientation::Vertical)
@@ -355,7 +462,7 @@ impl QuickShareApplicationWindow {
 
         fn share_request_card(title: &str, caption: &str) -> gtk::Box {
             // FIXME: UI for request pin code
-            let root_card_box = icon_info_card(title, caption);
+            let root_card_box = create_file_transfer_card_base(title, caption);
             let main_box = root_card_box
                 .first_child()
                 .and_downcast::<gtk::Box>()
@@ -387,32 +494,6 @@ impl QuickShareApplicationWindow {
             root_card_box
         }
 
-        fn send_to_nearby_device_card(title: &str, caption: &str) -> gtk::Box {
-            let root_card_box = icon_info_card(title, caption);
-            let main_box = root_card_box
-                .first_child()
-                .and_downcast::<gtk::Box>()
-                .unwrap();
-
-            let button_box = gtk::Box::builder()
-                // Let the buttons expand, they look weird when always compact,
-                // leads to too much empty space in the card
-                // .halign(gtk::Align::Center)
-                .spacing(12)
-                .build();
-            main_box.append(&button_box);
-
-            let accept_button = gtk::Button::builder()
-                .hexpand(true)
-                .can_shrink(false)
-                .label(gettext("Send"))
-                .css_classes(["pill", "suggested-action"])
-                .build();
-            button_box.append(&accept_button);
-
-            root_card_box
-        }
-
         // FIXME: remove test code
         imp.receive_request_listbox
             .get()
@@ -420,19 +501,6 @@ impl QuickShareApplicationWindow {
         imp.receive_request_listbox
             .get()
             .append(&share_request_card("Device 3", "Wants to share 2 files"));
-
-        imp.nearby_devices_listbox
-            .get()
-            .append(&send_to_nearby_device_card(
-                "Device 1",
-                "Send selected files to Device 1",
-            ));
-        imp.nearby_devices_listbox
-            .get()
-            .append(&send_to_nearby_device_card(
-                "Device 3",
-                "Send selected files to Device 3",
-            ));
 
         let device_visibility_switch = imp.device_visibility_switch.get();
         device_visibility_switch.connect_active_notify(clone!(
@@ -529,7 +597,7 @@ impl QuickShareApplicationWindow {
                                         "{name} wants to start a transfer"
                                     );
 
-                                    // FIXME:
+                                    // FIXME: Handle the transfer requests received here
                                     // send_request_notification(name, channel_msg.id.clone(), &capp_handle);
                                 }
                             }
@@ -542,7 +610,9 @@ impl QuickShareApplicationWindow {
             ));
 
             // MDNS discovery receiver
+            // Discover the devices to send file transfer requests to
             // The Sender used in RQS::discovery()
+            let (tx, rx) = async_channel::bounded(1);
             tokio_runtime().spawn(clone!(
                 #[weak(rename_to = mdns_discovery_broadcast_tx)]
                 imp.mdns_discovery_broadcast_tx,
@@ -557,7 +627,7 @@ impl QuickShareApplicationWindow {
                         .clone();
                     let mut mdns_discovery_rx = mdns_discovery_broadcast_tx.subscribe();
 
-                    // FIXME: Start this when a file is selected for the first time
+                    // FIXME: Start this when a file is selected for the first time?
                     // Start discovery
                     rqs.lock()
                         .await
@@ -569,12 +639,62 @@ impl QuickShareApplicationWindow {
                     loop {
                         match mdns_discovery_rx.recv().await {
                             Ok(endpoint_info) => {
-                                // FIXME: Handle discovered devices to share files to
-                                tracing::debug!(?endpoint_info);
+                                tracing::trace!(?endpoint_info, "Processing endpoint");
+                                tx.send(endpoint_info).await.unwrap();
                             }
                             Err(err) => {
                                 tracing::error!(%err,"MDNS discovery error");
                             }
+                        }
+                    }
+                }
+            ));
+            glib::spawn_future_local(clone!(
+                #[weak]
+                imp,
+                async move {
+                    loop {
+                        {
+                            let endpoint_info = rx.recv().await.unwrap();
+
+                            let mut active_discovered_endpoints =
+                                imp.active_discovered_endpoints.lock().await;
+                            if let Some(file_transfer) =
+                                active_discovered_endpoints.get(&endpoint_info.id)
+                            {
+                                if endpoint_info.present.is_none() {
+                                    // Endpoint disconnected, remove endpoint
+                                    if let Some(pos) =
+                                        imp.send_file_transfer_model.find(file_transfer)
+                                    {
+                                        tracing::info!(?endpoint_info, "Disconnected endpoint");
+                                        imp.send_file_transfer_model.remove(pos);
+                                    }
+                                    active_discovered_endpoints.remove(&endpoint_info.id);
+                                } else {
+                                    // Update endpoint
+                                    tracing::info!(?endpoint_info, "Updated endpoint info");
+                                    file_transfer.set_endpoint_info(file_transfer::EndpointInfo(
+                                        endpoint_info,
+                                    ));
+                                }
+                            } else {
+                                // Set new endpoint
+                                tracing::info!(?endpoint_info, "Connected endpoint");
+                                let obj = FileTransferObject::new(TransferKind::Send);
+                                let id = endpoint_info.id.clone();
+                                obj.set_endpoint_info(file_transfer::EndpointInfo(endpoint_info));
+                                imp.send_file_transfer_model.append(&obj);
+                                active_discovered_endpoints.insert(id, obj);
+                            }
+                        }
+
+                        let loading_nearby_devices_spinner =
+                            imp.loading_nearby_devices_spinner.get();
+                        if imp.send_file_transfer_model.n_items() == 0 {
+                            loading_nearby_devices_spinner.set_visible(true);
+                        } else {
+                            loading_nearby_devices_spinner.set_visible(false);
                         }
                     }
                 }
