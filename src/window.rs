@@ -205,7 +205,6 @@ impl QuickShareApplicationWindow {
                             if files.n_items() == 0 {
                                 // FIXME: Show toast about not being able to access files
                             } else {
-                                // FIXME: Start MDNS discovery here once a file is selected for the first time?
                                 imp.send_stack
                                     .get()
                                     .set_visible_child_name("send_nearby_devices_page");
@@ -245,6 +244,30 @@ impl QuickShareApplicationWindow {
                                         .collect::<Vec<_>>()
                                         .join(", "),
                                 );
+
+                                // Start MDNS Discovery
+                                tokio_runtime().spawn(clone!(
+                                    #[weak(rename_to = mdns_discovery_broadcast_tx)]
+                                    imp.mdns_discovery_broadcast_tx,
+                                    #[weak(rename_to = rqs)]
+                                    imp.rqs,
+                                    async move {
+                                        _ = rqs
+                                            .lock()
+                                            .await
+                                            .as_mut()
+                                            .unwrap()
+                                            .discovery(
+                                                mdns_discovery_broadcast_tx
+                                                    .lock()
+                                                    .await
+                                                    .as_ref()
+                                                    .unwrap()
+                                                    .clone(),
+                                            )
+                                            .inspect_err(|err| tracing::error!(%err));
+                                    }
+                                ));
                             }
                         };
                     },
@@ -259,6 +282,16 @@ impl QuickShareApplicationWindow {
                     imp.send_stack
                         .get()
                         .set_visible_child_name("send_select_files_status_page");
+
+                    // Stop MDNS Discovery
+                    tokio_runtime().spawn(clone!(
+                        #[weak(rename_to = rqs)]
+                        imp.rqs,
+                        async move {
+                            rqs.lock().await.as_mut().unwrap().stop_discovery();
+                        }
+                    ));
+
                     imp.selected_files_to_send.as_ref().borrow_mut().clear();
                 }
             ));
@@ -791,8 +824,6 @@ impl QuickShareApplicationWindow {
             tokio_runtime().spawn(clone!(
                 #[weak(rename_to = mdns_discovery_broadcast_tx)]
                 imp.mdns_discovery_broadcast_tx,
-                #[weak(rename_to = rqs)]
-                imp.rqs,
                 async move {
                     let mdns_discovery_broadcast_tx = mdns_discovery_broadcast_tx
                         .lock()
@@ -801,15 +832,6 @@ impl QuickShareApplicationWindow {
                         .unwrap()
                         .clone();
                     let mut mdns_discovery_rx = mdns_discovery_broadcast_tx.subscribe();
-
-                    // FIXME: Start discovery when a file is selected for the first time instead?
-                    // Start discovery
-                    rqs.lock()
-                        .await
-                        .as_mut()
-                        .unwrap()
-                        .discovery(mdns_discovery_broadcast_tx)
-                        .unwrap();
 
                     loop {
                         match mdns_discovery_rx.recv().await {
@@ -839,10 +861,10 @@ impl QuickShareApplicationWindow {
                             {
                                 if endpoint_info.present.is_none() {
                                     // Endpoint disconnected, remove endpoint
+                                    tracing::info!(?endpoint_info, "Disconnected endpoint");
                                     if let Some(pos) =
                                         imp.send_file_transfer_model.find(file_transfer)
                                     {
-                                        tracing::info!(?endpoint_info, "Disconnected endpoint");
                                         imp.send_file_transfer_model.remove(pos);
                                     }
                                     active_discovered_endpoints.remove(&endpoint_info.id);
