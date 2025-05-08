@@ -28,6 +28,13 @@ jobs:
     container:
       image: bilelmoussaoui/flatpak-github-actions:gnome-47
       options: --privileged
+    strategy:
+      matrix:
+        variant:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
     steps:
     - uses: actions/checkout@v4
     - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v6
@@ -36,3 +43,5 @@ jobs:
         manifest-path: build-aux/io.github.nozwock.QuickShare.Devel.json
         run-tests: true
         cache-key: flatpak-builder-${{ github.sha }}
+        arch: ${{ matrix.variant.arch }}
+        verbose: true
