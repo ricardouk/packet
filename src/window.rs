@@ -349,7 +349,7 @@ impl QuickShareApplicationWindow {
             imp: &imp::QuickShareApplicationWindow,
             model_item: &FileTransferObject,
         ) -> adw::Bin {
-            let (caption, title) = match dbg!(model_item.transfer_kind()) {
+            let (caption, title) = match model_item.transfer_kind() {
                 TransferKind::Receive => {
                     let device_name = file_transfer::ChannelMessage::get_device_name(
                         &model_item.channel_message().0,
@@ -466,6 +466,7 @@ impl QuickShareApplicationWindow {
                 .hexpand(true)
                 .label(gettext("Cancel"))
                 .css_classes(["pill"])
+                .visible(false)
                 .build();
             cancel_transfer_button.connect_clicked(clone!(
                 #[weak(rename_to = rqs)]
@@ -506,6 +507,7 @@ impl QuickShareApplicationWindow {
                         .build();
                     button_box.append(&decline_button);
                     button_box.append(&accept_button);
+                    button_box.append(&cancel_transfer_button);
 
                     decline_button.connect_clicked(clone!(
                         #[weak(rename_to = rqs)]
@@ -554,10 +556,10 @@ impl QuickShareApplicationWindow {
                     // if possible via ListStore, just copy the widget instead of going model -> widget
                     model_item.connect_channel_message_notify(clone!(
                         #[weak]
-                        model_item,
-                        move |obj| {
+                        cancel_transfer_button,
+                        move |model_item| {
                             use rqs_lib::State;
-                            let channel_message = obj.channel_message();
+                            let channel_message = model_item.channel_message();
                             if let Some(state) = channel_message.0.state {
                                 match state {
                                     State::Initial => {}
@@ -575,7 +577,7 @@ impl QuickShareApplicationWindow {
                                     State::ReceivingFiles => {
                                         accept_button.set_visible(false);
                                         decline_button.set_visible(false);
-                                        button_box.append(&cancel_transfer_button);
+                                        cancel_transfer_button.set_visible(true);
 
                                         let receiving_text = {
                                             let file_count = model_item.filenames().len();
@@ -646,6 +648,58 @@ impl QuickShareApplicationWindow {
                         .css_classes(["pill", "suggested-action"])
                         .build();
                     button_box.append(&send_button);
+                    button_box.append(&cancel_transfer_button);
+
+                    fn send_files_cb(
+                        id: String,
+                        imp: &imp::QuickShareApplicationWindow,
+                        model_item: &FileTransferObject,
+                        file_sender: &std::sync::Arc<
+                            tokio::sync::Mutex<
+                                Option<tokio::sync::mpsc::Sender<rqs_lib::SendInfo>>,
+                            >,
+                        >,
+                    ) {
+                        let endpoint_info = model_item.endpoint_info();
+                        let files_to_send = imp
+                            .selected_files_to_send
+                            .as_ref()
+                            .borrow()
+                            .clone()
+                            .iter()
+                            .filter_map(|it| it.to_str())
+                            .map(|it| it.to_owned())
+                            .collect::<Vec<_>>();
+
+                        tokio_runtime().spawn(clone!(
+                            #[strong]
+                            id,
+                            #[weak]
+                            file_sender,
+                            async move {
+                                file_sender
+                                    .lock()
+                                    .await
+                                    .as_mut()
+                                    .unwrap()
+                                    .send(rqs_lib::SendInfo {
+                                        id: id.clone(),
+                                        name: endpoint_info
+                                            .name
+                                            .clone()
+                                            .unwrap_or(gettext("Unknown device")),
+                                        addr: format!(
+                                            "{}:{}",
+                                            endpoint_info.ip.clone().unwrap_or_default(),
+                                            endpoint_info.port.clone().unwrap_or_default()
+                                        ),
+                                        ob: rqs_lib::OutboundPayload::Files(files_to_send),
+                                    })
+                                    .await
+                                    .unwrap();
+                            }
+                        ));
+                    }
 
                     let file_sender = &imp.file_sender;
                     send_button.connect_clicked(clone!(
@@ -658,45 +712,125 @@ impl QuickShareApplicationWindow {
                         #[strong]
                         id,
                         move |_| {
-                            let endpoint_info = model_item.endpoint_info();
-                            let files_to_send = imp
-                                .selected_files_to_send
-                                .as_ref()
-                                .borrow()
-                                .clone()
-                                .iter()
-                                .filter_map(|it| it.to_str())
-                                .map(|it| it.to_owned())
-                                .collect::<Vec<_>>();
-
-                            tokio_runtime().spawn(clone!(
-                                #[strong]
-                                id,
-                                async move {
-                                    file_sender
-                                        .lock()
-                                        .await
-                                        .as_mut()
-                                        .unwrap()
-                                        .send(rqs_lib::SendInfo {
-                                            id: id.clone(),
-                                            name: endpoint_info
-                                                .name
-                                                .clone()
-                                                .unwrap_or(gettext("Unknown device")),
-                                            addr: format!(
-                                                "{}:{}",
-                                                endpoint_info.ip.clone().unwrap_or_default(),
-                                                endpoint_info.port.clone().unwrap_or_default()
-                                            ),
-                                            ob: rqs_lib::OutboundPayload::Files(files_to_send),
-                                        })
-                                        .await
-                                        .unwrap();
-                                }
-                            ));
+                            send_files_cb(id.clone(), &imp, &model_item, &file_sender);
                         }
                     ));
+
+                    model_item.connect_endpoint_info_notify(clone!(
+                        #[weak]
+                        send_button,
+                        move |model_item| {
+                            if model_item.endpoint_info().present.is_none() {
+                                send_button.set_sensitive(false);
+                            } else {
+                                send_button.set_sensitive(true);
+                            }
+                        }
+                    ));
+
+                    model_item.connect_channel_message_notify(clone!(move |model_item| {
+                        use rqs_lib::State;
+                        let channel_message = model_item.channel_message();
+                        if let Some(ref state) = channel_message.0.state {
+                            match state {
+                                State::Initial => {}
+                                State::ReceivedConnectionRequest => {}
+                                State::SentUkeyServerInit => {}
+                                State::SentPairedKeyEncryption => {}
+                                State::ReceivedUkeyClientFinish => {}
+                                State::SentConnectionResponse => {}
+                                State::SentPairedKeyResult => {}
+                                State::ReceivedPairedKeyResult => {}
+                                State::WaitingForUserConsent => {}
+                                State::ReceivingFiles => {}
+                                State::SentUkeyClientInit
+                                | State::SentUkeyClientFinish
+                                | State::SentIntroduction
+                                | State::SendingFiles => {
+                                    send_button.set_visible(false);
+                                    cancel_transfer_button.set_visible(true);
+
+                                    let receiving_text = {
+                                        let file_count = channel_message
+                                            .meta
+                                            .as_ref()
+                                            .unwrap()
+                                            .files
+                                            .as_ref()
+                                            .unwrap()
+                                            .len();
+                                        formatx!(
+                                            ngettext(
+                                                "Sending {} file...",
+                                                "Sending {} files...",
+                                                file_count as u32
+                                            ),
+                                            file_count
+                                        )
+                                        .unwrap_or_default()
+                                    };
+                                    caption_label.set_label(&receiving_text);
+                                }
+                                State::Disconnected => {
+                                    // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
+                                    // reject request and show this error, it's usually because the sender
+                                    // disconnected from the network
+                                    cancel_transfer_button.set_visible(false);
+                                    send_button.set_visible(true);
+                                    send_button.set_label(&gettext("Resend"));
+
+                                    result_label.set_visible(true);
+                                    result_label.set_label(&gettext("Unexpected disconnection"));
+                                    result_label.add_css_class("error");
+                                }
+                                State::Rejected => {
+                                    cancel_transfer_button.set_visible(false);
+                                    send_button.set_visible(true);
+                                    send_button.set_label(&gettext("Resend"));
+
+                                    result_label.set_visible(true);
+                                    result_label.set_label(&gettext("Rejected"));
+                                    result_label.add_css_class("error");
+                                }
+                                State::Cancelled => {
+                                    cancel_transfer_button.set_visible(false);
+                                    send_button.set_visible(true);
+                                    send_button.set_label(&gettext("Resend"));
+
+                                    result_label.set_visible(true);
+                                    result_label.set_label(&gettext("Cancelled"));
+                                    result_label.add_css_class("error");
+                                }
+                                State::Finished => {
+                                    let finished_text = {
+                                        let file_count = channel_message
+                                            .meta
+                                            .as_ref()
+                                            .unwrap()
+                                            .files
+                                            .as_ref()
+                                            .unwrap()
+                                            .len();
+                                        formatx!(
+                                            ngettext(
+                                                "Finished sending {} file...",
+                                                "Finished sending {} files...",
+                                                file_count as u32
+                                            ),
+                                            file_count
+                                        )
+                                        .unwrap_or_default()
+                                    };
+
+                                    button_box.set_visible(false);
+                                    caption_label.set_label(&finished_text);
+                                    result_label.set_visible(true);
+                                    result_label.set_label(&gettext("Finished"));
+                                    result_label.add_css_class("success");
+                                }
+                            };
+                        }
+                    }));
                 }
             };
 
@@ -828,13 +962,10 @@ impl QuickShareApplicationWindow {
                             State::Initial => {}
                             State::ReceivedConnectionRequest => {}
                             State::SentUkeyServerInit => {}
-                            State::SentUkeyClientInit => {}
-                            State::SentUkeyClientFinish => {}
                             State::SentPairedKeyEncryption => {}
                             State::ReceivedUkeyClientFinish => {}
                             State::SentConnectionResponse => {}
                             State::SentPairedKeyResult => {}
-                            State::SentIntroduction => {}
                             State::ReceivedPairedKeyResult => {}
                             State::WaitingForUserConsent => {
                                 // Receive file transfer requests
@@ -896,22 +1027,41 @@ impl QuickShareApplicationWindow {
                                         .set_visible_child_name("receive_request_page");
                                 }
                             }
-                            State::SendingFiles => {}
-                            State::Disconnected
+                            State::SentUkeyClientInit
+                            | State::SentUkeyClientFinish
+                            | State::SentIntroduction
+                            | State::Disconnected
                             | State::Rejected
                             | State::Cancelled
                             | State::Finished
+                            | State::SendingFiles
                             | State::ReceivingFiles => {
-                                // TODO: Both transfer kinds and from both sides? If so need a way to deferentiate b/w send and receive,
-                                // maybe with pin_code?
+                                match channel_message.rtype {
+                                    Some(rqs_lib::channel::TransferType::Inbound) => {
+                                        // Receive
+                                        let active_file_requests =
+                                            imp.active_file_requests.lock().await;
+                                        if let Some(model_item) = active_file_requests.get(id) {
+                                            model_item.set_channel_message(
+                                                file_transfer::ChannelMessage(channel_message),
+                                            );
+                                        }
+                                    }
+                                    Some(rqs_lib::channel::TransferType::Outbound) => {
+                                        // Send
+                                        let active_discovered_endpoints =
+                                            imp.active_discovered_endpoints.lock().await;
 
-                                let active_file_requests = imp.active_file_requests.lock().await;
-
-                                if let Some(model_item) = active_file_requests.get(id) {
-                                    model_item.set_channel_message(file_transfer::ChannelMessage(
-                                        channel_message,
-                                    ));
-                                }
+                                        if let Some(model_item) =
+                                            active_discovered_endpoints.get(id)
+                                        {
+                                            model_item.set_channel_message(
+                                                file_transfer::ChannelMessage(channel_message),
+                                            );
+                                        }
+                                    }
+                                    _ => {}
+                                };
                             }
                         };
                     }
@@ -960,9 +1110,14 @@ impl QuickShareApplicationWindow {
                             if let Some(file_transfer) =
                                 active_discovered_endpoints.get(&endpoint_info.id)
                             {
-                                if endpoint_info.present.is_none() {
+                                if endpoint_info.present.is_none()
+                                    && file_transfer.channel_message().state.is_none()
+                                {
                                     // Endpoint disconnected, remove endpoint
-                                    tracing::info!(?endpoint_info, "Disconnected endpoint");
+                                    tracing::info!(
+                                        ?endpoint_info,
+                                        "Removing disconnected endpoint"
+                                    );
                                     if let Some(pos) =
                                         imp.send_file_transfer_model.find(file_transfer)
                                     {
