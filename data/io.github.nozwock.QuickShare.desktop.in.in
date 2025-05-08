@@ -1,13 +1,12 @@
 [Desktop Entry]
 Name=QuickShare
-# FIXME Set the project summary
-Comment=A NearbyShare/QuickShare implementation for Linux with a GTK4 interface
+Comment=Android's NearbyShare/QuickShare for Linux
 Type=Application
 Exec=quickshare-gtk
 Terminal=false
-Categories=GNOME;GTK;Development;
+Categories=GNOME;GTK;Utility;Network;
 # Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-Keywords=Gnome;GTK;
+Keywords=Gnome;GTK;Quick;Nearby;Share;
 # Translators: Do NOT translate or transliterate this text (this is an icon file name)!
 Icon=@icon@
 StartupNotify=true
