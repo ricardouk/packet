@@ -752,7 +752,7 @@ impl QuickShareApplicationWindow {
                                         obj.set_channel_message(file_transfer::ChannelMessage(
                                             channel_message,
                                         ));
-                                        imp.receive_file_transfer_model.append(&obj);
+                                        imp.receive_file_transfer_model.insert(0, &obj);
                                         active_file_requests.insert(id, obj);
                                     }
                                 }
@@ -865,8 +865,7 @@ impl QuickShareApplicationWindow {
                                 let obj = FileTransferObject::new(TransferKind::Send);
                                 let id = endpoint_info.id.clone();
                                 obj.set_endpoint_info(file_transfer::EndpointInfo(endpoint_info));
-                                // FIXME: Item should be added in reversed order
-                                imp.send_file_transfer_model.append(&obj);
+                                imp.send_file_transfer_model.insert(0, &obj);
                                 active_discovered_endpoints.insert(id, obj);
                             }
                         }
