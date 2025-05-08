@@ -5,7 +5,7 @@ use adw::subclass::prelude::*;
 use formatx::formatx;
 use gettextrs::{gettext, ngettext};
 use gtk::glib::clone;
-use gtk::{gio, glib};
+use gtk::{gdk, gio, glib};
 use rqs_lib::channel::ChannelMessage;
 
 use crate::application::QuickShareApplication;
@@ -37,6 +37,8 @@ mod imp {
         pub receive_file_transfer_listbox: TemplateChild<gtk::ListBox>,
         #[template_child]
         pub send_stack: TemplateChild<gtk::Stack>,
+        #[template_child]
+        pub send_drop_files_bin: TemplateChild<adw::Bin>,
         #[template_child]
         pub send_select_files_button: TemplateChild<gtk::Button>,
         #[template_child]
@@ -180,6 +182,28 @@ impl QuickShareApplicationWindow {
     fn setup_ui(&self) {
         let imp = self.imp();
 
+        let files_drop_target = gtk::DropTarget::builder()
+            .name("files-drop-target")
+            .actions(gdk::DragAction::COPY)
+            .formats(&gdk::ContentFormats::for_type(gdk::FileList::static_type()))
+            .build();
+        imp.send_drop_files_bin
+            .get()
+            .add_controller(files_drop_target.clone());
+
+        files_drop_target.connect_drop(clone!(
+            #[weak]
+            imp,
+            #[upgrade_or]
+            false,
+            move |_, value, _, _| {
+                if let Ok(file_list) = value.get::<gdk::FileList>() {
+                    select_files_to_send_cb(&imp, file_list.files());
+                }
+
+                true
+            }
+        ));
         // imp.transfer_kind_nav_view.get().push_by_tag("transfer_history_page");
 
         // FIXME: Make device name configurable (at any time preferably) on rqs_lib side
@@ -187,7 +211,71 @@ impl QuickShareApplicationWindow {
         let device_name_label = imp.device_name_label.get();
         device_name_label.set_subtitle(&whoami::devicename());
 
-        // FIXME: Implement send page's select drop zone
+        fn select_files_to_send_cb(imp: &imp::QuickShareApplicationWindow, files: Vec<gio::File>) {
+            if files.len() == 0 {
+                // FIXME: Show toast about not being able to access files
+            } else {
+                imp.send_stack
+                    .get()
+                    .set_visible_child_name("send_nearby_devices_page");
+
+                let title = formatx!(
+                    &ngettext(
+                        "{} file is ready to send",
+                        "{} files are ready to send",
+                        files.len() as u32,
+                    ),
+                    files.len()
+                )
+                .unwrap_or_default();
+
+                imp.selected_files_card_title.get().set_label(&title);
+
+                imp.selected_files_to_send.as_ref().borrow_mut().clear();
+                for file in &files {
+                    tracing::info!(file = ?file.path(), "Selected file");
+                    if let Some(path) = file.path() {
+                        imp.selected_files_to_send.as_ref().borrow_mut().push(path);
+                    }
+                }
+
+                imp.selected_files_card_caption.get().set_label(
+                    &imp.selected_files_to_send
+                        .as_ref()
+                        .borrow()
+                        .iter()
+                        .map(|it| it.file_name().and_then(|it| Some(it.to_string_lossy())))
+                        .flatten()
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                );
+
+                // Start MDNS Discovery
+                tokio_runtime().spawn(clone!(
+                    #[weak(rename_to = mdns_discovery_broadcast_tx)]
+                    imp.mdns_discovery_broadcast_tx,
+                    #[weak(rename_to = rqs)]
+                    imp.rqs,
+                    async move {
+                        _ = rqs
+                            .lock()
+                            .await
+                            .as_mut()
+                            .unwrap()
+                            .discovery(
+                                mdns_discovery_broadcast_tx
+                                    .lock()
+                                    .await
+                                    .as_ref()
+                                    .unwrap()
+                                    .clone(),
+                            )
+                            .inspect_err(|err| tracing::error!(%err));
+                    }
+                ));
+            }
+        }
+
         imp.send_select_files_button.connect_clicked(clone!(
             #[weak]
             imp,
@@ -198,78 +286,14 @@ impl QuickShareApplicationWindow {
                         .and_downcast_ref::<adw::ApplicationWindow>(),
                     None::<&gio::Cancellable>,
                     move |files| {
-                        // FIXME: Abstract this away into a reusable function
-                        // since this'll be called from both the button and drop zone
-                        // Maybe have it as a action later
-
                         if let Ok(files) = files {
-                            if files.n_items() == 0 {
-                                // FIXME: Show toast about not being able to access files
-                            } else {
-                                imp.send_stack
-                                    .get()
-                                    .set_visible_child_name("send_nearby_devices_page");
-
-                                let title = formatx!(
-                                    &ngettext(
-                                        "{} file is ready to send",
-                                        "{} files are ready to send",
-                                        files.n_items(),
-                                    ),
-                                    files.n_items()
-                                )
-                                .unwrap_or_default();
-
-                                imp.selected_files_card_title.get().set_label(&title);
-
-                                imp.selected_files_to_send.as_ref().borrow_mut().clear();
-                                for i in 0..files.n_items() {
-                                    let file =
-                                        files.item(i).unwrap().downcast::<gio::File>().unwrap();
-
-                                    tracing::info!(file = ?file.path(), "Selected file");
-                                    if let Some(path) = file.path() {
-                                        imp.selected_files_to_send.as_ref().borrow_mut().push(path);
-                                    }
-                                }
-
-                                imp.selected_files_card_caption.get().set_label(
-                                    &imp.selected_files_to_send
-                                        .as_ref()
-                                        .borrow()
-                                        .iter()
-                                        .map(|it| {
-                                            it.file_name().and_then(|it| Some(it.to_string_lossy()))
-                                        })
-                                        .flatten()
-                                        .collect::<Vec<_>>()
-                                        .join(", "),
-                                );
-
-                                // Start MDNS Discovery
-                                tokio_runtime().spawn(clone!(
-                                    #[weak(rename_to = mdns_discovery_broadcast_tx)]
-                                    imp.mdns_discovery_broadcast_tx,
-                                    #[weak(rename_to = rqs)]
-                                    imp.rqs,
-                                    async move {
-                                        _ = rqs
-                                            .lock()
-                                            .await
-                                            .as_mut()
-                                            .unwrap()
-                                            .discovery(
-                                                mdns_discovery_broadcast_tx
-                                                    .lock()
-                                                    .await
-                                                    .as_ref()
-                                                    .unwrap()
-                                                    .clone(),
-                                            )
-                                            .inspect_err(|err| tracing::error!(%err));
-                                    }
-                                ));
+                            let mut files_vec = Vec::with_capacity(files.n_items() as usize);
+                            for i in 0..files.n_items() {
+                                let file = files.item(i).unwrap().downcast::<gio::File>().unwrap();
+                                files_vec.push(file);
                             }
+
+                            select_files_to_send_cb(&imp, files_vec);
                         };
                     },
                 );

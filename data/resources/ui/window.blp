@@ -233,25 +233,27 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                             StackPage {
                                                 name: "send_select_files_status_page";
 
-                                                child: Adw.Clamp {
-                                                    maximum-size: 500;
+                                                child: Adw.Bin send_drop_files_bin {
+                                                    Adw.Clamp {
+                                                        maximum-size: 500;
 
-                                                    Adw.StatusPage send_drop_files_status_page {
-                                                        title: _("Send Files");
-                                                        icon-name: "send-to-symbolic";
-                                                        description: _("Select or drop the files to send");
+                                                        Adw.StatusPage {
+                                                            title: _("Send Files");
+                                                            icon-name: "send-to-symbolic";
+                                                            description: _("Select or drop the files to send");
 
-                                                        Button send_select_files_button {
-                                                            halign: center;
+                                                            Button send_select_files_button {
+                                                                halign: center;
 
-                                                            styles [
-                                                                "suggested-action",
-                                                                "pill",
-                                                            ]
+                                                                styles [
+                                                                    "suggested-action",
+                                                                    "pill",
+                                                                ]
 
-                                                            Adw.ButtonContent {
-                                                                label: _("Select files");
-                                                                icon-name: "list-add-symbolic";
+                                                                Adw.ButtonContent {
+                                                                    label: _("Select files");
+                                                                    icon-name: "list-add-symbolic";
+                                                                }
                                                             }
                                                         }
                                                     }
