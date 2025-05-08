@@ -315,6 +315,18 @@ impl QuickShareApplicationWindow {
                 }
             ),
         );
+        send_file_transfer_model.connect_items_changed(clone!(
+            #[weak]
+            imp,
+            move |model, _, _, _| {
+                let loading_nearby_devices_box = imp.loading_nearby_devices_box.get();
+                if model.n_items() == 0 {
+                    loading_nearby_devices_box.set_visible(true);
+                } else {
+                    loading_nearby_devices_box.set_visible(false);
+                }
+            }
+        ));
 
         let receive_file_transfer_model = &imp.receive_file_transfer_model;
         let receive_file_transfer_listbox = imp.receive_file_transfer_listbox.get();
@@ -891,14 +903,6 @@ impl QuickShareApplicationWindow {
                                 imp.send_file_transfer_model.insert(0, &obj);
                                 active_discovered_endpoints.insert(id, obj);
                             }
-                        }
-
-                        // FIXME: this should be handled in connect_item_changed
-                        let loading_nearby_devices_box = imp.loading_nearby_devices_box.get();
-                        if imp.send_file_transfer_model.n_items() == 0 {
-                            loading_nearby_devices_box.set_visible(true);
-                        } else {
-                            loading_nearby_devices_box.set_visible(false);
                         }
                     }
                 }
