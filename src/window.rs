@@ -521,7 +521,16 @@ impl QuickShareApplicationWindow {
                                         caption_label.set_label(&receiving_text);
                                     }
                                     State::SendingFiles => {}
-                                    State::Disconnected => {}
+                                    State::Disconnected => {
+                                        // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
+                                        // reject request and show this error, it's usually because the sender
+                                        // disconnected from the network
+                                        button_box.set_visible(false);
+                                        result_label.set_visible(true);
+                                        result_label
+                                            .set_label(&gettext("Unexpected disconnection"));
+                                        result_label.add_css_class("error");
+                                    }
                                     State::Rejected => {
                                         button_box.set_visible(false);
                                         result_label.set_visible(true);
@@ -770,6 +779,8 @@ impl QuickShareApplicationWindow {
                                     } else {
                                         // Add new file request
                                         let obj = FileTransferObject::new(TransferKind::Receive);
+                                        // FIXME: handle when text is shared instead of files
+                                        // .text_payload (When transfer is finished) and .text_description
                                         let id = id.clone();
                                         obj.set_filenames(
                                             channel_message
