@@ -452,7 +452,8 @@ impl QuickShareApplicationWindow {
             // FIXME: UI for request transfer pin code
             // `object-select-symbolic` for success status icon
             let device_icon_image = adw::Avatar::builder()
-                .icon_name("preferences-system-network-symbolic")
+                .text(&title)
+                .show_initials(true)
                 .size(48)
                 .build();
             top_box.append(&device_icon_image);
