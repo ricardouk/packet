@@ -573,48 +573,6 @@ impl QuickShareApplicationWindow {
             adw::Bin::builder().child(&root_card_box).build()
         }
 
-        // FIXME: remove test code
-        let receive_stack = imp.receive_stack.get();
-        let send_stack = imp.send_stack.get();
-        imp.test_cycle_pages_button.get().connect_clicked(clone!(
-            #[weak]
-            imp,
-            #[weak]
-            receive_stack,
-            #[weak]
-            send_stack,
-            move |_| {
-                match imp
-                    .transfer_kind_view_stack
-                    .get()
-                    .visible_child_name()
-                    .unwrap()
-                    .as_str()
-                {
-                    "receive" => {
-                        if receive_stack.visible_child_name().unwrap() == "receive_idle_status_page"
-                        {
-                            receive_stack.set_visible_child_name("receive_request_page");
-                        } else {
-                            receive_stack.set_visible_child_name("receive_idle_status_page");
-                        }
-                    }
-                    "send" => {
-                        if send_stack.visible_child_name().unwrap()
-                            == "send_select_files_status_page"
-                        {
-                            send_stack.set_visible_child_name("send_nearby_devices_page");
-                        } else {
-                            send_stack.set_visible_child_name("send_select_files_status_page");
-                        }
-                    }
-                    _ => {
-                        unreachable!();
-                    }
-                };
-            }
-        ));
-
         let device_visibility_switch = imp.device_visibility_switch.get();
         device_visibility_switch.connect_active_notify(clone!(
             #[weak]
