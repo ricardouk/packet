@@ -57,9 +57,6 @@ mod imp {
         #[template_child]
         pub receive_idle_status_page: TemplateChild<adw::StatusPage>,
 
-        #[template_child]
-        pub test_cycle_pages_button: TemplateChild<gtk::Button>,
-
         pub rqs: Arc<tokio::sync::Mutex<Option<rqs_lib::RQS>>>,
         pub file_sender: RefCell<Option<tokio::sync::mpsc::Sender<rqs_lib::SendInfo>>>,
         pub ble_receiver: RefCell<Option<tokio::sync::broadcast::Receiver<()>>>,
