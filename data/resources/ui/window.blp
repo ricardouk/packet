@@ -169,11 +169,6 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                                     // `title` is also gets set on the code side
                                                     icon-name: "network-offline-symbolic";
                                                     title: _("Not ready to receive");
-
-                                                    Adw.Spinner {
-                                                        visible: bind device_visibility_switch.active;
-                                                        height-request: 48;
-                                                    }
                                                 };
                                             }
 
