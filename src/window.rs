@@ -772,9 +772,9 @@ impl QuickShareApplicationWindow {
                                     caption_label.set_label(&receiving_text);
                                 }
                                 State::Disconnected => {
-                                    // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
-                                    // reject request and show this error, it's usually because the sender
-                                    // disconnected from the network
+                                    // FIXME: Wait for 5~10 seconds after a send and timeout
+                                    // if did not receive SendingFiles within that timeframe
+                                    // This is how google does it in their client
                                     cancel_transfer_button.set_visible(false);
                                     send_button.set_visible(true);
                                     send_button.set_label(&gettext("Resend"));
@@ -882,8 +882,7 @@ impl QuickShareApplicationWindow {
 
             tracing::info!(?download_path, "Starting RQS service");
 
-            // FIXME: Allow setting a const port number in app preferences
-            // and, download_path
+            // FIXME: Allow setting a const port number in app preferences and, download_path
             let mut rqs =
                 rqs_lib::RQS::new(rqs_lib::Visibility::Visible, None, Some(download_path));
 
@@ -1130,9 +1129,6 @@ impl QuickShareApplicationWindow {
                                     file_transfer.set_endpoint_info(file_transfer::EndpointInfo(
                                         endpoint_info,
                                     ));
-
-                                    // FIXME: Listen to endpoint_info updates
-                                    // and update the UI accordingly
                                 }
                             } else {
                                 // Set new endpoint
