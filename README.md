@@ -2,17 +2,16 @@
 
 An implementation of Android's NearbyShare/QuickShare for Linux with a GTK4 interface.
 
+<div align="center">
+    <img src="data/resources/screenshots/receive-page.png" alt="screenshot" />
+</div>
+
 <!-- FIXME Uncomment once published at Flathub -->
 <!-- ## Installation
 QuickShare is available on Flathub! -->
 <!-- <a href="https://flathub.org/apps/details/io.github.nozwock.QuickShare"> -->
 <!-- <img src="https://flathub.org/api/badge?svg&locale=en&light" width="190px" /> -->
 <!-- </a> -->
-
-## Screenshots
-<div align="center">
-![screenshot](data/resources/screenshots/receive-page.png)
-</div>
 
 <!-- FIXME Uncomment once available at Damned Lies -->
 <!-- ## Translations -->
