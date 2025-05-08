@@ -6,6 +6,7 @@ use formatx::formatx;
 use gettextrs::{gettext, ngettext};
 use gtk::glib::clone;
 use gtk::{gio, glib};
+use rqs_lib::channel::ChannelMessage;
 
 use crate::application::QuickShareApplication;
 use crate::config::{APP_ID, PROFILE};
@@ -298,17 +299,17 @@ impl QuickShareApplicationWindow {
 
         fn create_file_transfer_card(
             imp: &imp::QuickShareApplicationWindow,
-            file_transfer_state: &FileTransferObject,
+            model_item: &FileTransferObject,
         ) -> adw::Bin {
             // FIXME: UI for request pin code
 
-            let (caption, title) = match dbg!(file_transfer_state.transfer_kind()) {
+            let (caption, title) = match dbg!(model_item.transfer_kind()) {
                 TransferKind::Receive => {
                     let device_name = file_transfer::ChannelMessage::get_device_name(
-                        &file_transfer_state.channel_message().0,
+                        &model_item.channel_message().0,
                     );
 
-                    let file_count = file_transfer_state.filenames().len();
+                    let file_count = model_item.filenames().len();
                     (
                         formatx!(
                             ngettext(
@@ -324,7 +325,7 @@ impl QuickShareApplicationWindow {
                     )
                 }
                 TransferKind::Send => {
-                    let device_name = file_transfer_state
+                    let device_name = model_item
                         .endpoint_info()
                         .name
                         .clone()
@@ -393,19 +394,25 @@ impl QuickShareApplicationWindow {
                 .label(caption)
                 .css_classes(["caption"])
                 .build();
+            let result_label = gtk::Label::builder()
+                .halign(gtk::Align::Start)
+                .visible(false)
+                .css_classes(["caption"])
+                .build();
             label_box.append(&title_label);
             label_box.append(&caption_label);
+            label_box.append(&result_label);
 
-            match file_transfer_state.transfer_kind() {
+            let button_box = gtk::Box::builder()
+                // Let the buttons expand, they look weird when always compact,
+                // leads to too much empty space in the card
+                // .halign(gtk::Align::Center)
+                .spacing(12)
+                .build();
+            main_box.append(&button_box);
+
+            match model_item.transfer_kind() {
                 TransferKind::Receive => {
-                    let button_box = gtk::Box::builder()
-                        // Let the buttons expand, they look weird when always compact,
-                        // leads to too much empty space in the card
-                        // .halign(gtk::Align::Center)
-                        .spacing(12)
-                        .build();
-                    main_box.append(&button_box);
-
                     let decline_button = gtk::Button::builder()
                         .hexpand(true)
                         .can_shrink(false)
@@ -420,16 +427,43 @@ impl QuickShareApplicationWindow {
                         .build();
                     button_box.append(&decline_button);
                     button_box.append(&accept_button);
+
+                    let id = model_item.channel_message().id.clone();
+                    decline_button.connect_clicked(clone!(
+                        #[weak(rename_to = rqs)]
+                        imp.rqs,
+                        move |_| {
+                            rqs.blocking_lock()
+                                .as_mut()
+                                .unwrap()
+                                .message_sender
+                                .send(ChannelMessage {
+                                    id: id.clone(),
+                                    action: Some(rqs_lib::channel::ChannelAction::RejectTransfer),
+                                    ..Default::default()
+                                })
+                                .unwrap();
+                        }
+                    ));
+                    let id = model_item.channel_message().id.clone();
+                    accept_button.connect_clicked(clone!(
+                        #[weak(rename_to = rqs)]
+                        imp.rqs,
+                        move |_| {
+                            rqs.blocking_lock()
+                                .as_mut()
+                                .unwrap()
+                                .message_sender
+                                .send(ChannelMessage {
+                                    id: id.clone(),
+                                    action: Some(rqs_lib::channel::ChannelAction::AcceptTransfer),
+                                    ..Default::default()
+                                })
+                                .unwrap();
+                        }
+                    ));
                 }
                 TransferKind::Send => {
-                    let button_box = gtk::Box::builder()
-                        // Let the buttons expand, they look weird when always compact,
-                        // leads to too much empty space in the card
-                        // .halign(gtk::Align::Center)
-                        .spacing(12)
-                        .build();
-                    main_box.append(&button_box);
-
                     let accept_button = gtk::Button::builder()
                         .hexpand(true)
                         .can_shrink(false)
@@ -439,6 +473,93 @@ impl QuickShareApplicationWindow {
                     button_box.append(&accept_button);
                 }
             };
+
+            // FIXME: add new model properties like `title`, `caption`, `card_state`
+            // and so the ui can be updated by setting this properties outside of the UI
+            // code section, while we listen to property changes here
+            // And, this way the UI can be easily reproduced as well based on the model state
+            // unlike here. This is important for a transfer history page since that page
+            // will be built out of a list based on these model states
+            // Or,
+            // if possible via ListStore, just copy the widget instead of going model -> widget
+            match model_item.transfer_kind() {
+                TransferKind::Receive => {
+                    model_item.connect_channel_message_notify(clone!(
+                        #[weak]
+                        model_item,
+                        move |obj| {
+                            use rqs_lib::State;
+                            let channel_message = obj.channel_message();
+                            if let Some(state) = channel_message.0.state {
+                                match state {
+                                    State::Initial => {}
+                                    State::ReceivedConnectionRequest => {}
+                                    State::SentUkeyServerInit => {}
+                                    State::SentUkeyClientInit => {}
+                                    State::SentUkeyClientFinish => {}
+                                    State::SentPairedKeyEncryption => {}
+                                    State::ReceivedUkeyClientFinish => {}
+                                    State::SentConnectionResponse => {}
+                                    State::SentPairedKeyResult => {}
+                                    State::SentIntroduction => {}
+                                    State::ReceivedPairedKeyResult => {}
+                                    State::WaitingForUserConsent => {}
+                                    State::ReceivingFiles => {
+                                        button_box.set_visible(false);
+                                        let receiving_text = {
+                                            let file_count = model_item.filenames().len();
+                                            formatx!(
+                                                ngettext(
+                                                    "Receiving {} file...",
+                                                    "Receiving {} files...",
+                                                    file_count as u32
+                                                ),
+                                                file_count
+                                            )
+                                            .unwrap_or_default()
+                                        };
+                                        caption_label.set_label(&receiving_text);
+                                    }
+                                    State::SendingFiles => {}
+                                    State::Disconnected => {}
+                                    State::Rejected => {
+                                        button_box.set_visible(false);
+                                        result_label.set_visible(true);
+                                        result_label.set_label(&gettext("Rejected"));
+                                        result_label.add_css_class("error");
+                                    }
+                                    State::Cancelled => {
+                                        button_box.set_visible(false);
+                                        result_label.set_visible(true);
+                                        result_label.set_label(&gettext("Cancelled"));
+                                        result_label.add_css_class("error");
+                                    }
+                                    State::Finished => {
+                                        let finished_text = {
+                                            let file_count = model_item.filenames().len();
+                                            formatx!(
+                                                ngettext(
+                                                    "Finished receiving {} file...",
+                                                    "Finished receiving {} files...",
+                                                    file_count as u32
+                                                ),
+                                                file_count
+                                            )
+                                            .unwrap_or_default()
+                                        };
+                                        button_box.set_visible(false);
+                                        caption_label.set_label(&finished_text);
+                                        result_label.set_visible(true);
+                                        result_label.set_label(&gettext("Finished"));
+                                        result_label.add_css_class("success");
+                                    }
+                                };
+                            }
+                        }
+                    ));
+                }
+                TransferKind::Send => {}
+            }
 
             adw::Bin::builder().child(&root_card_box).build()
         }
@@ -578,36 +699,10 @@ impl QuickShareApplicationWindow {
                     loop {
                         match rx.recv().await {
                             Ok(channel_message) => {
-                                if channel_message
-                                    .state
-                                    .as_ref()
-                                    .unwrap_or(&rqs_lib::State::Initial)
-                                    == &rqs_lib::State::WaitingForUserConsent
-                                {
-                                    let name = file_transfer::ChannelMessage::get_device_name(
-                                        &channel_message,
-                                    );
+                                tx.send(channel_message).await.unwrap();
 
-                                    // FIXME: Not reacting to cancellation of transfer request by the sender itself
-                                    // We don't receive a cancelation message when the other device has cancelled
-                                    // their own request until the user "accepts" the request, after which the
-                                    // accept request gets rejected and then we get the cancellation message.
-                                    // But this is not how it's supposed to be, first party quickshare clients
-                                    // are able to figure out the cancellation, just not here... something's
-                                    // up in the lib.
-                                    //
-                                    // Lib has access to the event but it's not being exposed
-                                    // [log] rqs_lib::hdl::inbound: Transfer canceled
-
-                                    tracing::info!(
-                                        ?channel_message,
-                                        "{name} wants to start a transfer"
-                                    );
-                                    tx.send(channel_message).await.unwrap();
-
-                                    // FIXME: Send desktop notification aswell
-                                    // send_request_notification(name, channel_msg.id.clone(), &capp_handle);
-                                }
+                                // FIXME: Send desktop notification aswell
+                                // send_request_notification(name, channel_msg.id.clone(), &capp_handle);
                             }
                             Err(err) => {
                                 tracing::error!(%err)
@@ -621,59 +716,105 @@ impl QuickShareApplicationWindow {
                 imp,
                 async move {
                     loop {
+                        let channel_message = rx.recv().await.unwrap();
+
+                        tracing::debug!(?channel_message, "RECEIVED MESSAGE");
+
+                        let id = &channel_message.id;
+
+                        use rqs_lib::State;
+                        match channel_message
+                            .state
+                            .clone()
+                            .unwrap_or(rqs_lib::State::Initial)
                         {
-                            let channel_message = rx.recv().await.unwrap();
+                            State::Initial => {}
+                            State::ReceivedConnectionRequest => {}
+                            State::SentUkeyServerInit => {}
+                            State::SentUkeyClientInit => {}
+                            State::SentUkeyClientFinish => {}
+                            State::SentPairedKeyEncryption => {}
+                            State::ReceivedUkeyClientFinish => {}
+                            State::SentConnectionResponse => {}
+                            State::SentPairedKeyResult => {}
+                            State::SentIntroduction => {}
+                            State::ReceivedPairedKeyResult => {}
+                            State::WaitingForUserConsent => {
+                                // Receive file transfer requests
+                                {
+                                    // let name = file_transfer::ChannelMessage::get_device_name(
+                                    //     &channel_message,
+                                    // );
+                                    // tracing::info!(
+                                    //     ?channel_message,
+                                    //     "{name} wants to start a transfer"
+                                    // );
 
-                            let mut active_file_requests = imp.active_file_requests.lock().await;
-                            if let Some(file_transfer) =
-                                active_file_requests.get(&channel_message.id)
-                            {
-                                // FIXME: Listen to channel_message updates
-                                // and update the UI accordingly
+                                    let mut active_file_requests =
+                                        imp.active_file_requests.lock().await;
+                                    if let Some(file_transfer) = active_file_requests.get(id) {
+                                        // Update file request state
+                                        file_transfer.set_filenames(
+                                            channel_message
+                                                .meta
+                                                .as_ref()
+                                                .unwrap()
+                                                .files
+                                                .as_ref()
+                                                .unwrap()
+                                                .clone(),
+                                        );
+                                        file_transfer.set_channel_message(
+                                            file_transfer::ChannelMessage(channel_message),
+                                        );
+                                    } else {
+                                        // Add new file request
+                                        let obj = FileTransferObject::new(TransferKind::Receive);
+                                        let id = id.clone();
+                                        obj.set_filenames(
+                                            channel_message
+                                                .meta
+                                                .as_ref()
+                                                .unwrap()
+                                                .files
+                                                .as_ref()
+                                                .unwrap()
+                                                .clone(),
+                                        );
+                                        obj.set_channel_message(file_transfer::ChannelMessage(
+                                            channel_message,
+                                        ));
+                                        imp.receive_file_transfer_model.append(&obj);
+                                        active_file_requests.insert(id, obj);
+                                    }
+                                }
 
-                                // Update file request state
-                                file_transfer.set_filenames(
-                                    channel_message
-                                        .meta
-                                        .as_ref()
-                                        .unwrap()
-                                        .files
-                                        .as_ref()
-                                        .unwrap()
-                                        .clone(),
-                                );
-                                file_transfer.set_channel_message(file_transfer::ChannelMessage(
-                                    channel_message,
-                                ));
-                            } else {
-                                // Add new file request
-                                let obj = FileTransferObject::new(TransferKind::Receive);
-                                let id = channel_message.id.clone();
-                                obj.set_filenames(
-                                    channel_message
-                                        .meta
-                                        .as_ref()
-                                        .unwrap()
-                                        .files
-                                        .as_ref()
-                                        .unwrap()
-                                        .clone(),
-                                );
-                                obj.set_channel_message(file_transfer::ChannelMessage(
-                                    channel_message,
-                                ));
-                                imp.receive_file_transfer_model.append(&obj);
-                                active_file_requests.insert(id, obj);
+                                if imp.receive_file_transfer_model.n_items() == 0 {
+                                    imp.receive_stack
+                                        .set_visible_child_name("receive_idle_status_page");
+                                } else {
+                                    imp.receive_stack
+                                        .set_visible_child_name("receive_request_page");
+                                }
                             }
-                        }
+                            State::SendingFiles => {}
+                            State::Disconnected
+                            | State::Rejected
+                            | State::Cancelled
+                            | State::Finished
+                            | State::ReceivingFiles => {
+                                // TODO: Both transfer kinds and from both sides? If so need a way to deferentiate b/w send and receive,
+                                // maybe with pin_code?
 
-                        if imp.receive_file_transfer_model.n_items() == 0 {
-                            imp.receive_stack
-                                .set_visible_child_name("receive_idle_status_page");
-                        } else {
-                            imp.receive_stack
-                                .set_visible_child_name("receive_request_page");
-                        }
+                                let active_file_requests = imp.active_file_requests.lock().await;
+
+                                if let Some(model_item) = active_file_requests.get(id) {
+                                    model_item.set_channel_message(file_transfer::ChannelMessage(
+                                        channel_message,
+                                    ));
+                                }
+                            }
+                        };
                     }
                 }
             ));
@@ -756,6 +897,7 @@ impl QuickShareApplicationWindow {
                                 let obj = FileTransferObject::new(TransferKind::Send);
                                 let id = endpoint_info.id.clone();
                                 obj.set_endpoint_info(file_transfer::EndpointInfo(endpoint_info));
+                                // FIXME: item should be added in reversed order
                                 imp.send_file_transfer_model.append(&obj);
                                 active_discovered_endpoints.insert(id, obj);
                             }
