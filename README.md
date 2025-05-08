@@ -9,10 +9,10 @@ QuickShare is available on Flathub! -->
 <!-- <img src="https://flathub.org/api/badge?svg&locale=en&light" width="190px" /> -->
 <!-- </a> -->
 
-<!-- ## Screenshots
+## Screenshots
 <div align="center">
-![screenshot](data/resources/screenshots/screenshot1.png)
-</div> -->
+![screenshot](data/resources/screenshots/receive-page.png)
+</div>
 
 <!-- FIXME Uncomment once available at Damned Lies -->
 <!-- ## Translations -->
