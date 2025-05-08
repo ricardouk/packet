@@ -456,6 +456,41 @@ impl QuickShareApplicationWindow {
                 .build();
             main_box.append(&button_box);
 
+            let id = match model_item.transfer_kind() {
+                TransferKind::Receive => model_item.channel_message().id.clone(),
+                TransferKind::Send => model_item.endpoint_info().id.clone(),
+            };
+
+            // FIXME: rqs_lib doesn't clean up broken downloads (whether due to user cancelation or otherwise)
+            // so go fix it...
+            let cancel_transfer_button = gtk::Button::builder()
+                .hexpand(true)
+                .label(gettext("Cancel"))
+                .css_classes(["pill"])
+                .build();
+            cancel_transfer_button.connect_clicked(clone!(
+                #[weak(rename_to = rqs)]
+                imp.rqs,
+                #[strong]
+                id,
+                move |button| {
+                    // FIXME: Immediately change the UI to cancelled state
+                    // or keep the current behaviour of making the button insensitive
+                    // after one click
+                    button.set_sensitive(false);
+                    rqs.blocking_lock()
+                        .as_mut()
+                        .unwrap()
+                        .message_sender
+                        .send(ChannelMessage {
+                            id: id.clone(),
+                            action: Some(rqs_lib::channel::ChannelAction::CancelTransfer),
+                            ..Default::default()
+                        })
+                        .unwrap();
+                }
+            ));
+
             match model_item.transfer_kind() {
                 TransferKind::Receive => {
                     let decline_button = gtk::Button::builder()
@@ -473,10 +508,11 @@ impl QuickShareApplicationWindow {
                     button_box.append(&decline_button);
                     button_box.append(&accept_button);
 
-                    let id = model_item.channel_message().id.clone();
                     decline_button.connect_clicked(clone!(
                         #[weak(rename_to = rqs)]
                         imp.rqs,
+                        #[strong]
+                        id,
                         move |_| {
                             rqs.blocking_lock()
                                 .as_mut()
@@ -490,10 +526,11 @@ impl QuickShareApplicationWindow {
                                 .unwrap();
                         }
                     ));
-                    let id = model_item.channel_message().id.clone();
                     accept_button.connect_clicked(clone!(
                         #[weak(rename_to = rqs)]
                         imp.rqs,
+                        #[strong]
+                        id,
                         move |_| {
                             rqs.blocking_lock()
                                 .as_mut()
@@ -507,28 +544,15 @@ impl QuickShareApplicationWindow {
                                 .unwrap();
                         }
                     ));
-                }
-                TransferKind::Send => {
-                    let accept_button = gtk::Button::builder()
-                        .hexpand(true)
-                        .can_shrink(false)
-                        .label(gettext("Send"))
-                        .css_classes(["pill", "suggested-action"])
-                        .build();
-                    button_box.append(&accept_button);
-                }
-            };
 
-            // FIXME: Add new model properties like `title`, `caption`, `card_state`
-            // and so the ui can be updated by setting this properties outside of the UI
-            // code section, while we listen to property changes here
-            // And, this way the UI can be easily reproduced as well based on the model state
-            // unlike here. This is important for a transfer history page since that page
-            // will be built out of a list based on these model states
-            // Or,
-            // if possible via ListStore, just copy the widget instead of going model -> widget
-            match model_item.transfer_kind() {
-                TransferKind::Receive => {
+                    // FIXME: Add new model properties like `title`, `caption`, `card_state`
+                    // and so the ui can be updated by setting this properties outside of the UI
+                    // code section, while we listen to property changes here
+                    // And, this way the UI can be easily reproduced as well based on the model state
+                    // unlike here. This is important for a transfer history page since that page
+                    // will be built out of a list based on these model states
+                    // Or,
+                    // if possible via ListStore, just copy the widget instead of going model -> widget
                     model_item.connect_channel_message_notify(clone!(
                         #[weak]
                         model_item,
@@ -550,7 +574,10 @@ impl QuickShareApplicationWindow {
                                     State::ReceivedPairedKeyResult => {}
                                     State::WaitingForUserConsent => {}
                                     State::ReceivingFiles => {
-                                        button_box.set_visible(false);
+                                        accept_button.set_visible(false);
+                                        decline_button.set_visible(false);
+                                        button_box.append(&cancel_transfer_button);
+
                                         let receiving_text = {
                                             let file_count = model_item.filenames().len();
                                             formatx!(
@@ -612,8 +639,16 @@ impl QuickShareApplicationWindow {
                         }
                     ));
                 }
-                TransferKind::Send => {}
-            }
+                TransferKind::Send => {
+                    let accept_button = gtk::Button::builder()
+                        .hexpand(true)
+                        .can_shrink(false)
+                        .label(gettext("Send"))
+                        .css_classes(["pill", "suggested-action"])
+                        .build();
+                    button_box.append(&accept_button);
+                }
+            };
 
             adw::Bin::builder().child(&root_card_box).build()
         }
