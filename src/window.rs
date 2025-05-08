@@ -184,11 +184,12 @@ impl QuickShareApplicationWindow {
 
         // imp.transfer_kind_nav_view.get().push_by_tag("transfer_history_page");
 
-        // FIXME: Keep the device name stored as preference and restore it on app start
+        // FIXME: Make device name configurable (at any time preferably) on rqs_lib side
+        // Keep the device name stored as preference and restore it on app start
         let device_name_label = imp.device_name_label.get();
         device_name_label.set_subtitle(&whoami::devicename());
 
-        // FIXME: implement send page's select drop zone
+        // FIXME: Implement send page's select drop zone
         imp.send_select_files_button.connect_clicked(clone!(
             #[weak]
             imp,
@@ -199,7 +200,7 @@ impl QuickShareApplicationWindow {
                         .and_downcast_ref::<adw::ApplicationWindow>(),
                     None::<&gio::Cancellable>,
                     move |files| {
-                        // FIXME: abstract this away into a reusable function
+                        // FIXME: Abstract this away into a reusable function
                         // since this'll be called from both the button and drop zone
                         // Maybe have it as a action later
 
@@ -301,7 +302,7 @@ impl QuickShareApplicationWindow {
             imp: &imp::QuickShareApplicationWindow,
             model_item: &FileTransferObject,
         ) -> adw::Bin {
-            // FIXME: UI for request pin code
+            // FIXME: UI for request transfer pin code
 
             let (caption, title) = match dbg!(model_item.transfer_kind()) {
                 TransferKind::Receive => {
@@ -332,8 +333,6 @@ impl QuickShareApplicationWindow {
                         .unwrap_or(gettext("Unknown device").into());
 
                     let file_count = imp.selected_files_to_send.as_ref().borrow().len();
-                    // FIXME: there's probably a better way to do this right?
-                    // As it is, translators might have issues translating this due to loss of context
                     (
                         formatx!(
                             ngettext(
@@ -474,7 +473,7 @@ impl QuickShareApplicationWindow {
                 }
             };
 
-            // FIXME: add new model properties like `title`, `caption`, `card_state`
+            // FIXME: Add new model properties like `title`, `caption`, `card_state`
             // and so the ui can be updated by setting this properties outside of the UI
             // code section, while we listen to property changes here
             // And, this way the UI can be easily reproduced as well based on the model state
@@ -669,7 +668,7 @@ impl QuickShareApplicationWindow {
                                 tx.send(channel_message).await.unwrap();
 
                                 // FIXME: Send desktop notification aswell
-                                // send_request_notification(name, channel_msg.id.clone(), &capp_handle);
+                                // send_request_notification(name, channel_msg.id.clone());
                             }
                             Err(err) => {
                                 tracing::error!(%err)
@@ -737,7 +736,7 @@ impl QuickShareApplicationWindow {
                                     } else {
                                         // Add new file request
                                         let obj = FileTransferObject::new(TransferKind::Receive);
-                                        // FIXME: handle when text is shared instead of files
+                                        // FIXME: Handle when text is being shared instead of files
                                         // .text_payload (When transfer is finished) and .text_description
                                         let id = id.clone();
                                         obj.set_filenames(
@@ -806,7 +805,7 @@ impl QuickShareApplicationWindow {
                         .clone();
                     let mut mdns_discovery_rx = mdns_discovery_broadcast_tx.subscribe();
 
-                    // FIXME: Start this when a file is selected for the first time?
+                    // FIXME: Start discovery when a file is selected for the first time instead?
                     // Start discovery
                     rqs.lock()
                         .await
@@ -866,7 +865,7 @@ impl QuickShareApplicationWindow {
                                 let obj = FileTransferObject::new(TransferKind::Send);
                                 let id = endpoint_info.id.clone();
                                 obj.set_endpoint_info(file_transfer::EndpointInfo(endpoint_info));
-                                // FIXME: item should be added in reversed order
+                                // FIXME: Item should be added in reversed order
                                 imp.send_file_transfer_model.append(&obj);
                                 active_discovered_endpoints.insert(id, obj);
                             }
@@ -899,7 +898,7 @@ impl QuickShareApplicationWindow {
                     loop {
                         match visibility_receiver.changed().await {
                             Ok(_) => {
-                                // FIXME: update visibility in UI?
+                                // FIXME: Update visibility in UI?
                                 let visibility = visibility_receiver.borrow_and_update();
                                 tracing::debug!(?visibility, "Visibility change");
                             }
@@ -918,8 +917,8 @@ impl QuickShareApplicationWindow {
                     match ble_receiver.recv().await {
                         Ok(_) => {
                             // let is_visible = device_visibility_switch.is_active();
-                            // FIXME: get visibility via a channel
-                            // and temporarily make device visible
+                            // FIXME: Get visibility via a channel
+                            // and temporarily make device visible?
 
                             tracing::debug!("Received BLE")
                         }

@@ -96,7 +96,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
                             Adw.PreferencesGroup {
                                 separate-rows: true;
-                                // FIXME: have it be an EntryRow once rqs_lib accepts arbitrary device names
+                                // FIXME: Have it be an EntryRow once rqs_lib accepts arbitrary device names
                                 // instead of 'hardcoded' hostname
                                 // hdl::mdns::MDnsServer::build_service
                                 Adw.ActionRow device_name_label {
@@ -109,7 +109,6 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                 }
 
                                 Adw.SwitchRow device_visibility_switch {
-                                    // FIXME: handle active state in code once RQS service is running
                                     title: _("Visibility");
                                     subtitle: _("Visbile to nearby devices");
                                 }
@@ -187,7 +186,6 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                             }
 
                                             StackPage {
-                                                // FIXME: complete this
                                                 name: "receive_request_page";
 
                                                 child: ScrolledWindow {
