@@ -20,6 +20,14 @@ impl_deref_for_newtype!(EndpointInfo, rqs_lib::EndpointInfo);
 pub struct ChannelMessage(pub rqs_lib::channel::ChannelMessage);
 impl_deref_for_newtype!(ChannelMessage, rqs_lib::channel::ChannelMessage);
 
+#[derive(Debug, Clone)]
+pub struct TextData {
+    pub description: String,
+    pub text: String,
+    // FIXME: Check text type once hdl::TextPayloadType is exported
+    // kind: rqs_lib::hdl::TextPayloadType
+}
+
 impl ChannelMessage {
     pub fn get_device_name(channel_message: &rqs_lib::channel::ChannelMessage) -> String {
         channel_message
@@ -28,6 +36,21 @@ impl ChannelMessage {
             .and_then(|meta| meta.source.as_ref())
             .map(|source| source.name.clone())
             .unwrap_or(gettext("Unknown device"))
+    }
+
+    pub fn get_filenames(&self) -> Option<Vec<String>> {
+        self.0.meta.as_ref().and_then(|it| it.files.clone())
+    }
+
+    pub fn get_text_data(&self) -> Option<TextData> {
+        self.0.meta.as_ref().and_then(|meta| {
+            meta.text_description.as_ref().and_then(|description| {
+                Some(TextData {
+                    description: description.clone(),
+                    text: meta.text_payload.clone().unwrap_or_default(),
+                })
+            })
+        })
     }
 }
 
@@ -57,8 +80,6 @@ mod imp {
         endpoint_info: RefCell<EndpointInfo>,
         #[property(get, set)]
         channel_message: RefCell<ChannelMessage>,
-        #[property(get, set)]
-        filenames: RefCell<Vec<String>>,
     }
 
     #[glib::object_subclass]

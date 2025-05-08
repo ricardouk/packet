@@ -379,19 +379,30 @@ impl QuickShareApplicationWindow {
                         &model_item.channel_message().0,
                     );
 
-                    let file_count = model_item.filenames().len();
-                    (
+                    let caption = if let Some(files) = model_item.channel_message().get_filenames()
+                    {
                         formatx!(
                             ngettext(
                                 "This device wants to share {} file",
                                 "This device wants to share {} files",
-                                file_count as u32
+                                files.len() as u32
                             ),
-                            file_count
+                            files.len()
                         )
-                        .unwrap_or_default(),
-                        device_name,
-                    )
+                        .unwrap_or_default()
+                    } else {
+                        formatx!(
+                            gettext("This device wants to share <i>\"{}\"</i>"),
+                            model_item
+                                .channel_message()
+                                .get_text_data()
+                                .unwrap()
+                                .description
+                        )
+                        .unwrap_or_default()
+                    };
+
+                    (caption, device_name)
                 }
                 TransferKind::Send => {
                     let device_name = model_item
@@ -454,16 +465,20 @@ impl QuickShareApplicationWindow {
 
             let title_label = gtk::Label::builder()
                 .halign(gtk::Align::Start)
+                .wrap(true)
                 .label(title)
                 .css_classes(["title-4"])
                 .build();
             let caption_label = gtk::Label::builder()
                 .halign(gtk::Align::Start)
+                .wrap(true)
+                .use_markup(true)
                 .label(caption)
                 .css_classes(["caption"])
                 .build();
             let result_label = gtk::Label::builder()
                 .halign(gtk::Align::Start)
+                .wrap(true)
                 .visible(false)
                 .css_classes(["caption"])
                 .build();
@@ -604,16 +619,27 @@ impl QuickShareApplicationWindow {
                                         cancel_transfer_button.set_visible(true);
 
                                         let receiving_text = {
-                                            let file_count = model_item.filenames().len();
-                                            formatx!(
-                                                ngettext(
-                                                    "Receiving {} file...",
-                                                    "Receiving {} files...",
-                                                    file_count as u32
-                                                ),
-                                                file_count
-                                            )
-                                            .unwrap_or_default()
+                                            let channel_message = model_item.channel_message();
+                                            if let Some(files) = channel_message.get_filenames() {
+                                                formatx!(
+                                                    ngettext(
+                                                        "Receiving {} file...",
+                                                        "Receiving {} files...",
+                                                        files.len() as u32
+                                                    ),
+                                                    files.len()
+                                                )
+                                                .unwrap_or_default()
+                                            } else {
+                                                formatx!(
+                                                    gettext("Receiving text <i>\"{}\"</i>"),
+                                                    channel_message
+                                                        .get_text_data()
+                                                        .unwrap()
+                                                        .description
+                                                )
+                                                .unwrap_or_default()
+                                            }
                                         };
                                         caption_label.set_label(&receiving_text);
                                     }
@@ -642,16 +668,27 @@ impl QuickShareApplicationWindow {
                                     }
                                     State::Finished => {
                                         let finished_text = {
-                                            let file_count = model_item.filenames().len();
-                                            formatx!(
-                                                ngettext(
-                                                    "Finished receiving {} file...",
-                                                    "Finished receiving {} files...",
-                                                    file_count as u32
-                                                ),
-                                                file_count
-                                            )
-                                            .unwrap_or_default()
+                                            let channel_message = model_item.channel_message();
+                                            if let Some(files) = channel_message.get_filenames() {
+                                                formatx!(
+                                                    ngettext(
+                                                        "Received {} file",
+                                                        "Received {} files",
+                                                        files.len() as u32
+                                                    ),
+                                                    files.len()
+                                                )
+                                                .unwrap_or_default()
+                                            } else {
+                                                formatx!(
+                                                    gettext("Received text <i>\"{}\"</i>"),
+                                                    channel_message
+                                                        .get_text_data()
+                                                        .unwrap()
+                                                        .description
+                                                )
+                                                .unwrap_or_default()
+                                            }
                                         };
                                         button_box.set_visible(false);
                                         caption_label.set_label(&finished_text);
@@ -752,6 +789,7 @@ impl QuickShareApplicationWindow {
                         }
                     ));
 
+                    let retry_label = gettext("Retry");
                     model_item.connect_channel_message_notify(clone!(move |model_item| {
                         use rqs_lib::State;
                         let channel_message = model_item.channel_message();
@@ -801,7 +839,7 @@ impl QuickShareApplicationWindow {
                                     // This is how google does it in their client
                                     cancel_transfer_button.set_visible(false);
                                     send_button.set_visible(true);
-                                    send_button.set_label(&gettext("Resend"));
+                                    send_button.set_label(&retry_label);
 
                                     result_label.set_visible(true);
                                     result_label.set_label(&gettext("Unexpected disconnection"));
@@ -810,7 +848,7 @@ impl QuickShareApplicationWindow {
                                 State::Rejected => {
                                     cancel_transfer_button.set_visible(false);
                                     send_button.set_visible(true);
-                                    send_button.set_label(&gettext("Resend"));
+                                    send_button.set_label(&retry_label);
 
                                     result_label.set_visible(true);
                                     result_label.set_label(&gettext("Rejected"));
@@ -819,7 +857,7 @@ impl QuickShareApplicationWindow {
                                 State::Cancelled => {
                                     cancel_transfer_button.set_visible(false);
                                     send_button.set_visible(true);
-                                    send_button.set_label(&gettext("Resend"));
+                                    send_button.set_label(&retry_label);
 
                                     result_label.set_visible(true);
                                     result_label.set_label(&gettext("Cancelled"));
@@ -837,8 +875,8 @@ impl QuickShareApplicationWindow {
                                             .len();
                                         formatx!(
                                             ngettext(
-                                                "Finished sending {} file...",
-                                                "Finished sending {} files...",
+                                                "Sent {} file",
+                                                "Sent {} files",
                                                 file_count as u32
                                             ),
                                             file_count
@@ -972,7 +1010,7 @@ impl QuickShareApplicationWindow {
                     loop {
                         let channel_message = rx.recv().await.unwrap();
 
-                        tracing::debug!(?channel_message, "RECEIVED MESSAGE");
+                        tracing::debug!(?channel_message, "Received on UI thread");
 
                         let id = &channel_message.id;
 
@@ -1005,35 +1043,13 @@ impl QuickShareApplicationWindow {
                                         imp.active_file_requests.lock().await;
                                     if let Some(file_transfer) = active_file_requests.get(id) {
                                         // Update file request state
-                                        file_transfer.set_filenames(
-                                            channel_message
-                                                .meta
-                                                .as_ref()
-                                                .unwrap()
-                                                .files
-                                                .as_ref()
-                                                .unwrap()
-                                                .clone(),
-                                        );
                                         file_transfer.set_channel_message(
                                             file_transfer::ChannelMessage(channel_message),
                                         );
                                     } else {
                                         // Add new file request
                                         let obj = FileTransferObject::new(TransferKind::Receive);
-                                        // FIXME: Handle when text is being shared instead of files
-                                        // .text_payload (When transfer is finished) and .text_description
                                         let id = id.clone();
-                                        obj.set_filenames(
-                                            channel_message
-                                                .meta
-                                                .as_ref()
-                                                .unwrap()
-                                                .files
-                                                .as_ref()
-                                                .unwrap()
-                                                .clone(),
-                                        );
                                         obj.set_channel_message(file_transfer::ChannelMessage(
                                             channel_message,
                                         ));

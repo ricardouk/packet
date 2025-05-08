@@ -201,6 +201,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
                                                                 Label {
                                                                     label: _("Share requests");
+                                                                    wrap: true;
 
                                                                     styles [
                                                                         "title-1",
@@ -284,6 +285,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
                                                                 Label {
                                                                     label: _("Selected files");
+                                                                    wrap: true;
 
                                                                     styles [
                                                                         "title-1",
@@ -360,8 +362,9 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                                                     hexpand: true;
 
                                                                     Label {
-                                                                        margin-top: 12;
                                                                         label: _("Nearby devices");
+                                                                        margin-top: 12;
+                                                                        wrap: true;
 
                                                                         styles [
                                                                             "title-1",
@@ -377,6 +380,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
                                                                         Label {
                                                                             label: _("Looking for nearby devices...");
+                                                                            wrap: true;
                                                                         }
 
                                                                         Adw.Spinner {
