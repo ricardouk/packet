@@ -348,8 +348,6 @@ impl QuickShareApplicationWindow {
             imp: &imp::QuickShareApplicationWindow,
             model_item: &FileTransferObject,
         ) -> adw::Bin {
-            // FIXME: UI for request transfer pin code
-
             let (caption, title) = match dbg!(model_item.transfer_kind()) {
                 TransferKind::Receive => {
                     let device_name = file_transfer::ChannelMessage::get_device_name(
@@ -360,11 +358,10 @@ impl QuickShareApplicationWindow {
                     (
                         formatx!(
                             ngettext(
-                                "{} wants to share {} file",
-                                "{} wants to share {} files",
+                                "This device wants to share {} file",
+                                "This device wants to share {} files",
                                 file_count as u32
                             ),
-                            &device_name,
                             file_count
                         )
                         .unwrap_or_default(),
@@ -416,6 +413,7 @@ impl QuickShareApplicationWindow {
             let top_box = gtk::Box::builder().spacing(18).build();
             main_box.append(&top_box);
 
+            // FIXME: UI for request transfer pin code
             // `object-select-symbolic` for success status icon
             let device_icon_image = adw::Avatar::builder()
                 .icon_name("preferences-system-network-symbolic")
