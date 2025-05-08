@@ -292,6 +292,10 @@ impl QuickShareApplicationWindow {
                         }
                     ));
 
+                    // Clear all cards
+                    imp.send_file_transfer_model.remove_all();
+                    imp.active_discovered_endpoints.blocking_lock().clear();
+
                     imp.selected_files_to_send.as_ref().borrow_mut().clear();
                 }
             ));
@@ -889,6 +893,7 @@ impl QuickShareApplicationWindow {
                             }
                         }
 
+                        // FIXME: this should be handled in connect_item_changed
                         let loading_nearby_devices_box = imp.loading_nearby_devices_box.get();
                         if imp.send_file_transfer_model.n_items() == 0 {
                             loading_nearby_devices_box.set_visible(true);
