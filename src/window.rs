@@ -58,8 +58,9 @@ mod imp {
         pub receive_idle_status_page: TemplateChild<adw::StatusPage>,
 
         pub rqs: Arc<tokio::sync::Mutex<Option<rqs_lib::RQS>>>,
-        pub file_sender: RefCell<Option<tokio::sync::mpsc::Sender<rqs_lib::SendInfo>>>,
-        pub ble_receiver: RefCell<Option<tokio::sync::broadcast::Receiver<()>>>,
+        pub file_sender:
+            Arc<tokio::sync::Mutex<Option<tokio::sync::mpsc::Sender<rqs_lib::SendInfo>>>>,
+        pub ble_receiver: Rc<RefCell<Option<tokio::sync::broadcast::Receiver<()>>>>,
         pub mdns_discovery_broadcast_tx:
             Arc<tokio::sync::Mutex<Option<tokio::sync::broadcast::Sender<rqs_lib::EndpointInfo>>>>,
 
@@ -638,13 +639,64 @@ impl QuickShareApplicationWindow {
                     ));
                 }
                 TransferKind::Send => {
-                    let accept_button = gtk::Button::builder()
+                    let send_button = gtk::Button::builder()
                         .hexpand(true)
                         .can_shrink(false)
                         .label(gettext("Send"))
                         .css_classes(["pill", "suggested-action"])
                         .build();
-                    button_box.append(&accept_button);
+                    button_box.append(&send_button);
+
+                    let file_sender = &imp.file_sender;
+                    send_button.connect_clicked(clone!(
+                        #[weak]
+                        imp,
+                        #[weak]
+                        file_sender,
+                        #[weak]
+                        model_item,
+                        #[strong]
+                        id,
+                        move |_| {
+                            let endpoint_info = model_item.endpoint_info();
+                            let files_to_send = imp
+                                .selected_files_to_send
+                                .as_ref()
+                                .borrow()
+                                .clone()
+                                .iter()
+                                .filter_map(|it| it.to_str())
+                                .map(|it| it.to_owned())
+                                .collect::<Vec<_>>();
+
+                            tokio_runtime().spawn(clone!(
+                                #[strong]
+                                id,
+                                async move {
+                                    file_sender
+                                        .lock()
+                                        .await
+                                        .as_mut()
+                                        .unwrap()
+                                        .send(rqs_lib::SendInfo {
+                                            id: id.clone(),
+                                            name: endpoint_info
+                                                .name
+                                                .clone()
+                                                .unwrap_or(gettext("Unknown device")),
+                                            addr: format!(
+                                                "{}:{}",
+                                                endpoint_info.ip.clone().unwrap_or_default(),
+                                                endpoint_info.port.clone().unwrap_or_default()
+                                            ),
+                                            ob: rqs_lib::OutboundPayload::Files(files_to_send),
+                                        })
+                                        .await
+                                        .unwrap();
+                                }
+                            ));
+                        }
+                    ));
                 }
             };
 
@@ -711,7 +763,7 @@ impl QuickShareApplicationWindow {
             async move {
                 let (rqs, file_sender, ble_receiver) = rx.recv().await.unwrap();
                 *imp.rqs.lock().await = Some(rqs);
-                *imp.file_sender.borrow_mut() = Some(file_sender);
+                *imp.file_sender.lock().await = Some(file_sender);
                 *imp.ble_receiver.borrow_mut() = Some(ble_receiver);
 
                 let (mdns_discovery_broadcast_tx, _) =
