@@ -1143,8 +1143,7 @@ impl QuickShareApplicationWindow {
                     *imp.ble_receiver.lock().await = Some(ble_receiver);
 
                     // FIXME: instead of this, turn on mdns_discovery if it was on before
-                    imp.send_stack
-                        .set_visible_child_name("send_select_files_status_page");
+                    imp.selected_files_card_cancel_button.emit_clicked();
 
                     tracing::debug!("RQS service has been reset");
 
