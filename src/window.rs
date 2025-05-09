@@ -561,6 +561,13 @@ impl QuickShareApplicationWindow {
             label_box.append(&caption_label);
             label_box.append(&result_label);
 
+            // FIXME: When the transfer is cancelled, the progress bar still keeps going
+            // and the card doesn't move to the cancelled state immediately.
+            // Disregard what's happening in the backend and update the UI anyways, the incomplete
+            // transferred files will be deleted anyways
+            let progress_bar = gtk::ProgressBar::builder().visible(false).build();
+            main_box.append(&progress_bar);
+
             let button_box = gtk::Box::builder()
                 // Let the buttons expand, they look weird when always compact,
                 // leads to too much empty space in the card
@@ -604,6 +611,17 @@ impl QuickShareApplicationWindow {
                         .unwrap();
                 }
             ));
+
+            fn set_progress_bar_fraction(
+                progress_bar: &gtk::ProgressBar,
+                channel_message: &ChannelMessage,
+            ) {
+                if let Some(meta) = &channel_message.meta {
+                    if meta.total_bytes > 0 {
+                        progress_bar.set_fraction(meta.ack_bytes as f64 / meta.total_bytes as f64);
+                    }
+                }
+            }
 
             match model_item.transfer_kind() {
                 TransferKind::Receive => {
@@ -715,7 +733,7 @@ impl QuickShareApplicationWindow {
                             use rqs_lib::State;
 
                             let channel_message = model_item.channel_message();
-                            if let Some(state) = channel_message.0.state {
+                            if let Some(state) = &channel_message.0.state {
                                 match state {
                                     State::Initial => {}
                                     State::ReceivedConnectionRequest => {}
@@ -733,6 +751,9 @@ impl QuickShareApplicationWindow {
                                         accept_button.set_visible(false);
                                         decline_button.set_visible(false);
                                         cancel_transfer_button.set_visible(true);
+
+                                        progress_bar.set_visible(true);
+                                        set_progress_bar_fraction(&progress_bar, &channel_message);
 
                                         lower_notification_count(&imp, &is_badge_removed_state);
 
@@ -767,6 +788,7 @@ impl QuickShareApplicationWindow {
                                         // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
                                         // reject request and show this error, it's usually because the sender
                                         // disconnected from the network
+                                        progress_bar.set_visible(false);
                                         clear_card_button.set_visible(true);
                                         button_box.set_visible(false);
                                         result_label.set_visible(true);
@@ -776,6 +798,7 @@ impl QuickShareApplicationWindow {
                                     }
                                     State::Rejected => {
                                         lower_notification_count(&imp, &is_badge_removed_state);
+                                        progress_bar.set_visible(false);
                                         clear_card_button.set_visible(true);
                                         button_box.set_visible(false);
                                         result_label.set_visible(true);
@@ -784,6 +807,7 @@ impl QuickShareApplicationWindow {
                                     }
                                     State::Cancelled => {
                                         lower_notification_count(&imp, &is_badge_removed_state);
+                                        progress_bar.set_visible(false);
                                         clear_card_button.set_visible(true);
                                         button_box.set_visible(false);
                                         result_label.set_visible(true);
@@ -791,6 +815,7 @@ impl QuickShareApplicationWindow {
                                         result_label.add_css_class("error");
                                     }
                                     State::Finished => {
+                                        progress_bar.set_visible(false);
                                         clear_card_button.set_visible(true);
                                         let finished_text = {
                                             let channel_message = model_item.channel_message();
@@ -954,6 +979,9 @@ impl QuickShareApplicationWindow {
                                     send_button.set_visible(false);
                                     cancel_transfer_button.set_visible(true);
 
+                                    progress_bar.set_visible(true);
+                                    set_progress_bar_fraction(&progress_bar, &channel_message);
+
                                     let receiving_text = {
                                         let file_count = channel_message
                                             .meta
@@ -979,6 +1007,7 @@ impl QuickShareApplicationWindow {
                                     // FIXME: Wait for 5~10 seconds after a send and timeout
                                     // if did not receive SendingFiles within that timeframe
                                     // This is how google does it in their client
+                                    progress_bar.set_visible(false);
                                     cancel_transfer_button.set_visible(false);
                                     send_button.set_visible(true);
                                     send_button.set_label(&retry_label);
@@ -988,6 +1017,7 @@ impl QuickShareApplicationWindow {
                                     result_label.add_css_class("error");
                                 }
                                 State::Rejected => {
+                                    progress_bar.set_visible(false);
                                     cancel_transfer_button.set_visible(false);
                                     send_button.set_visible(true);
                                     send_button.set_label(&retry_label);
@@ -997,6 +1027,7 @@ impl QuickShareApplicationWindow {
                                     result_label.add_css_class("error");
                                 }
                                 State::Cancelled => {
+                                    progress_bar.set_visible(false);
                                     cancel_transfer_button.set_visible(false);
                                     send_button.set_visible(true);
                                     send_button.set_label(&retry_label);
@@ -1006,6 +1037,7 @@ impl QuickShareApplicationWindow {
                                     result_label.add_css_class("error");
                                 }
                                 State::Finished => {
+                                    progress_bar.set_visible(false);
                                     let finished_text = {
                                         let file_count = channel_message
                                             .meta
