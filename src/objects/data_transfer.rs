@@ -70,8 +70,8 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, Properties)]
-    #[properties(wrapper_type = super::FileTransferObject)]
-    pub struct FileTransferObject {
+    #[properties(wrapper_type = super::DataTransferObject)]
+    pub struct DataTransferObject {
         #[property(get, set)]
         transfer_kind: RefCell<TransferKind>,
         #[property(get, set)]
@@ -83,20 +83,20 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for FileTransferObject {
-        const NAME: &'static str = "FileTransferObject";
-        type Type = super::FileTransferObject;
+    impl ObjectSubclass for DataTransferObject {
+        const NAME: &'static str = "DataTransferObject";
+        type Type = super::DataTransferObject;
     }
 
     #[glib::derived_properties]
-    impl ObjectImpl for FileTransferObject {}
+    impl ObjectImpl for DataTransferObject {}
 }
 
 glib::wrapper! {
-    pub struct FileTransferObject(ObjectSubclass<imp::FileTransferObject>);
+    pub struct DataTransferObject(ObjectSubclass<imp::DataTransferObject>);
 }
 
-impl FileTransferObject {
+impl DataTransferObject {
     pub fn new(kind: TransferKind) -> Self {
         let obj: Self = glib::Object::builder().build();
         obj.set_transfer_kind(kind);
@@ -105,7 +105,7 @@ impl FileTransferObject {
     }
 }
 
-impl Default for FileTransferObject {
+impl Default for DataTransferObject {
     fn default() -> Self {
         glib::Object::builder().build()
     }

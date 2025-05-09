@@ -1,3 +1,3 @@
-pub mod file_transfer;
+pub mod data_transfer;
 
-pub use file_transfer::*;
+pub use data_transfer::*;

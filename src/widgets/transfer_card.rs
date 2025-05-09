@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use crate::{
     objects::{
         self,
-        file_transfer::{FileTransferObject, TransferKind},
+        data_transfer::{DataTransferObject, TransferKind},
     },
     tokio_runtime,
     window::QuickShareApplicationWindow,
@@ -19,7 +19,7 @@ use rqs_lib::channel::ChannelMessage;
 pub fn create_data_transfer_card(
     win: &QuickShareApplicationWindow,
     model: &gio::ListStore,
-    model_item: &FileTransferObject,
+    model_item: &DataTransferObject,
 ) -> adw::Bin {
     let imp = win.imp();
     let (caption, title) = match model_item.transfer_kind() {
@@ -457,7 +457,7 @@ pub fn create_data_transfer_card(
             fn send_files_cb(
                 id: String,
                 win: &QuickShareApplicationWindow,
-                model_item: &FileTransferObject,
+                model_item: &DataTransferObject,
                 file_sender: &std::sync::Arc<
                     tokio::sync::Mutex<Option<tokio::sync::mpsc::Sender<rqs_lib::SendInfo>>>,
                 >,

@@ -9,7 +9,7 @@ use gtk::{gdk, gio, glib};
 
 use crate::application::QuickShareApplication;
 use crate::config::{APP_ID, PROFILE};
-use crate::objects::file_transfer::{self, FileTransferObject, TransferKind};
+use crate::objects::data_transfer::{self, DataTransferObject, TransferKind};
 use crate::{tokio_runtime, widgets};
 
 #[derive(Debug)]
@@ -77,12 +77,12 @@ mod imp {
 
         pub selected_files_to_send: Rc<RefCell<Vec<PathBuf>>>,
 
-        #[default(gio::ListStore::new::<FileTransferObject>())]
+        #[default(gio::ListStore::new::<DataTransferObject>())]
         pub receive_file_transfer_model: gio::ListStore,
-        #[default(gio::ListStore::new::<FileTransferObject>())]
+        #[default(gio::ListStore::new::<DataTransferObject>())]
         pub send_file_transfer_model: gio::ListStore,
-        pub active_discovered_endpoints: Arc<Mutex<HashMap<String, FileTransferObject>>>,
-        pub active_file_requests: Arc<Mutex<HashMap<String, FileTransferObject>>>,
+        pub active_discovered_endpoints: Arc<Mutex<HashMap<String, DataTransferObject>>>,
+        pub active_file_requests: Arc<Mutex<HashMap<String, DataTransferObject>>>,
 
         pub rqs_looping_async_tasks: RefCell<Vec<LoopingTaskHandle>>,
     }
@@ -379,7 +379,7 @@ impl QuickShareApplicationWindow {
                 #[upgrade_or]
                 adw::Bin::new().into(),
                 move |obj| {
-                    let model_item = obj.downcast_ref::<FileTransferObject>().unwrap();
+                    let model_item = obj.downcast_ref::<DataTransferObject>().unwrap();
                     widgets::create_data_transfer_card(
                         &imp.obj(),
                         &imp.send_file_transfer_model,
@@ -412,7 +412,7 @@ impl QuickShareApplicationWindow {
                 #[upgrade_or]
                 adw::Bin::new().into(),
                 move |obj| {
-                    let model_item = obj.downcast_ref::<FileTransferObject>().unwrap();
+                    let model_item = obj.downcast_ref::<DataTransferObject>().unwrap();
                     widgets::create_data_transfer_card(
                         &imp.obj(),
                         &imp.receive_file_transfer_model,
@@ -516,7 +516,7 @@ impl QuickShareApplicationWindow {
 
         for model_item in imp
             .send_file_transfer_model
-            .iter::<FileTransferObject>()
+            .iter::<DataTransferObject>()
             .filter_map(|it| it.ok())
         {
             use rqs_lib::State;
@@ -725,13 +725,13 @@ impl QuickShareApplicationWindow {
                                     if let Some(file_transfer) = active_file_requests.get(id) {
                                         // Update file request state
                                         file_transfer.set_channel_message(
-                                            file_transfer::ChannelMessage(channel_message),
+                                            data_transfer::ChannelMessage(channel_message),
                                         );
                                     } else {
                                         // Add new file request
-                                        let obj = FileTransferObject::new(TransferKind::Receive);
+                                        let obj = DataTransferObject::new(TransferKind::Receive);
                                         let id = id.clone();
-                                        obj.set_channel_message(file_transfer::ChannelMessage(
+                                        obj.set_channel_message(data_transfer::ChannelMessage(
                                             channel_message,
                                         ));
                                         imp.receive_file_transfer_model.insert(0, &obj);
@@ -760,7 +760,7 @@ impl QuickShareApplicationWindow {
                                             imp.active_file_requests.lock().await;
                                         if let Some(model_item) = active_file_requests.get(id) {
                                             model_item.set_channel_message(
-                                                file_transfer::ChannelMessage(channel_message),
+                                                data_transfer::ChannelMessage(channel_message),
                                             );
                                         }
                                     }
@@ -773,7 +773,7 @@ impl QuickShareApplicationWindow {
                                             active_discovered_endpoints.get(id)
                                         {
                                             model_item.set_channel_message(
-                                                file_transfer::ChannelMessage(channel_message),
+                                                data_transfer::ChannelMessage(channel_message),
                                             );
                                         }
                                     }
@@ -851,16 +851,16 @@ impl QuickShareApplicationWindow {
                                 } else {
                                     // Update endpoint
                                     tracing::info!(?endpoint_info, "Updated endpoint info");
-                                    file_transfer.set_endpoint_info(file_transfer::EndpointInfo(
+                                    file_transfer.set_endpoint_info(data_transfer::EndpointInfo(
                                         endpoint_info,
                                     ));
                                 }
                             } else {
                                 // Set new endpoint
                                 tracing::info!(?endpoint_info, "Connected endpoint");
-                                let obj = FileTransferObject::new(TransferKind::Send);
+                                let obj = DataTransferObject::new(TransferKind::Send);
                                 let id = endpoint_info.id.clone();
-                                obj.set_endpoint_info(file_transfer::EndpointInfo(endpoint_info));
+                                obj.set_endpoint_info(data_transfer::EndpointInfo(endpoint_info));
                                 imp.send_file_transfer_model.insert(0, &obj);
                                 active_discovered_endpoints.insert(id, obj);
                             }
