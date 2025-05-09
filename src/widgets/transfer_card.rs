@@ -16,7 +16,7 @@ use gettextrs::{gettext, ngettext};
 use gtk::{gio, glib, glib::clone};
 use rqs_lib::channel::ChannelMessage;
 
-pub fn create_file_transfer_card(
+pub fn create_data_transfer_card(
     win: &QuickShareApplicationWindow,
     model: &gio::ListStore,
     model_item: &FileTransferObject,

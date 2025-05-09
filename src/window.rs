@@ -380,7 +380,7 @@ impl QuickShareApplicationWindow {
                 adw::Bin::new().into(),
                 move |obj| {
                     let model_item = obj.downcast_ref::<FileTransferObject>().unwrap();
-                    widgets::create_file_transfer_card(
+                    widgets::create_data_transfer_card(
                         &imp.obj(),
                         &imp.send_file_transfer_model,
                         model_item,
@@ -413,7 +413,7 @@ impl QuickShareApplicationWindow {
                 adw::Bin::new().into(),
                 move |obj| {
                     let model_item = obj.downcast_ref::<FileTransferObject>().unwrap();
-                    widgets::create_file_transfer_card(
+                    widgets::create_data_transfer_card(
                         &imp.obj(),
                         &imp.receive_file_transfer_model,
                         model_item,
