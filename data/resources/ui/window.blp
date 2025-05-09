@@ -147,10 +147,12 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                 }
 
                                 Adw.ViewStack transfer_kind_view_stack {
-                                    Adw.ViewStackPage {
+                                    Adw.ViewStackPage receive_view_stack_page {
                                         name: "receive";
                                         title: _("Receive");
                                         icon-name: "vertical-arrows-long-up-symbolic";
+                                        badge-number: 0;
+                                        needs-attention: false;
 
                                         child: Stack receive_stack {
                                             transition-type: crossfade;

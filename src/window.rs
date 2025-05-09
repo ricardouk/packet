@@ -40,6 +40,9 @@ mod imp {
         pub transfer_kind_nav_view: TemplateChild<adw::NavigationView>,
 
         #[template_child]
+        pub receive_view_stack_page: TemplateChild<adw::ViewStackPage>,
+
+        #[template_child]
         pub receive_stack: TemplateChild<gtk::Stack>,
         #[template_child]
         pub receive_file_transfer_listbox: TemplateChild<gtk::ListBox>,
@@ -667,6 +670,25 @@ impl QuickShareApplicationWindow {
                         }
                     ));
 
+                    fn lower_notification_count(
+                        imp: &imp::QuickShareApplicationWindow,
+                        state: &mut bool,
+                    ) {
+                        if !*state {
+                            let badge_count = imp.receive_view_stack_page.badge_number();
+                            if badge_count > 0 {
+                                imp.receive_view_stack_page
+                                    .set_badge_number(badge_count - 1);
+
+                                if badge_count - 1 == 0 {
+                                    imp.receive_view_stack_page.set_needs_attention(false);
+                                }
+                            }
+
+                            *state = true;
+                        }
+                    }
+
                     // FIXME: Add new model properties like `title`, `caption`, `card_state`
                     // and so the ui can be updated by setting this properties outside of the UI
                     // code section, while we listen to property changes here
@@ -677,9 +699,13 @@ impl QuickShareApplicationWindow {
                     // if possible via ListStore, just copy the widget instead of going model -> widget
                     model_item.connect_channel_message_notify(clone!(
                         #[weak]
+                        imp,
+                        #[weak]
                         cancel_transfer_button,
                         move |model_item| {
                             use rqs_lib::State;
+
+                            let mut is_badge_removed = false;
                             let channel_message = model_item.channel_message();
                             if let Some(state) = channel_message.0.state {
                                 match state {
@@ -699,6 +725,8 @@ impl QuickShareApplicationWindow {
                                         accept_button.set_visible(false);
                                         decline_button.set_visible(false);
                                         cancel_transfer_button.set_visible(true);
+
+                                        lower_notification_count(&imp, &mut is_badge_removed);
 
                                         let receiving_text = {
                                             let channel_message = model_item.channel_message();
@@ -727,6 +755,7 @@ impl QuickShareApplicationWindow {
                                     }
                                     State::SendingFiles => {}
                                     State::Disconnected => {
+                                        lower_notification_count(&imp, &mut is_badge_removed);
                                         // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
                                         // reject request and show this error, it's usually because the sender
                                         // disconnected from the network
@@ -738,6 +767,7 @@ impl QuickShareApplicationWindow {
                                         result_label.add_css_class("error");
                                     }
                                     State::Rejected => {
+                                        lower_notification_count(&imp, &mut is_badge_removed);
                                         clear_card_button.set_visible(true);
                                         button_box.set_visible(false);
                                         result_label.set_visible(true);
@@ -745,6 +775,7 @@ impl QuickShareApplicationWindow {
                                         result_label.add_css_class("error");
                                     }
                                     State::Cancelled => {
+                                        lower_notification_count(&imp, &mut is_badge_removed);
                                         clear_card_button.set_visible(true);
                                         button_box.set_visible(false);
                                         result_label.set_visible(true);
@@ -893,7 +924,7 @@ impl QuickShareApplicationWindow {
                     ));
 
                     let retry_label = gettext("Retry");
-                    model_item.connect_channel_message_notify(clone!(move |model_item| {
+                    model_item.connect_channel_message_notify(move |model_item| {
                         use rqs_lib::State;
                         let channel_message = model_item.channel_message();
                         if let Some(ref state) = channel_message.0.state {
@@ -996,7 +1027,7 @@ impl QuickShareApplicationWindow {
                                 }
                             };
                         }
-                    }));
+                    });
                 }
             };
 
@@ -1303,6 +1334,11 @@ impl QuickShareApplicationWindow {
                                         ));
                                         imp.receive_file_transfer_model.insert(0, &obj);
                                         active_file_requests.insert(id, obj);
+
+                                        imp.receive_view_stack_page.set_badge_number(
+                                            imp.receive_view_stack_page.badge_number() + 1,
+                                        );
+                                        imp.receive_view_stack_page.set_needs_attention(true);
                                     }
                                 }
                             }
