@@ -7,7 +7,7 @@ An implementation of Android's NearbyShare/QuickShare for Linux with a GTK4 inte
 </div>
 
 ## Installation
-QuickShare is available on available as a flatpak.
+QuickShare is available as a flatpak.
 
 <!-- FIXME Uncomment once published at Flathub -->
 <!-- #### Flathub -->
