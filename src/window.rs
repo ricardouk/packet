@@ -1029,8 +1029,12 @@ impl QuickShareApplicationWindow {
             tracing::info!(?download_path, "Starting RQS service");
 
             // FIXME: Allow setting a const port number in app preferences and, download_path
-            let mut rqs =
-                rqs_lib::RQS::new(rqs_lib::Visibility::Visible, None, Some(download_path));
+            let mut rqs = rqs_lib::RQS::new(
+                rqs_lib::Visibility::Visible,
+                None,
+                Some(download_path),
+                None,
+            );
 
             let (file_sender, ble_receiver) = rqs.run().await.unwrap();
 
