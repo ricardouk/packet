@@ -3,6 +3,7 @@ mod application;
 mod config;
 mod objects;
 mod utils;
+mod widgets;
 mod window;
 
 use gettextrs::{gettext, LocaleCategory};
