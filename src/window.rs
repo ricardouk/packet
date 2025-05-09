@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::path::PathBuf;
 
 use adw::prelude::*;
@@ -672,9 +673,9 @@ impl QuickShareApplicationWindow {
 
                     fn lower_notification_count(
                         imp: &imp::QuickShareApplicationWindow,
-                        state: &mut bool,
+                        state: &RefCell<bool>,
                     ) {
-                        if !*state {
+                        if !*state.borrow() {
                             let badge_count = imp.receive_view_stack_page.badge_number();
                             if badge_count > 0 {
                                 imp.receive_view_stack_page
@@ -685,7 +686,7 @@ impl QuickShareApplicationWindow {
                                 }
                             }
 
-                            *state = true;
+                            *state.borrow_mut() = true;
                         }
                     }
 
@@ -697,6 +698,8 @@ impl QuickShareApplicationWindow {
                     // will be built out of a list based on these model states
                     // Or,
                     // if possible via ListStore, just copy the widget instead of going model -> widget
+
+                    let is_badge_removed_state = RefCell::new(false);
                     model_item.connect_channel_message_notify(clone!(
                         #[weak]
                         imp,
@@ -705,7 +708,6 @@ impl QuickShareApplicationWindow {
                         move |model_item| {
                             use rqs_lib::State;
 
-                            let mut is_badge_removed = false;
                             let channel_message = model_item.channel_message();
                             if let Some(state) = channel_message.0.state {
                                 match state {
@@ -726,7 +728,7 @@ impl QuickShareApplicationWindow {
                                         decline_button.set_visible(false);
                                         cancel_transfer_button.set_visible(true);
 
-                                        lower_notification_count(&imp, &mut is_badge_removed);
+                                        lower_notification_count(&imp, &is_badge_removed_state);
 
                                         let receiving_text = {
                                             let channel_message = model_item.channel_message();
@@ -755,7 +757,7 @@ impl QuickShareApplicationWindow {
                                     }
                                     State::SendingFiles => {}
                                     State::Disconnected => {
-                                        lower_notification_count(&imp, &mut is_badge_removed);
+                                        lower_notification_count(&imp, &is_badge_removed_state);
                                         // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
                                         // reject request and show this error, it's usually because the sender
                                         // disconnected from the network
@@ -767,7 +769,7 @@ impl QuickShareApplicationWindow {
                                         result_label.add_css_class("error");
                                     }
                                     State::Rejected => {
-                                        lower_notification_count(&imp, &mut is_badge_removed);
+                                        lower_notification_count(&imp, &is_badge_removed_state);
                                         clear_card_button.set_visible(true);
                                         button_box.set_visible(false);
                                         result_label.set_visible(true);
@@ -775,7 +777,7 @@ impl QuickShareApplicationWindow {
                                         result_label.add_css_class("error");
                                     }
                                     State::Cancelled => {
-                                        lower_notification_count(&imp, &mut is_badge_removed);
+                                        lower_notification_count(&imp, &is_badge_removed_state);
                                         clear_card_button.set_visible(true);
                                         button_box.set_visible(false);
                                         result_label.set_visible(true);
