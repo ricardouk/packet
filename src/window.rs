@@ -82,8 +82,6 @@ mod imp {
         pub active_discovered_endpoints: Arc<Mutex<HashMap<String, FileTransferObject>>>,
         pub active_file_requests: Arc<Mutex<HashMap<String, FileTransferObject>>>,
 
-        pub device_name_state: Arc<Mutex<String>>,
-
         pub rqs_looping_async_tasks: RefCell<Vec<LoopingTaskHandle>>,
     }
 
@@ -115,6 +113,7 @@ mod imp {
 
             // Load latest window state
             obj.load_window_size();
+            obj.load_app_state();
             obj.setup_gactions();
             obj.setup_ui();
             obj.setup_rqs_service();
@@ -127,6 +126,9 @@ mod imp {
         fn close_request(&self) -> glib::Propagation {
             if let Err(err) = self.obj().save_window_size() {
                 tracing::warn!("Failed to save window state, {}", &err);
+            }
+            if let Err(err) = self.obj().save_app_state() {
+                tracing::warn!("Failed to save app state, {}", &err);
             }
 
             let (tx, rx) = async_channel::bounded(1);
@@ -190,6 +192,17 @@ impl QuickShareApplicationWindow {
         }
     }
 
+    fn save_app_state(&self) -> Result<(), glib::BoolError> {
+        let imp = self.imp();
+
+        imp.settings
+            .set_string("device-name", imp.device_name_entry.text().as_str())?;
+
+        Ok(())
+    }
+
+    fn load_app_state(&self) {}
+
     fn setup_gactions(&self) {
         // let toggle_visibility = gio::ActionEntry::builder("toggle-visibility")
         //     .state(false.to_variant())
@@ -202,6 +215,14 @@ impl QuickShareApplicationWindow {
         //     .build();
 
         // self.add_action_entries([toggle_visibility]);
+    }
+
+    fn get_device_name_state(&self) -> glib::GString {
+        self.imp().settings.string("device-name")
+    }
+
+    fn set_device_name_state(&self, s: &str) -> Result<(), glib::BoolError> {
+        self.imp().settings.set_string("device-name", s)
     }
 
     fn setup_ui(&self) {
@@ -231,14 +252,20 @@ impl QuickShareApplicationWindow {
         ));
         // imp.transfer_kind_nav_view.get().push_by_tag("transfer_history_page");
 
-        // FIXME: Make device name configurable (at any time preferably) on rqs_lib side
-        // Keep the device name stored as preference and restore it on app start
+        let device_name = &self.get_device_name_state();
         let device_name_entry = imp.device_name_entry.get();
-        // FIXME: default device name should ideally be username instead of devicename
-        // awaiting custom device name on rqs_lib
-        let device_name = whoami::devicename();
-        device_name_entry.set_text(&device_name);
-        *imp.device_name_state.blocking_lock() = device_name;
+        {
+            if device_name.is_empty() {
+                let device_name = whoami::devicename();
+                device_name_entry.set_text(&device_name);
+                // Can't use bind, since that's not the behaviour we want
+                // We need to keep a state of entry widget before apply so
+                // that we can restore the name to what's actually being used
+                self.set_device_name_state(&device_name).unwrap();
+            } else {
+                device_name_entry.set_text(device_name);
+            }
+        }
         device_name_entry.connect_apply(clone!(
             #[weak(rename_to = this)]
             self,
@@ -1084,8 +1111,6 @@ impl QuickShareApplicationWindow {
         if self.is_no_file_being_send() {
             // FIXME: Show a progress dialog conveying service restart?
 
-            *imp.device_name_state.blocking_lock() = name.to_string();
-
             imp.rqs
                 .blocking_lock()
                 .as_mut()
@@ -1129,8 +1154,10 @@ impl QuickShareApplicationWindow {
                 }
             ));
         } else {
+            imp.device_name_entry.set_show_apply_button(false);
             imp.device_name_entry
-                .set_text(imp.device_name_state.blocking_lock().as_ref());
+                .set_text(&self.get_device_name_state());
+            imp.device_name_entry.set_show_apply_button(true);
 
             tracing::debug!("Active transfers found, can't rename device name");
 
@@ -1143,6 +1170,8 @@ impl QuickShareApplicationWindow {
         let imp = self.imp();
 
         let (tx, rx) = async_channel::bounded(1);
+
+        let device_name = self.get_device_name_state();
         tokio_runtime().spawn(async move {
             let download_path = directories::UserDirs::new()
                 .unwrap()
@@ -1157,7 +1186,7 @@ impl QuickShareApplicationWindow {
                 rqs_lib::Visibility::Visible,
                 None,
                 Some(download_path),
-                None,
+                Some(device_name.to_string()),
             );
 
             let (file_sender, ble_receiver) = rqs.run().await.unwrap();
