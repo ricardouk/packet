@@ -140,8 +140,14 @@ mod imp {
                 #[weak(rename_to = rqs)]
                 self.rqs,
                 async move {
-                    rqs.lock().await.as_mut().unwrap().stop().await;
-                    tracing::info!("Stopped RQS service");
+                    {
+                        let mut rqs_guard = rqs.lock().await;
+                        if let Some(rqs) = rqs_guard.as_mut() {
+                            rqs.stop().await;
+                            tracing::info!("Stopped RQS service");
+                        }
+                    }
+
                     tx.send(()).await.unwrap();
                 }
             ));
