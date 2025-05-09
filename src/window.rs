@@ -368,6 +368,19 @@ impl QuickShareApplicationWindow {
                 }
             ),
         );
+        receive_file_transfer_model.connect_items_changed(clone!(
+            #[weak]
+            imp,
+            move |model, _, _, _| {
+                if model.n_items() == 0 {
+                    imp.receive_stack
+                        .set_visible_child_name("receive_idle_status_page");
+                } else {
+                    imp.receive_stack
+                        .set_visible_child_name("receive_request_page");
+                }
+            }
+        ));
 
         fn create_file_transfer_card(
             imp: &imp::QuickShareApplicationWindow,
@@ -1057,14 +1070,6 @@ impl QuickShareApplicationWindow {
                                         imp.receive_file_transfer_model.insert(0, &obj);
                                         active_file_requests.insert(id, obj);
                                     }
-                                }
-
-                                if imp.receive_file_transfer_model.n_items() == 0 {
-                                    imp.receive_stack
-                                        .set_visible_child_name("receive_idle_status_page");
-                                } else {
-                                    imp.receive_stack
-                                        .set_visible_child_name("receive_request_page");
                                 }
                             }
                             State::SentUkeyClientInit
