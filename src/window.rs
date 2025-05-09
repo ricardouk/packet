@@ -526,7 +526,7 @@ impl QuickShareApplicationWindow {
                 .valign(gtk::Align::Center)
                 .halign(gtk::Align::Center)
                 .icon_name("cross-large-symbolic")
-                .css_classes(["flat"])
+                .css_classes(["flat", "circular"])
                 .tooltip_text(&gettext("Dismiss"))
                 .visible(false)
                 .build();
