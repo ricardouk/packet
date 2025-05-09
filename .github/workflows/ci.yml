@@ -1,7 +1,25 @@
 on:
   push:
     branches: [main]
+    paths:
+      - 'data/**'
+      - 'po/**'
+      - 'subprojects/**'
+      - '**/*.rs'
+      - 'src/**'
+      - 'Cargo.*'
+      - 'build-aux/**'
+      - 'meson*.*'
   pull_request:
+    paths:
+      - 'data/**'
+      - 'po/**'
+      - 'subprojects/**'
+      - '**/*.rs'
+      - 'src/**'
+      - 'Cargo.*'
+      - 'build-aux/**'
+      - 'meson*.*'
 
 name: CI
 
