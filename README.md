@@ -19,8 +19,7 @@ QuickShare is available as a flatpak.
 #### Nightly
 Nightly flatpak builds are available from [here](https://nightly.link/nozwock/quickshare-gtk/workflows/ci/main?preview).
 
-<!-- FIXME Uncomment once available at Damned Lies -->
+<!-- FIXME Uncomment once pot/po files are in-place and tested -->
 <!-- ## Translations -->
 <!-- Helping to translate QuickShare or add support to a new language is very -->
 <!-- welcome. You can find everything you need at: -->
-<!-- [l10n.gnome.org/module/quickshare-gtk/](https://l10n.gnome.org/module/quickshare-gtk/) -->
