@@ -105,6 +105,7 @@ mod imp {
 
             // Load latest window state
             obj.load_window_size();
+            obj.setup_gactions();
             obj.setup_ui();
             obj.setup_rqs_service();
         }
@@ -178,6 +179,19 @@ impl QuickShareApplicationWindow {
             self.maximize();
         }
     }
+    fn setup_gactions(&self) {
+        // let toggle_visibility = gio::ActionEntry::builder("toggle-visibility")
+        //     .state(false.to_variant())
+        //     .activate(|win: &Self, action, _| {
+        //         let action_state: bool = action.state().unwrap().get().unwrap();
+        //         let new_state = !action_state;
+        //         action.set_state(&new_state.to_variant());
+        //         // callback here
+        //     })
+        //     .build();
+
+        // self.add_action_entries([toggle_visibility]);
+    }
 
     fn setup_ui(&self) {
         let imp = self.imp();
@@ -209,6 +223,8 @@ impl QuickShareApplicationWindow {
         // FIXME: Make device name configurable (at any time preferably) on rqs_lib side
         // Keep the device name stored as preference and restore it on app start
         let device_name_label = imp.device_name_label.get();
+        // FIXME: default device name should ideally be username instead of devicename
+        // awaiting custom device name on rqs_lib
         device_name_label.set_subtitle(&whoami::devicename());
 
         fn select_files_to_send_cb(imp: &imp::QuickShareApplicationWindow, files: Vec<gio::File>) {
@@ -336,7 +352,8 @@ impl QuickShareApplicationWindow {
                 adw::Bin::new().into(),
                 move |obj| {
                     let model_item = obj.downcast_ref::<FileTransferObject>().unwrap();
-                    create_file_transfer_card(&imp, model_item).into()
+                    create_file_transfer_card(&imp, &imp.send_file_transfer_model, model_item)
+                        .into()
                 }
             ),
         );
@@ -364,7 +381,8 @@ impl QuickShareApplicationWindow {
                 adw::Bin::new().into(),
                 move |obj| {
                     let model_item = obj.downcast_ref::<FileTransferObject>().unwrap();
-                    create_file_transfer_card(&imp, model_item).into()
+                    create_file_transfer_card(&imp, &imp.receive_file_transfer_model, model_item)
+                        .into()
                 }
             ),
         );
@@ -384,6 +402,7 @@ impl QuickShareApplicationWindow {
 
         fn create_file_transfer_card(
             imp: &imp::QuickShareApplicationWindow,
+            model: &gio::ListStore,
             model_item: &FileTransferObject,
         ) -> adw::Bin {
             let (caption, title) = match model_item.transfer_kind() {
@@ -459,7 +478,7 @@ impl QuickShareApplicationWindow {
                 .build();
             root_card_box.append(&main_box);
 
-            let top_box = gtk::Box::builder().spacing(18).build();
+            let top_box = gtk::Box::builder().build();
             main_box.append(&top_box);
 
             // FIXME: UI for request transfer pin code
@@ -472,10 +491,22 @@ impl QuickShareApplicationWindow {
             top_box.append(&device_icon_image);
 
             let label_box = gtk::Box::builder()
+                .margin_start(18)
                 .orientation(gtk::Orientation::Vertical)
                 .spacing(6)
                 .build();
             top_box.append(&label_box);
+
+            top_box.append(&adw::Bin::builder().hexpand(true).build());
+            let clear_card_button = gtk::Button::builder()
+                .valign(gtk::Align::Center)
+                .halign(gtk::Align::Center)
+                .icon_name("cross-large-symbolic")
+                .css_classes(["flat"])
+                .tooltip_text(&gettext("Dismiss"))
+                .visible(false)
+                .build();
+            top_box.append(&clear_card_button);
 
             let title_label = gtk::Label::builder()
                 .halign(gtk::Align::Start)
@@ -561,6 +592,23 @@ impl QuickShareApplicationWindow {
                     button_box.append(&decline_button);
                     button_box.append(&accept_button);
                     button_box.append(&cancel_transfer_button);
+
+                    clear_card_button.connect_clicked(clone!(
+                        #[weak]
+                        imp,
+                        #[weak]
+                        model,
+                        #[weak]
+                        model_item,
+                        move |_| {
+                            if let Some(pos) = model.find(&model_item) {
+                                model.remove(pos);
+                            }
+                            imp.active_file_requests
+                                .blocking_lock()
+                                .remove(&model_item.channel_message().id);
+                        }
+                    ));
 
                     decline_button.connect_clicked(clone!(
                         #[weak(rename_to = rqs)]
@@ -662,6 +710,7 @@ impl QuickShareApplicationWindow {
                                         // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
                                         // reject request and show this error, it's usually because the sender
                                         // disconnected from the network
+                                        clear_card_button.set_visible(true);
                                         button_box.set_visible(false);
                                         result_label.set_visible(true);
                                         result_label
@@ -669,18 +718,21 @@ impl QuickShareApplicationWindow {
                                         result_label.add_css_class("error");
                                     }
                                     State::Rejected => {
+                                        clear_card_button.set_visible(true);
                                         button_box.set_visible(false);
                                         result_label.set_visible(true);
                                         result_label.set_label(&gettext("Rejected"));
                                         result_label.add_css_class("error");
                                     }
                                     State::Cancelled => {
+                                        clear_card_button.set_visible(true);
                                         button_box.set_visible(false);
                                         result_label.set_visible(true);
                                         result_label.set_label(&gettext("Cancelled"));
                                         result_label.add_css_class("error");
                                     }
                                     State::Finished => {
+                                        clear_card_button.set_visible(true);
                                         let finished_text = {
                                             let channel_message = model_item.channel_message();
                                             if let Some(files) = channel_message.get_filenames() {
@@ -724,6 +776,23 @@ impl QuickShareApplicationWindow {
                         .build();
                     button_box.append(&send_button);
                     button_box.append(&cancel_transfer_button);
+
+                    clear_card_button.connect_clicked(clone!(
+                        #[weak]
+                        imp,
+                        #[weak]
+                        model,
+                        #[weak]
+                        model_item,
+                        move |_| {
+                            if let Some(pos) = model.find(&model_item) {
+                                model.remove(pos);
+                            }
+                            imp.active_discovered_endpoints
+                                .blocking_lock()
+                                .remove(&model_item.channel_message().id);
+                        }
+                    ));
 
                     fn send_files_cb(
                         id: String,
@@ -898,6 +967,7 @@ impl QuickShareApplicationWindow {
                                         .unwrap_or_default()
                                     };
 
+                                    clear_card_button.set_visible(true);
                                     button_box.set_visible(false);
                                     caption_label.set_label(&finished_text);
                                     result_label.set_visible(true);

@@ -10,5 +10,6 @@
   <gresource prefix="/io/github/nozwock/QuickShare/icons/scalable/actions/">
     <file preprocess="xml-stripblanks" alias="vertical-arrows-long-down-symbolic.svg">../icons/actions/vertical-arrows-long-down-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="vertical-arrows-long-up-symbolic.svg">../icons/actions/vertical-arrows-long-up-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="cross-large-symbolic.svg">../icons/actions/cross-large-symbolic.svg</file>
   </gresource>
 </gresources>
