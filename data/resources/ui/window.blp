@@ -118,17 +118,6 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                 }
                             }
 
-                            Label {
-                                label: _("No one new can share with you until you make yourself visible");
-                                visible: bind device_visibility_switch.active inverted;
-                                wrap: true;
-
-                                styles [
-                                    "caption",
-                                    "dim-label",
-                                ]
-                            }
-
                             Adw.Bin {
                                 vexpand: true;
                             }
@@ -171,8 +160,8 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
                                                 child: Adw.StatusPage receive_idle_status_page {
                                                     // `title` is also gets set on the code side
-                                                    icon-name: "network-offline-symbolic";
-                                                    title: _("Not ready to receive");
+                                                    icon-name: "background-app-ghost-symbolic";
+                                                    title: _("Invisible");
                                                 };
                                             }
 
@@ -385,6 +374,33 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                                                         Adw.Spinner {
                                                                             margin-top: 24;
                                                                             height-request: 48;
+                                                                        }
+
+                                                                        Box {
+                                                                            orientation: vertical;
+                                                                            margin-top: 14;
+                                                                            valign: center;
+                                                                            halign: center;
+
+                                                                            Label {
+                                                                                margin-top: 24;
+                                                                                margin-bottom: 24;
+                                                                                margin-start: 24;
+                                                                                margin-end: 24;
+                                                                                label: _("If you can't see your Android device, then first make sure that the Wi-Fi and Bluetooth is turned on.\
+                                                                            \nThen, go to the <b>Files</b> app by Google and open the <b>Quick Share</b> tab or view.");
+                                                                                use-markup: true;
+                                                                                wrap: true;
+                                                                                hexpand: true;
+
+                                                                                styles [
+                                                                                    "caption",
+                                                                                ]
+                                                                            }
+
+                                                                            styles [
+                                                                                "card",
+                                                                            ]
                                                                         }
                                                                     }
 

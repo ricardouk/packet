@@ -1012,19 +1012,23 @@ impl QuickShareApplicationWindow {
                 if obj.is_active() {
                     receive_idle_status_page.set_title(&gettext("Ready to receive"));
                     receive_idle_status_page.set_icon_name(Some("network-receive-symbolic"));
-                    receive_idle_status_page
-                        .set_description(Some(&gettext("Waiting for share requests")));
+                    receive_idle_status_page.set_description(Some(
+                        &formatx!(
+                            gettext("Visible as {:?}"),
+                            imp.obj().get_device_name_state().as_str()
+                        )
+                        .unwrap(),
+                    ));
                     imp.rqs
                         .blocking_lock()
                         .as_mut()
                         .unwrap()
                         .change_visibility(rqs_lib::Visibility::Visible);
                 } else {
-                    receive_idle_status_page.set_title(&gettext("Not ready to receive"));
-                    receive_idle_status_page.set_icon_name(Some("network-offline-symbolic"));
-                    receive_idle_status_page.set_description(Some(&gettext(
-                        "No longer broadcasting this device as available",
-                    )));
+                    receive_idle_status_page.set_title(&gettext("Invisible"));
+                    receive_idle_status_page.set_icon_name(Some("background-app-ghost-symbolic"));
+                    receive_idle_status_page
+                        .set_description(Some(&gettext("No new devices can share with you")));
                     imp.rqs
                         .blocking_lock()
                         .as_mut()
