@@ -13,8 +13,16 @@ use crate::config::{APP_ID, PROFILE};
 use crate::objects::file_transfer::{self, FileTransferObject, TransferKind};
 use crate::tokio_runtime;
 
+#[derive(Debug)]
+pub enum LoopingTaskHandle {
+    Tokio(tokio::task::JoinHandle<()>),
+    Glib(glib::JoinHandle<()>),
+}
+
 mod imp {
     use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
+
+    use tokio::sync::Mutex;
 
     use super::*;
 
@@ -53,18 +61,17 @@ mod imp {
         pub loading_nearby_devices_box: TemplateChild<gtk::Box>,
 
         #[template_child]
-        pub device_name_label: TemplateChild<adw::ActionRow>,
+        pub device_name_entry: TemplateChild<adw::EntryRow>,
         #[template_child]
         pub device_visibility_switch: TemplateChild<adw::SwitchRow>,
         #[template_child]
         pub receive_idle_status_page: TemplateChild<adw::StatusPage>,
 
-        pub rqs: Arc<tokio::sync::Mutex<Option<rqs_lib::RQS>>>,
-        pub file_sender:
-            Arc<tokio::sync::Mutex<Option<tokio::sync::mpsc::Sender<rqs_lib::SendInfo>>>>,
-        pub ble_receiver: Rc<RefCell<Option<tokio::sync::broadcast::Receiver<()>>>>,
+        pub rqs: Arc<Mutex<Option<rqs_lib::RQS>>>,
+        pub file_sender: Arc<Mutex<Option<tokio::sync::mpsc::Sender<rqs_lib::SendInfo>>>>,
+        pub ble_receiver: Arc<Mutex<Option<tokio::sync::broadcast::Receiver<()>>>>,
         pub mdns_discovery_broadcast_tx:
-            Arc<tokio::sync::Mutex<Option<tokio::sync::broadcast::Sender<rqs_lib::EndpointInfo>>>>,
+            Arc<Mutex<Option<tokio::sync::broadcast::Sender<rqs_lib::EndpointInfo>>>>,
 
         pub selected_files_to_send: Rc<RefCell<Vec<PathBuf>>>,
 
@@ -72,9 +79,12 @@ mod imp {
         pub receive_file_transfer_model: gio::ListStore,
         #[default(gio::ListStore::new::<FileTransferObject>())]
         pub send_file_transfer_model: gio::ListStore,
-        pub active_discovered_endpoints:
-            Arc<tokio::sync::Mutex<HashMap<String, FileTransferObject>>>,
-        pub active_file_requests: Arc<tokio::sync::Mutex<HashMap<String, FileTransferObject>>>,
+        pub active_discovered_endpoints: Arc<Mutex<HashMap<String, FileTransferObject>>>,
+        pub active_file_requests: Arc<Mutex<HashMap<String, FileTransferObject>>>,
+
+        pub device_name_state: Arc<Mutex<String>>,
+
+        pub rqs_looping_async_tasks: RefCell<Vec<LoopingTaskHandle>>,
     }
 
     #[glib::object_subclass]
@@ -179,6 +189,7 @@ impl QuickShareApplicationWindow {
             self.maximize();
         }
     }
+
     fn setup_gactions(&self) {
         // let toggle_visibility = gio::ActionEntry::builder("toggle-visibility")
         //     .state(false.to_variant())
@@ -222,10 +233,21 @@ impl QuickShareApplicationWindow {
 
         // FIXME: Make device name configurable (at any time preferably) on rqs_lib side
         // Keep the device name stored as preference and restore it on app start
-        let device_name_label = imp.device_name_label.get();
+        let device_name_entry = imp.device_name_entry.get();
         // FIXME: default device name should ideally be username instead of devicename
         // awaiting custom device name on rqs_lib
-        device_name_label.set_subtitle(&whoami::devicename());
+        let device_name = whoami::devicename();
+        device_name_entry.set_text(&device_name);
+        *imp.device_name_state.blocking_lock() = device_name;
+        device_name_entry.connect_apply(clone!(
+            #[weak(rename_to = this)]
+            self,
+            move |entry| {
+                entry.set_editable(false);
+                this.set_device_name(entry.text().as_str());
+                entry.set_editable(true);
+            }
+        ));
 
         fn select_files_to_send_cb(imp: &imp::QuickShareApplicationWindow, files: Vec<gio::File>) {
             if files.len() == 0 {
@@ -266,29 +288,7 @@ impl QuickShareApplicationWindow {
                         .join(", "),
                 );
 
-                // Start MDNS Discovery
-                tokio_runtime().spawn(clone!(
-                    #[weak(rename_to = mdns_discovery_broadcast_tx)]
-                    imp.mdns_discovery_broadcast_tx,
-                    #[weak(rename_to = rqs)]
-                    imp.rqs,
-                    async move {
-                        _ = rqs
-                            .lock()
-                            .await
-                            .as_mut()
-                            .unwrap()
-                            .discovery(
-                                mdns_discovery_broadcast_tx
-                                    .lock()
-                                    .await
-                                    .as_ref()
-                                    .unwrap()
-                                    .clone(),
-                            )
-                            .inspect_err(|err| tracing::error!(%err));
-                    }
-                ));
+                imp.obj().start_mdns_discovery();
             }
         }
 
@@ -324,14 +324,7 @@ impl QuickShareApplicationWindow {
                         .get()
                         .set_visible_child_name("send_select_files_status_page");
 
-                    // Stop MDNS Discovery
-                    tokio_runtime().spawn(clone!(
-                        #[weak(rename_to = rqs)]
-                        imp.rqs,
-                        async move {
-                            rqs.lock().await.as_mut().unwrap().stop_discovery();
-                        }
-                    ));
+                    imp.obj().stop_mdns_discovery();
 
                     // Clear all cards
                     imp.send_file_transfer_model.remove_all();
@@ -1015,6 +1008,137 @@ impl QuickShareApplicationWindow {
         ));
     }
 
+    fn start_mdns_discovery(&self) {
+        let imp = self.imp();
+
+        tokio_runtime().spawn(clone!(
+            #[weak(rename_to = mdns_discovery_broadcast_tx)]
+            imp.mdns_discovery_broadcast_tx,
+            #[weak(rename_to = rqs)]
+            imp.rqs,
+            async move {
+                _ = rqs
+                    .lock()
+                    .await
+                    .as_mut()
+                    .unwrap()
+                    .discovery(
+                        mdns_discovery_broadcast_tx
+                            .lock()
+                            .await
+                            .as_ref()
+                            .unwrap()
+                            .clone(),
+                    )
+                    .inspect_err(|err| tracing::error!(%err));
+            }
+        ));
+    }
+
+    fn stop_mdns_discovery(&self) {
+        let imp = self.imp();
+
+        tokio_runtime().spawn(clone!(
+            #[weak(rename_to = rqs)]
+            imp.rqs,
+            async move {
+                rqs.lock().await.as_mut().unwrap().stop_discovery();
+            }
+        ));
+    }
+
+    fn is_no_file_being_send(&self) -> bool {
+        let imp = self.imp();
+
+        for model_item in imp
+            .send_file_transfer_model
+            .iter::<FileTransferObject>()
+            .filter_map(|it| it.ok())
+        {
+            use rqs_lib::State;
+            match model_item
+                .channel_message()
+                .state
+                .as_ref()
+                .unwrap_or(&rqs_lib::State::Initial)
+            {
+                State::Initial
+                | State::Disconnected
+                | State::Rejected
+                | State::Cancelled
+                | State::Finished => {}
+                _ => {
+                    return false;
+                }
+            }
+        }
+
+        true
+    }
+
+    fn set_device_name(&self, name: &str) {
+        let imp = self.imp();
+
+        // Since transfers from this device to other devices will be affected,
+        // we won't proceed if they exist
+        if self.is_no_file_being_send() {
+            // FIXME: Show a progress dialog conveying service restart?
+
+            *imp.device_name_state.blocking_lock() = name.to_string();
+
+            imp.rqs
+                .blocking_lock()
+                .as_mut()
+                .expect("State must be set")
+                .set_device_name(name.to_string());
+
+            let (tx, rx) = async_channel::bounded(1);
+            tokio_runtime().spawn(clone!(
+                #[weak(rename_to = rqs)]
+                imp.rqs,
+                async move {
+                    let (file_sender, ble_receiver) = {
+                        let mut guard = rqs.lock().await;
+                        let rqs = guard.as_mut().unwrap();
+
+                        rqs.stop().await;
+                        rqs.run().await.unwrap()
+                    };
+
+                    tx.send((file_sender, ble_receiver)).await.unwrap();
+                }
+            ));
+            glib::spawn_future_local(clone!(
+                #[weak]
+                imp,
+                async move {
+                    let (file_sender, ble_receiver) = rx.recv().await.unwrap();
+
+                    *imp.file_sender.lock().await = Some(file_sender);
+                    *imp.ble_receiver.lock().await = Some(ble_receiver);
+
+                    // FIXME: instead of this, turn on mdns_discovery if it was on before
+                    imp.send_stack
+                        .set_visible_child_name("send_select_files_status_page");
+
+                    tracing::debug!("RQS service has been reset");
+
+                    // FIXME: Show a toast for device name change success?
+
+                    imp.device_visibility_switch.set_active(true);
+                }
+            ));
+        } else {
+            imp.device_name_entry
+                .set_text(imp.device_name_state.blocking_lock().as_ref());
+
+            tracing::debug!("Active transfers found, can't rename device name");
+
+            // FIXME: Show a dialog/toast conveying that name change is not allowed while
+            // files are being send to other devices
+        }
+    }
+
     fn setup_rqs_service(&self) {
         let imp = self.imp();
 
@@ -1047,7 +1171,7 @@ impl QuickShareApplicationWindow {
                 let (rqs, file_sender, ble_receiver) = rx.recv().await.unwrap();
                 *imp.rqs.lock().await = Some(rqs);
                 *imp.file_sender.lock().await = Some(file_sender);
-                *imp.ble_receiver.borrow_mut() = Some(ble_receiver);
+                *imp.ble_receiver.lock().await = Some(ble_receiver);
 
                 let (mdns_discovery_broadcast_tx, _) =
                     tokio::sync::broadcast::channel::<rqs_lib::EndpointInfo>(10);
@@ -1064,7 +1188,7 @@ impl QuickShareApplicationWindow {
 
         fn spawn_rqs_receiver_tasks(imp: &imp::QuickShareApplicationWindow) {
             let (tx, rx) = async_channel::bounded(1);
-            tokio_runtime().spawn(clone!(
+            let handle = tokio_runtime().spawn(clone!(
                 #[weak(rename_to = rqs)]
                 imp.rqs,
                 async move {
@@ -1091,7 +1215,11 @@ impl QuickShareApplicationWindow {
                     }
                 }
             ));
-            glib::spawn_future_local(clone!(
+            imp.rqs_looping_async_tasks
+                .borrow_mut()
+                .push(LoopingTaskHandle::Tokio(handle));
+
+            let handle = glib::spawn_future_local(clone!(
                 #[weak]
                 imp,
                 async move {
@@ -1186,12 +1314,15 @@ impl QuickShareApplicationWindow {
                     }
                 }
             ));
+            imp.rqs_looping_async_tasks
+                .borrow_mut()
+                .push(LoopingTaskHandle::Glib(handle));
 
             // MDNS discovery receiver
             // Discover the devices to send file transfer requests to
             // The Sender used in RQS::discovery()
             let (tx, rx) = async_channel::bounded(1);
-            tokio_runtime().spawn(clone!(
+            let handle = tokio_runtime().spawn(clone!(
                 #[weak(rename_to = mdns_discovery_broadcast_tx)]
                 imp.mdns_discovery_broadcast_tx,
                 async move {
@@ -1216,7 +1347,11 @@ impl QuickShareApplicationWindow {
                     }
                 }
             ));
-            glib::spawn_future_local(clone!(
+            imp.rqs_looping_async_tasks
+                .borrow_mut()
+                .push(LoopingTaskHandle::Tokio(handle));
+
+            let handle = glib::spawn_future_local(clone!(
                 #[weak]
                 imp,
                 async move {
@@ -1263,8 +1398,11 @@ impl QuickShareApplicationWindow {
                     }
                 }
             ));
+            imp.rqs_looping_async_tasks
+                .borrow_mut()
+                .push(LoopingTaskHandle::Glib(handle));
 
-            tokio_runtime().spawn(clone!(
+            let handle = tokio_runtime().spawn(clone!(
                 #[weak(rename_to = rqs)]
                 imp.rqs,
                 async move {
@@ -1292,25 +1430,37 @@ impl QuickShareApplicationWindow {
                     }
                 }
             ));
+            imp.rqs_looping_async_tasks
+                .borrow_mut()
+                .push(LoopingTaskHandle::Tokio(handle));
 
-            let mut ble_receiver = imp.ble_receiver.borrow().as_ref().unwrap().resubscribe();
-            tokio_runtime().spawn(async move {
-                // let mut last_sent = std::time::Instant::now() - std::time::Duration::from_secs(120);
-                loop {
-                    match ble_receiver.recv().await {
-                        Ok(_) => {
-                            // let is_visible = device_visibility_switch.is_active();
-                            // FIXME: Get visibility via a channel
-                            // and temporarily make device visible?
+            // FIXME: Since renaming device name will restart the service,
+            // we need to reset the ble_receiver here in the loop as well.
+            // Ideal solution seem to be to keep a handle on this async task
+            // and close it when we set device name and respawn it.
+            // tokio_runtime().spawn(clone!(
+            //     #[weak(rename_to = ble_receiver)]
+            //     imp.ble_receiver,
+            //     async move {
+            //         let mut ble_receiver =
+            //             ble_receiver.lock().await.as_ref().unwrap().resubscribe();
+            //         // let mut last_sent = std::time::Instant::now() - std::time::Duration::from_secs(120);
+            //         loop {
+            //             match ble_receiver.recv().await {
+            //                 Ok(_) => {
+            //                     // let is_visible = device_visibility_switch.is_active();
+            //                     // FIXME: Get visibility via a channel
+            //                     // and temporarily make device visible?
 
-                            tracing::debug!("Received BLE")
-                        }
-                        Err(err) => {
-                            tracing::error!(%err,"Error receiving BLE");
-                        }
-                    }
-                }
-            });
+            //                     tracing::debug!("Received BLE")
+            //                 }
+            //                 Err(err) => {
+            //                     tracing::error!(%err,"Error receiving BLE");
+            //                 }
+            //             }
+            //         }
+            //     }
+            // ));
         }
     }
 }

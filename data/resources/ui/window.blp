@@ -106,16 +106,10 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
                             Adw.PreferencesGroup {
                                 separate-rows: true;
-                                // FIXME: Have it be an EntryRow once rqs_lib accepts arbitrary device names
-                                // instead of 'hardcoded' hostname
-                                // hdl::mdns::MDnsServer::build_service
-                                Adw.ActionRow device_name_label {
-                                    title: _("Device name");
-                                    subtitle-selectable: true;
 
-                                    styles [
-                                        "property",
-                                    ]
+                                Adw.EntryRow device_name_entry {
+                                    title: _("Device name");
+                                    show-apply-button: true;
                                 }
 
                                 Adw.SwitchRow device_visibility_switch {
