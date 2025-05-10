@@ -61,8 +61,13 @@ pub fn create_file_card(
                 model.remove(pos);
             }
 
-            imp.manage_files_count_label
-                .set_label(&formatx!(gettext("{} Files"), model.n_items() as usize).unwrap());
+            imp.manage_files_count_label.set_label(
+                &formatx!(
+                    ngettext("{} File", "{} Files", model.n_items()),
+                    model.n_items() as usize
+                )
+                .unwrap(),
+            );
 
             if model.n_items() == 0 {
                 imp.main_nav_view.pop();

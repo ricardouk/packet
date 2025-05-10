@@ -390,10 +390,11 @@ impl QuickShareApplicationWindow {
             } else {
                 // FIXME: don't accept files that are already in the list
                 // No duplicates!
+                let file_count = files.len() + imp.manage_files_model.n_items() as usize;
                 imp.manage_files_count_label.set_label(
                     &formatx!(
-                        gettext("{} Files"),
-                        files.len() + imp.manage_files_model.n_items() as usize
+                        ngettext("{} File", "{} Files", file_count as u32),
+                        file_count
                     )
                     .unwrap(),
                 );
