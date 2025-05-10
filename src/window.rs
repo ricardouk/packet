@@ -81,7 +81,7 @@ mod imp {
         #[template_child]
         pub send_drop_files_bin: TemplateChild<adw::Bin>,
         #[template_child]
-        pub send_select_files_button: TemplateChild<gtk::Button>,
+        pub main_add_files_button: TemplateChild<gtk::Button>,
         #[template_child]
         pub selected_files_card_title: TemplateChild<gtk::Label>,
         #[template_child]
@@ -456,7 +456,7 @@ impl QuickShareApplicationWindow {
                 select_files_via_dialog(&imp);
             }
         ));
-        imp.send_select_files_button.connect_clicked(clone!(
+        imp.main_add_files_button.connect_clicked(clone!(
             #[weak]
             imp,
             move |_| {

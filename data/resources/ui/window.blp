@@ -131,16 +131,16 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                             }
 
                                             Label {
-                                                label: _("Drag, add, or paste some file to begin");
+                                                label: _("Drag, add, or paste a file to begin");
                                                 wrap: true;
                                             }
 
-                                            Button send_select_files_button {
+                                            Button main_add_files_button {
                                                 margin-top: 24;
                                                 halign: center;
 
                                                 Adw.ButtonContent {
-                                                    label: _("Select files");
+                                                    label: _("Add files");
                                                     icon-name: "list-add-symbolic";
                                                 }
 
@@ -201,8 +201,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
                                                     Label manage_files_count_label {
                                                         // Internal
-                                                        label: "<b>3 Files</b>";
-                                                        use-markup: true;
+                                                        label: "3 Files";
                                                     }
 
                                                     Adw.Bin {
@@ -334,7 +333,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                                             title: _("Send Files");
                                                             icon-name: "send-to-symbolic";
                                                             description: _("Select or drop the files to send");
-                                                            // Button send_select_files_button {
+                                                            // Button main_add_files_button {
                                                             //     halign: center;
                                                             //     styles [
                                                             //         "suggested-action",
