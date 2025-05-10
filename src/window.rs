@@ -36,10 +36,25 @@ mod imp {
         #[template_child]
         pub transfer_kind_view_stack: TemplateChild<adw::ViewStack>,
         #[template_child]
-        pub transfer_kind_nav_view: TemplateChild<adw::NavigationView>,
+        pub main_nav_view: TemplateChild<adw::NavigationView>,
+
+        #[template_child]
+        pub main_page_box: TemplateChild<gtk::Box>,
 
         #[template_child]
         pub receive_view_stack_page: TemplateChild<adw::ViewStackPage>,
+        #[template_child]
+        pub quick_settings_button: TemplateChild<gtk::Button>,
+
+        #[template_child]
+        pub bottom_bar_image: TemplateChild<gtk::Image>,
+        #[template_child]
+        pub bottom_bar_title: TemplateChild<gtk::Label>,
+        #[template_child]
+        pub bottom_bar_caption: TemplateChild<gtk::Label>,
+
+        #[template_child]
+        pub transfer_settings_dialog: TemplateChild<adw::Dialog>,
 
         #[template_child]
         pub receive_stack: TemplateChild<gtk::Stack>,
@@ -66,9 +81,8 @@ mod imp {
         pub device_name_entry: TemplateChild<adw::EntryRow>,
         #[template_child]
         pub device_visibility_switch: TemplateChild<adw::SwitchRow>,
-        #[template_child]
-        pub receive_idle_status_page: TemplateChild<adw::StatusPage>,
-
+        // #[template_child]
+        // pub receive_idle_status_page: TemplateChild<adw::StatusPage>,
         pub rqs: Arc<Mutex<Option<rqs_lib::RQS>>>,
         pub file_sender: Arc<Mutex<Option<tokio::sync::mpsc::Sender<rqs_lib::SendInfo>>>>,
         pub ble_receiver: Arc<Mutex<Option<tokio::sync::broadcast::Receiver<()>>>>,
@@ -118,7 +132,8 @@ mod imp {
             obj.load_app_state();
             obj.setup_gactions();
             obj.setup_ui();
-            obj.setup_rqs_service();
+            // FIXME:! put it back
+            // obj.setup_rqs_service();
         }
     }
 
@@ -236,12 +251,15 @@ impl QuickShareApplicationWindow {
     fn setup_ui(&self) {
         let imp = self.imp();
 
+        // FIXME:! remove test code
+        imp.root_stack.set_visible_child_name("main_page");
+
         let files_drop_target = gtk::DropTarget::builder()
             .name("files-drop-target")
             .actions(gdk::DragAction::COPY)
             .formats(&gdk::ContentFormats::for_type(gdk::FileList::static_type()))
             .build();
-        imp.send_drop_files_bin
+        imp.main_page_box
             .get()
             .add_controller(files_drop_target.clone());
 
@@ -258,7 +276,7 @@ impl QuickShareApplicationWindow {
                 true
             }
         ));
-        // imp.transfer_kind_nav_view.get().push_by_tag("transfer_history_page");
+        // imp.main_nav_view.get().push_by_tag("transfer_history_page");
 
         let device_name = &self.get_device_name_state();
         let device_name_entry = imp.device_name_entry.get();
@@ -288,10 +306,11 @@ impl QuickShareApplicationWindow {
             if files.len() == 0 {
                 // FIXME: Show toast about not being able to access files
             } else {
-                imp.send_stack
-                    .get()
-                    .set_visible_child_name("send_nearby_devices_page");
+                // imp.send_stack
+                //     .get()
+                //     .set_visible_child_name("send_nearby_devices_page");
 
+                // FIXME:!
                 let title = formatx!(
                     &ngettext(
                         "{} file is ready to send",
@@ -323,7 +342,8 @@ impl QuickShareApplicationWindow {
                         .join(", "),
                 );
 
-                imp.obj().start_mdns_discovery();
+                // FIXME:!
+                // imp.obj().start_mdns_discovery();
             }
         }
 
@@ -389,18 +409,19 @@ impl QuickShareApplicationWindow {
                 }
             ),
         );
-        send_file_transfer_model.connect_items_changed(clone!(
-            #[weak]
-            imp,
-            move |model, _, _, _| {
-                let loading_nearby_devices_box = imp.loading_nearby_devices_box.get();
-                if model.n_items() == 0 {
-                    loading_nearby_devices_box.set_visible(true);
-                } else {
-                    loading_nearby_devices_box.set_visible(false);
-                }
-            }
-        ));
+        // FIXME:!
+        // send_file_transfer_model.connect_items_changed(clone!(
+        //     #[weak]
+        //     imp,
+        //     move |model, _, _, _| {
+        //         let loading_nearby_devices_box = imp.loading_nearby_devices_box.get();
+        //         if model.n_items() == 0 {
+        //             loading_nearby_devices_box.set_visible(true);
+        //         } else {
+        //             loading_nearby_devices_box.set_visible(false);
+        //         }
+        //     }
+        // ));
 
         let receive_file_transfer_model = &imp.receive_file_transfer_model;
         let receive_file_transfer_listbox = imp.receive_file_transfer_listbox.get();
@@ -422,52 +443,81 @@ impl QuickShareApplicationWindow {
                 }
             ),
         );
-        receive_file_transfer_model.connect_items_changed(clone!(
+
+        // FIXME:!
+        // receive_file_transfer_model.connect_items_changed(clone!(
+        //     #[weak]
+        //     imp,
+        //     move |model, _, _, _| {
+        //         if model.n_items() == 0 {
+        //             imp.receive_stack
+        //                 .set_visible_child_name("receive_idle_status_page");
+        //         } else {
+        //             imp.receive_stack
+        //                 .set_visible_child_name("receive_request_page");
+        //         }
+        //     }
+        // ));
+
+        self.setup_bottom_bar();
+    }
+
+    fn setup_bottom_bar(&self) {
+        let imp = self.imp();
+
+        fn visibility_toggle_ui_update(
+            obj: &adw::SwitchRow,
+            imp: &imp::QuickShareApplicationWindow,
+        ) {
+            tracing::info!("HELLO");
+            if obj.is_active() {
+                imp.bottom_bar_title.set_label(&gettext("Ready to receive"));
+                imp.bottom_bar_image.set_icon_name(Some("sonar-symbolic"));
+                imp.bottom_bar_caption.set_label(
+                    &formatx!(
+                        gettext("Visible as {:?}"),
+                        imp.obj().get_device_name_state().as_str()
+                    )
+                    .unwrap(),
+                );
+            } else {
+                imp.bottom_bar_title.set_label(&gettext("Invisible"));
+                imp.bottom_bar_image
+                    .set_icon_name(Some("background-app-ghost-symbolic"));
+                imp.bottom_bar_caption
+                    .set_label(&gettext("No new devices can share with you"));
+            };
+        }
+
+        imp.quick_settings_button.connect_clicked(clone!(
             #[weak]
             imp,
-            move |model, _, _, _| {
-                if model.n_items() == 0 {
-                    imp.receive_stack
-                        .set_visible_child_name("receive_idle_status_page");
-                } else {
-                    imp.receive_stack
-                        .set_visible_child_name("receive_request_page");
-                }
+            move |_| {
+                imp.transfer_settings_dialog
+                    .present(Some(imp.obj().as_ref()));
             }
         ));
 
         let device_visibility_switch = imp.device_visibility_switch.get();
+        visibility_toggle_ui_update(&device_visibility_switch, &imp);
         device_visibility_switch.connect_active_notify(clone!(
             #[weak]
             imp,
             move |obj| {
-                let receive_idle_status_page = imp.receive_idle_status_page.get();
-                if obj.is_active() {
-                    receive_idle_status_page.set_title(&gettext("Ready to receive"));
-                    receive_idle_status_page.set_icon_name(Some("network-receive-symbolic"));
-                    receive_idle_status_page.set_description(Some(
-                        &formatx!(
-                            gettext("Visible as {:?}"),
-                            imp.obj().get_device_name_state().as_str()
-                        )
-                        .unwrap(),
-                    ));
-                    imp.rqs
-                        .blocking_lock()
-                        .as_mut()
-                        .unwrap()
-                        .change_visibility(rqs_lib::Visibility::Visible);
+                visibility_toggle_ui_update(&obj, &imp);
+
+                let _visibility = if obj.is_active() {
+                    rqs_lib::Visibility::Visible
                 } else {
-                    receive_idle_status_page.set_title(&gettext("Invisible"));
-                    receive_idle_status_page.set_icon_name(Some("background-app-ghost-symbolic"));
-                    receive_idle_status_page
-                        .set_description(Some(&gettext("No new devices can share with you")));
-                    imp.rqs
-                        .blocking_lock()
-                        .as_mut()
-                        .unwrap()
-                        .change_visibility(rqs_lib::Visibility::Invisible);
-                }
+                    rqs_lib::Visibility::Invisible
+                };
+
+                // FIXME:!
+                // imp.rqs
+                //     .blocking_lock()
+                //     .as_mut()
+                //     .unwrap()
+                //     .change_visibility(visibility);
             }
         ));
     }
