@@ -305,7 +305,7 @@ impl QuickShareApplicationWindow {
                 imp.active_discovered_endpoints.blocking_lock().clear();
                 imp.recipient_model.remove_all();
 
-                imp.obj().start_mdns_discovery();
+                imp.obj().start_mdns_discovery(None);
 
                 imp.main_nav_view.push_by_tag("select_recipient_nav_page");
             }
@@ -655,10 +655,10 @@ impl QuickShareApplicationWindow {
         ));
     }
 
-    fn start_mdns_discovery(&self) {
+    fn start_mdns_discovery(&self, force: Option<()>) {
         let imp = self.imp();
 
-        if !*imp.is_mdns_discovery_on.borrow() {
+        if !*imp.is_mdns_discovery_on.borrow() || force.is_some() {
             tokio_runtime().spawn(clone!(
                 #[weak(rename_to = mdns_discovery_broadcast_tx)]
                 imp.mdns_discovery_broadcast_tx,
@@ -771,8 +771,9 @@ impl QuickShareApplicationWindow {
                     *imp.file_sender.lock().await = Some(file_sender);
                     *imp.ble_receiver.lock().await = Some(ble_receiver);
 
-                    // FIXME: instead of this, turn on mdns_discovery if it was on before
-                    imp.selected_files_card_cancel_button.emit_clicked();
+                    // Restart mDNS discovery if it was on before the RQS service restart
+                    imp.obj()
+                        .start_mdns_discovery(imp.is_mdns_discovery_on.borrow().then_some(()));
 
                     tracing::debug!("RQS service has been reset");
 
