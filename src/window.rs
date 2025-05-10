@@ -602,7 +602,9 @@ impl QuickShareApplicationWindow {
         ) {
             if obj.is_active() {
                 imp.bottom_bar_title.set_label(&gettext("Ready to receive"));
+                imp.bottom_bar_title.add_css_class("accent");
                 imp.bottom_bar_image.set_icon_name(Some("sonar-symbolic"));
+                imp.bottom_bar_image.add_css_class("accent");
                 imp.bottom_bar_caption.set_label(
                     &formatx!(
                         gettext("Visible as {:?}"),
@@ -612,8 +614,10 @@ impl QuickShareApplicationWindow {
                 );
             } else {
                 imp.bottom_bar_title.set_label(&gettext("Invisible"));
+                imp.bottom_bar_title.remove_css_class("accent");
                 imp.bottom_bar_image
                     .set_icon_name(Some("background-app-ghost-symbolic"));
+                imp.bottom_bar_image.remove_css_class("accent");
                 imp.bottom_bar_caption
                     .set_label(&gettext("No new devices can share with you"));
             };
