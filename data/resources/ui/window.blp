@@ -231,7 +231,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                         }
                                     }
 
-                                    Button {
+                                    Button manage_files_send_button {
                                         label: _("Send");
                                         margin-top: 12;
                                         margin-bottom: 12;
@@ -244,6 +244,99 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                             "pill",
                                             "suggested-action",
                                         ]
+                                    }
+                                }
+                            };
+                        }
+
+                        Adw.NavigationPage {
+                            tag: "select_recipient_nav_page";
+
+                            child: Adw.ToolbarView {
+                                [top]
+                                Adw.HeaderBar {
+                                    [end]
+                                    MenuButton {
+                                        icon-name: "open-menu-symbolic";
+                                        menu-model: primary_menu;
+                                        primary: true;
+                                    }
+                                }
+
+                                Box select_recipient_box {
+                                    orientation: vertical;
+                                    hexpand: true;
+                                    vexpand: true;
+
+                                    ScrolledWindow {
+                                        hscrollbar-policy: never;
+                                        hexpand: true;
+                                        vexpand: true;
+
+                                        Adw.Clamp {
+                                            maximum-size: 550;
+
+                                            Box {
+                                                orientation: vertical;
+                                                margin-top: 24;
+                                                margin-bottom: 24;
+                                                margin-start: 24;
+                                                margin-end: 24;
+                                                spacing: 12;
+
+                                                Label {
+                                                    label: _("Select recipient");
+                                                    wrap: true;
+
+                                                    styles [
+                                                        "title-1",
+                                                    ]
+                                                }
+
+                                                Box loading_recipients_box {
+                                                    // `visibility` is set when ListBox is empty
+                                                    orientation: vertical;
+                                                    height-request: 150;
+                                                    valign: center;
+                                                    spacing: 12;
+
+                                                    Adw.Spinner {
+                                                        margin-top: 12;
+                                                        height-request: 48;
+                                                    }
+
+                                                    Label {
+                                                        label: _("Looking for nearby devices...");
+                                                        wrap: true;
+                                                    }
+                                                }
+
+                                                ListBox recipient_listbox {
+                                                    selection-mode: none;
+
+                                                    styles [
+                                                        "boxed-list-separate",
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Adw.Clamp {
+                                        maximum-size: 550;
+
+                                        Label select_recipient_troubleshoot_label {
+                                            // FIXME: check whether wifi/bluetooth is enabled or not
+                                            // if not, change the text to ask the user to turn them on
+                                            label: _("If you can't see the recipient, make sure their device is visible.");
+                                            margin-top: 12;
+                                            margin-bottom: 12;
+                                            margin-start: 12;
+                                            margin-end: 12;
+                                            wrap: true;
+
+                                            styles []
+                                        }
                                     }
                                 }
                             };
@@ -459,51 +552,44 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                                                         ]
                                                                     }
 
-                                                                    Box loading_nearby_devices_box {
-                                                                        // visibility is set when ListBox is empty
-                                                                        orientation: vertical;
-                                                                        height-request: 150;
-                                                                        valign: center;
-                                                                        spacing: 12;
-
-                                                                        Label {
-                                                                            label: _("Looking for nearby devices...");
-                                                                            wrap: true;
-                                                                        }
-
-                                                                        Adw.Spinner {
-                                                                            margin-top: 24;
-                                                                            height-request: 48;
-                                                                        }
-
-                                                                        Box {
-                                                                            orientation: vertical;
-                                                                            margin-top: 14;
-                                                                            valign: center;
-                                                                            halign: center;
-
-                                                                            Label {
-                                                                                margin-top: 24;
-                                                                                margin-bottom: 24;
-                                                                                margin-start: 24;
-                                                                                margin-end: 24;
-                                                                                label: _("If you can't see your Android device, then first make sure that the Wi-Fi and Bluetooth is turned on.\
-                                                                            \nThen, go to the <b>Files</b> app by Google and open the <b>Quick Share</b> tab or view.");
-                                                                                use-markup: true;
-                                                                                wrap: true;
-                                                                                hexpand: true;
-
-                                                                                styles [
-                                                                                    "caption",
-                                                                                ]
-                                                                            }
-
-                                                                            styles [
-                                                                                "card",
-                                                                            ]
-                                                                        }
-                                                                    }
-
+                                                                    // Box loading_recipients_box {
+                                                                    //     // visibility is set when ListBox is empty
+                                                                    //     orientation: vertical;
+                                                                    //     height-request: 150;
+                                                                    //     valign: center;
+                                                                    //     spacing: 12;
+                                                                    //     Label {
+                                                                    //         label: _("Looking for nearby devices...");
+                                                                    //         wrap: true;
+                                                                    //     }
+                                                                    //     Adw.Spinner {
+                                                                    //         margin-top: 24;
+                                                                    //         height-request: 48;
+                                                                    //     }
+                                                                    //     Box {
+                                                                    //         orientation: vertical;
+                                                                    //         margin-top: 14;
+                                                                    //         valign: center;
+                                                                    //         halign: center;
+                                                                    //         Label {
+                                                                    //             margin-top: 24;
+                                                                    //             margin-bottom: 24;
+                                                                    //             margin-start: 24;
+                                                                    //             margin-end: 24;
+                                                                    //             label: _("If you can't see your Android device, then first make sure that the Wi-Fi and Bluetooth is turned on.\
+                                                                    //         \nThen, go to the <b>Files</b> app by Google and open the <b>Quick Share</b> tab or view.");
+                                                                    //             use-markup: true;
+                                                                    //             wrap: true;
+                                                                    //             hexpand: true;
+                                                                    //             styles [
+                                                                    //                 "caption",
+                                                                    //             ]
+                                                                    //         }
+                                                                    //         styles [
+                                                                    //             "card",
+                                                                    //         ]
+                                                                    //     }
+                                                                    // }
                                                                     ListBox send_file_transfer_listbox {
                                                                         selection-mode: none;
 
@@ -533,7 +619,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                     Adw.Clamp {
                         maximum-size: 550;
 
-                        Box {
+                        Box bottom_bar {
                             orientation: vertical;
                             valign: end;
                             halign: fill;

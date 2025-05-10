@@ -54,7 +54,7 @@ impl ChannelMessage {
     }
 }
 
-#[derive(Debug, Clone, Default, glib::Boxed)]
+#[derive(Debug, Clone, Default, PartialEq, glib::Boxed)]
 #[boxed_type(name = "TransferKindBoxed")]
 pub enum TransferKind {
     #[default]

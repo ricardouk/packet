@@ -52,9 +52,16 @@ mod imp {
         #[template_child]
         pub manage_files_add_files_button: TemplateChild<gtk::Button>,
         #[template_child]
+        pub manage_files_send_button: TemplateChild<gtk::Button>,
+        #[template_child]
         pub manage_files_listbox: TemplateChild<gtk::ListBox>,
         #[default(gio::ListStore::new::<gio::File>())]
         pub manage_files_model: gio::ListStore,
+
+        #[template_child]
+        pub recipient_listbox: TemplateChild<gtk::ListBox>,
+        #[default(gio::ListStore::new::<DataTransferObject>())]
+        pub recipient_model: gio::ListStore,
 
         // ---
         #[template_child]
@@ -91,7 +98,7 @@ mod imp {
         #[template_child]
         pub send_file_transfer_listbox: TemplateChild<gtk::ListBox>,
         #[template_child]
-        pub loading_nearby_devices_box: TemplateChild<gtk::Box>,
+        pub loading_recipients_box: TemplateChild<gtk::Box>,
 
         #[template_child]
         pub device_name_entry: TemplateChild<adw::EntryRow>,
@@ -148,8 +155,7 @@ mod imp {
             obj.load_app_state();
             obj.setup_gactions();
             obj.setup_ui();
-            // FIXME:! put it back
-            // obj.setup_rqs_service();
+            obj.setup_rqs_service();
         }
     }
 
@@ -172,6 +178,8 @@ mod imp {
                     {
                         let mut rqs_guard = rqs.lock().await;
                         if let Some(rqs) = rqs_guard.as_mut() {
+                            // FIXME: put a timeout here
+                            // Only wait for a few seconds
                             rqs.stop().await;
                             tracing::info!("Stopped RQS service");
                         }
@@ -242,19 +250,7 @@ impl QuickShareApplicationWindow {
 
     fn load_app_state(&self) {}
 
-    fn setup_gactions(&self) {
-        // let toggle_visibility = gio::ActionEntry::builder("toggle-visibility")
-        //     .state(false.to_variant())
-        //     .activate(|win: &Self, action, _| {
-        //         let action_state: bool = action.state().unwrap().get().unwrap();
-        //         let new_state = !action_state;
-        //         action.set_state(&new_state.to_variant());
-        //         // callback here
-        //     })
-        //     .build();
-
-        // self.add_action_entries([toggle_visibility]);
-    }
+    fn setup_gactions(&self) {}
 
     fn get_device_name_state(&self) -> glib::GString {
         self.imp().settings.string("device-name")
@@ -267,8 +263,50 @@ impl QuickShareApplicationWindow {
     fn setup_ui(&self) {
         let imp = self.imp();
 
-        // FIXME:! remove test code
-        imp.root_stack.set_visible_child_name("main_page");
+        imp.recipient_listbox.bind_model(
+            Some(&imp.recipient_model),
+            clone!(
+                #[weak]
+                imp,
+                #[upgrade_or]
+                adw::Bin::new().into(),
+                move |obj| {
+                    let model_item = obj.downcast_ref::<DataTransferObject>().unwrap();
+                    widgets::create_recipient_card(&imp.obj(), &imp.recipient_model, model_item)
+                        .into()
+                }
+            ),
+        );
+        imp.recipient_listbox.connect_row_activated(clone!(
+            #[weak]
+            imp,
+            move |obj, row| {
+                widgets::handle_recipient_card_clicked(&imp.obj(), &obj, &row);
+            }
+        ));
+        imp.manage_files_send_button.connect_clicked(clone!(
+            #[weak]
+            imp,
+            move |_| {
+                // Clear previous recipients
+                imp.active_discovered_endpoints.blocking_lock().clear();
+                imp.recipient_model.remove_all();
+
+                imp.main_nav_view.push_by_tag("select_recipient_nav_page");
+            }
+        ));
+        imp.recipient_model.connect_items_changed(clone!(
+            #[weak]
+            imp,
+            move |model, _, _, _| {
+                let loading_recipients_box = imp.loading_recipients_box.get();
+                if model.n_items() == 0 {
+                    loading_recipients_box.set_visible(true);
+                } else {
+                    loading_recipients_box.set_visible(false);
+                }
+            }
+        ));
 
         let files_drop_target = gtk::DropTarget::builder()
             .name("add-files-drop-target")
@@ -279,7 +317,7 @@ impl QuickShareApplicationWindow {
             .get()
             .add_controller(files_drop_target.clone());
 
-        fn filter_added_files(model: &gio::ListStore, mut files: Vec<gio::File>) -> Vec<gio::File> {
+        fn filter_added_files(model: &gio::ListStore, files: Vec<gio::File>) -> Vec<gio::File> {
             files
                 .into_iter()
                 .filter(|file| {
@@ -308,7 +346,7 @@ impl QuickShareApplicationWindow {
             move |_, value, _, _| {
                 imp.manage_files_model.remove_all();
                 if let Ok(file_list) = value.get::<gdk::FileList>() {
-                    select_files_to_send_cb(&imp, file_list.files());
+                    handle_added_files_to_send(&imp, file_list.files());
                 }
 
                 false
@@ -330,7 +368,7 @@ impl QuickShareApplicationWindow {
             false,
             move |_, value, _, _| {
                 if let Ok(file_list) = value.get::<gdk::FileList>() {
-                    select_files_to_send_cb(
+                    handle_added_files_to_send(
                         &imp,
                         filter_added_files(&imp.manage_files_model, file_list.files()),
                     );
@@ -339,8 +377,6 @@ impl QuickShareApplicationWindow {
                 false
             }
         ));
-
-        // imp.main_nav_view.get().push_by_tag("transfer_history_page");
 
         let device_name = &self.get_device_name_state();
         let device_name_entry = imp.device_name_entry.get();
@@ -361,8 +397,7 @@ impl QuickShareApplicationWindow {
             self,
             move |entry| {
                 entry.set_editable(false);
-                // FIXME:!
-                // this.set_device_name(entry.text().as_str());
+                this.set_device_name(entry.text().as_str());
                 entry.set_editable(true);
             }
         ));
@@ -382,7 +417,10 @@ impl QuickShareApplicationWindow {
             ),
         );
 
-        fn select_files_to_send_cb(imp: &imp::QuickShareApplicationWindow, files: Vec<gio::File>) {
+        fn handle_added_files_to_send(
+            imp: &imp::QuickShareApplicationWindow,
+            files: Vec<gio::File>,
+        ) {
             if files.len() == 0 {
                 // FIXME: Show toast about not being able to access files
             } else {
@@ -405,44 +443,7 @@ impl QuickShareApplicationWindow {
                     imp.manage_files_model.append(file);
                 }
 
-                // imp.send_stack
-                //     .get()
-                //     .set_visible_child_name("send_nearby_devices_page");
-
-                // FIXME:!
-                // let title = formatx!(
-                //     &ngettext(
-                //         "{} file is ready to send",
-                //         "{} files are ready to send",
-                //         files.len() as u32,
-                //     ),
-                //     files.len()
-                // )
-                // .unwrap_or_default();
-
-                // imp.selected_files_card_title.get().set_label(&title);
-                // imp.selected_files_to_send.as_ref().borrow_mut().clear();
-
-                // for file in &files {
-                //     tracing::info!(file = ?file.path(), "Selected file");
-                //     if let Some(path) = file.path() {
-                //         imp.selected_files_to_send.as_ref().borrow_mut().push(path);
-                //     }
-                // }
-
-                // imp.selected_files_card_caption.get().set_label(
-                //     &imp.selected_files_to_send
-                //         .as_ref()
-                //         .borrow()
-                //         .iter()
-                //         .map(|it| it.file_name().and_then(|it| Some(it.to_string_lossy())))
-                //         .flatten()
-                //         .collect::<Vec<_>>()
-                //         .join(", "),
-                // );
-
-                // FIXME:!
-                // imp.obj().start_mdns_discovery();
+                imp.obj().start_mdns_discovery();
             }
         }
 
@@ -463,7 +464,7 @@ impl QuickShareApplicationWindow {
                                 files_vec.push(file);
                             }
 
-                            select_files_to_send_cb(
+                            handle_added_files_to_send(
                                 &imp,
                                 filter_added_files(&imp.manage_files_model, files_vec),
                             );
@@ -488,79 +489,78 @@ impl QuickShareApplicationWindow {
                 select_files_via_dialog(&imp);
             }
         ));
-        imp.selected_files_card_cancel_button
-            .connect_clicked(clone!(
-                #[weak]
-                imp,
-                move |_| {
-                    imp.send_stack
-                        .get()
-                        .set_visible_child_name("send_select_files_status_page");
 
+        imp.main_nav_view.connect_popped(clone!(
+            #[weak]
+            imp,
+            move |_obj, page| {
+                if page.tag().unwrap().as_str() == "select_recipient_nav_page" {
                     imp.obj().stop_mdns_discovery();
-
-                    // Clear all cards
-                    imp.send_file_transfer_model.remove_all();
-                    imp.active_discovered_endpoints.blocking_lock().clear();
-
-                    imp.selected_files_to_send.as_ref().borrow_mut().clear();
                 }
-            ));
+            }
+        ));
 
-        let send_file_transfer_model = &imp.send_file_transfer_model;
-        let send_file_transfer_listbox = imp.send_file_transfer_listbox.get();
-        send_file_transfer_listbox.bind_model(
-            Some(send_file_transfer_model),
-            clone!(
-                #[weak]
-                imp,
-                #[upgrade_or]
-                adw::Bin::new().into(),
-                move |obj| {
-                    let model_item = obj.downcast_ref::<DataTransferObject>().unwrap();
-                    widgets::create_data_transfer_card(
-                        &imp.obj(),
-                        &imp.send_file_transfer_model,
-                        model_item,
-                    )
-                    .into()
-                }
-            ),
-        );
-        // FIXME:!
-        // send_file_transfer_model.connect_items_changed(clone!(
-        //     #[weak]
-        //     imp,
-        //     move |model, _, _, _| {
-        //         let loading_nearby_devices_box = imp.loading_nearby_devices_box.get();
-        //         if model.n_items() == 0 {
-        //             loading_nearby_devices_box.set_visible(true);
-        //         } else {
-        //             loading_nearby_devices_box.set_visible(false);
+        // FIXME:! remove old code
+        // imp.selected_files_card_cancel_button
+        //     .connect_clicked(clone!(
+        //         #[weak]
+        //         imp,
+        //         move |_| {
+        //             imp.send_stack
+        //                 .get()
+        //                 .set_visible_child_name("send_select_files_status_page");
+
+        //             imp.obj().stop_mdns_discovery();
+
+        //             // Clear all cards
+        //             imp.send_file_transfer_model.remove_all();
+        //             imp.active_discovered_endpoints.blocking_lock().clear();
+
+        //             imp.selected_files_to_send.as_ref().borrow_mut().clear();
         //         }
-        //     }
         // ));
+        // let send_file_transfer_model = &imp.send_file_transfer_model;
+        // let send_file_transfer_listbox = imp.send_file_transfer_listbox.get();
+        // send_file_transfer_listbox.bind_model(
+        //     Some(send_file_transfer_model),
+        //     clone!(
+        //         #[weak]
+        //         imp,
+        //         #[upgrade_or]
+        //         adw::Bin::new().into(),
+        //         move |obj| {
+        //             let model_item = obj.downcast_ref::<DataTransferObject>().unwrap();
+        //             widgets::create_recipient_card(
+        //                 &imp.obj(),
+        //                 &imp.send_file_transfer_model,
+        //                 model_item,
+        //             )
+        //             .into()
+        //         }
+        //     ),
+        // );
 
-        let receive_file_transfer_model = &imp.receive_file_transfer_model;
-        let receive_file_transfer_listbox = imp.receive_file_transfer_listbox.get();
-        receive_file_transfer_listbox.bind_model(
-            Some(receive_file_transfer_model),
-            clone!(
-                #[weak]
-                imp,
-                #[upgrade_or]
-                adw::Bin::new().into(),
-                move |obj| {
-                    let model_item = obj.downcast_ref::<DataTransferObject>().unwrap();
-                    widgets::create_data_transfer_card(
-                        &imp.obj(),
-                        &imp.receive_file_transfer_model,
-                        model_item,
-                    )
-                    .into()
-                }
-            ),
-        );
+        // FIXME:! old, keeping for reference during redesign
+        // let receive_file_transfer_model = &imp.receive_file_transfer_model;
+        // let receive_file_transfer_listbox = imp.receive_file_transfer_listbox.get();
+        // receive_file_transfer_listbox.bind_model(
+        //     Some(receive_file_transfer_model),
+        //     clone!(
+        //         #[weak]
+        //         imp,
+        //         #[upgrade_or]
+        //         adw::Bin::new().into(),
+        //         move |obj| {
+        //             let model_item = obj.downcast_ref::<DataTransferObject>().unwrap();
+        //             widgets::create_recipient_card(
+        //                 &imp.obj(),
+        //                 &imp.receive_file_transfer_model,
+        //                 model_item,
+        //             )
+        //             .into()
+        //         }
+        //     ),
+        // );
 
         // FIXME:!
         // receive_file_transfer_model.connect_items_changed(clone!(
@@ -623,24 +623,26 @@ impl QuickShareApplicationWindow {
             move |obj| {
                 visibility_toggle_ui_update(&obj, &imp);
 
-                let _visibility = if obj.is_active() {
+                let visibility = if obj.is_active() {
                     rqs_lib::Visibility::Visible
                 } else {
                     rqs_lib::Visibility::Invisible
                 };
 
-                // FIXME:!
-                // imp.rqs
-                //     .blocking_lock()
-                //     .as_mut()
-                //     .unwrap()
-                //     .change_visibility(visibility);
+                imp.rqs
+                    .blocking_lock()
+                    .as_mut()
+                    .unwrap()
+                    .change_visibility(visibility);
             }
         ));
     }
 
     fn start_mdns_discovery(&self) {
         let imp = self.imp();
+
+        // FIXME: Only start mdns discovery if it isn't on already
+        // Use some state on window
 
         tokio_runtime().spawn(clone!(
             #[weak(rename_to = mdns_discovery_broadcast_tx)]
@@ -682,7 +684,8 @@ impl QuickShareApplicationWindow {
         let imp = self.imp();
 
         for model_item in imp
-            .send_file_transfer_model
+            // .send_file_transfer_model
+            .recipient_model
             .iter::<DataTransferObject>()
             .filter_map(|it| it.ok())
         {
@@ -1009,10 +1012,8 @@ impl QuickShareApplicationWindow {
                                         ?endpoint_info,
                                         "Removing disconnected endpoint"
                                     );
-                                    if let Some(pos) =
-                                        imp.send_file_transfer_model.find(file_transfer)
-                                    {
-                                        imp.send_file_transfer_model.remove(pos);
+                                    if let Some(pos) = imp.recipient_model.find(file_transfer) {
+                                        imp.recipient_model.remove(pos);
                                     }
                                     active_discovered_endpoints.remove(&endpoint_info.id);
                                 } else {
@@ -1028,7 +1029,7 @@ impl QuickShareApplicationWindow {
                                 let obj = DataTransferObject::new(TransferKind::Send);
                                 let id = endpoint_info.id.clone();
                                 obj.set_endpoint_info(data_transfer::EndpointInfo(endpoint_info));
-                                imp.send_file_transfer_model.insert(0, &obj);
+                                imp.recipient_model.insert(0, &obj);
                                 active_discovered_endpoints.insert(id, obj);
                             }
                         }
