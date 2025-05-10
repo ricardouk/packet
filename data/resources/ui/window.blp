@@ -76,15 +76,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
             name: "main_page";
 
             child: Adw.ToolbarView {
-                [top]
-                Adw.HeaderBar {
-                    [end]
-                    MenuButton {
-                        icon-name: "open-menu-symbolic";
-                        menu-model: primary_menu;
-                        primary: true;
-                    }
-                }
+                extend-content-to-top-edge: true;
 
                 Box main_box {
                     orientation: vertical;
@@ -92,58 +84,167 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                     vexpand: true;
 
                     Adw.NavigationView main_nav_view {
-                        Adw.NavigationPage main_nav_page {
-                            child: ScrolledWindow {
-                                vexpand: true;
-                                hexpand: true;
+                        Adw.NavigationPage {
+                            tag: "main_nav_page";
 
-                                Adw.Clamp {
-                                    maximum-size: 550;
+                            child: Adw.ToolbarView {
+                                [top]
+                                Adw.HeaderBar {
+                                    [end]
+                                    MenuButton {
+                                        icon-name: "open-menu-symbolic";
+                                        menu-model: primary_menu;
+                                        primary: true;
+                                    }
+                                }
 
-                                    Box {
-                                        orientation: vertical;
-                                        halign: center;
-                                        valign: center;
-                                        spacing: 12;
-                                        margin-top: 24;
-                                        margin-bottom: 24;
-                                        margin-start: 24;
-                                        margin-end: 24;
+                                ScrolledWindow main_nav_content {
+                                    hscrollbar-policy: never;
+                                    vexpand: true;
+                                    hexpand: true;
 
-                                        Image {
-                                            icon-name: "phone-symbolic";
-                                            pixel-size: 128;
-                                            margin-bottom: 24;
-                                        }
+                                    Adw.Clamp {
+                                        maximum-size: 550;
 
-                                        Label {
-                                            label: _("Drop");
-
-                                            styles [
-                                                "title-1",
-                                            ]
-                                        }
-
-                                        Label {
-                                            label: _("Drag, add, or paste some text to begin");
-                                            wrap: true;
-                                        }
-
-                                        Button send_select_files_button {
-                                            margin-top: 24;
+                                        Box {
+                                            orientation: vertical;
                                             halign: center;
+                                            valign: center;
+                                            spacing: 12;
+                                            margin-top: 24;
+                                            margin-bottom: 24;
+                                            margin-start: 24;
+                                            margin-end: 24;
 
-                                            Adw.ButtonContent {
-                                                label: _("Select files");
-                                                icon-name: "list-add-symbolic";
+                                            Image {
+                                                icon-name: "phone-symbolic";
+                                                pixel-size: 128;
+                                                margin-bottom: 24;
                                             }
 
-                                            styles [
-                                                "pill",
-                                                "suggested-action",
-                                                "accent",
-                                            ]
+                                            Label {
+                                                label: _("Drop");
+
+                                                styles [
+                                                    "title-1",
+                                                ]
+                                            }
+
+                                            Label {
+                                                label: _("Drag, add, or paste some file to begin");
+                                                wrap: true;
+                                            }
+
+                                            Button send_select_files_button {
+                                                margin-top: 24;
+                                                halign: center;
+
+                                                Adw.ButtonContent {
+                                                    label: _("Select files");
+                                                    icon-name: "list-add-symbolic";
+                                                }
+
+                                                styles [
+                                                    "pill",
+                                                    "suggested-action",
+                                                    "accent",
+                                                ]
+                                            }
                                         }
+                                    }
+                                }
+                            };
+                        }
+
+                        Adw.NavigationPage {
+                            tag: "manage_files_nav_page";
+
+                            child: Adw.ToolbarView {
+                                [top]
+                                Adw.HeaderBar {
+                                    [end]
+                                    MenuButton {
+                                        icon-name: "open-menu-symbolic";
+                                        menu-model: primary_menu;
+                                        primary: true;
+                                    }
+                                }
+
+                                Box manage_files_nav_content {
+                                    orientation: vertical;
+                                    hexpand: true;
+                                    vexpand: true;
+
+                                    ScrolledWindow {
+                                        hscrollbar-policy: never;
+                                        vexpand: true;
+                                        hexpand: true;
+
+                                        Adw.Clamp {
+                                            maximum-size: 550;
+
+                                            Box {
+                                                orientation: vertical;
+                                                spacing: 12;
+                                                margin-top: 24;
+                                                margin-bottom: 24;
+                                                margin-start: 24;
+                                                margin-end: 24;
+
+                                                Box {
+                                                    // Header bar
+                                                    orientation: horizontal;
+
+                                                    styles [
+                                                        "title-4",
+                                                    ]
+
+                                                    Label manage_files_count_label {
+                                                        // Internal
+                                                        label: "<b>3 Files</b>";
+                                                        use-markup: true;
+                                                    }
+
+                                                    Adw.Bin {
+                                                        hexpand: true;
+                                                    }
+
+                                                    Button manage_files_add_files_button {
+                                                        Adw.ButtonContent {
+                                                            label: _("Add File");
+                                                            icon-name: "plus-symbolic";
+                                                        }
+
+                                                        styles [
+                                                            "flat",
+                                                        ]
+                                                    }
+                                                }
+
+                                                ListBox manage_files_listbox {
+                                                    selection-mode: none;
+
+                                                    styles [
+                                                        "boxed-list",
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Button {
+                                        label: _("Send");
+                                        margin-top: 12;
+                                        margin-bottom: 12;
+                                        margin-start: 12;
+                                        margin-end: 12;
+                                        halign: center;
+                                        valign: center;
+
+                                        styles [
+                                            "pill",
+                                            "suggested-action",
+                                        ]
                                     }
                                 }
                             };

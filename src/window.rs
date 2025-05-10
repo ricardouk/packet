@@ -35,14 +35,28 @@ mod imp {
         pub root_stack: TemplateChild<gtk::Stack>,
         #[template_child]
         pub transfer_kind_view_stack: TemplateChild<adw::ViewStack>,
+
+        // ---
         #[template_child]
         pub main_nav_view: TemplateChild<adw::NavigationView>,
 
         #[template_child]
         pub main_box: TemplateChild<gtk::Box>,
         #[template_child]
-        pub main_nav_page: TemplateChild<adw::NavigationPage>,
+        pub main_nav_content: TemplateChild<gtk::ScrolledWindow>,
 
+        #[template_child]
+        pub manage_files_nav_content: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub manage_files_count_label: TemplateChild<gtk::Label>,
+        #[template_child]
+        pub manage_files_add_files_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub manage_files_listbox: TemplateChild<gtk::ListBox>,
+        #[default(gio::ListStore::new::<gio::File>())]
+        pub manage_files_model: gio::ListStore,
+
+        // ---
         #[template_child]
         pub receive_view_stack_page: TemplateChild<adw::ViewStackPage>,
         #[template_child]
@@ -256,17 +270,42 @@ impl QuickShareApplicationWindow {
         // FIXME:! remove test code
         imp.root_stack.set_visible_child_name("main_page");
 
+        // FIXME: Add filters, don't accept directories
+        // Only files!
         let files_drop_target = gtk::DropTarget::builder()
-            .name("files-drop-target")
+            .name("add-files-drop-target")
             .actions(gdk::DragAction::COPY)
             .formats(&gdk::ContentFormats::for_type(gdk::FileList::static_type()))
             .build();
         // FIXME: add the drop zone to the next select files page as well
-        imp.main_nav_page
+        imp.main_nav_content
             .get()
             .add_controller(files_drop_target.clone());
 
         files_drop_target.connect_drop(clone!(
+            #[weak]
+            imp,
+            #[upgrade_or]
+            false,
+            move |_, value, _, _| {
+                imp.manage_files_model.remove_all();
+                if let Ok(file_list) = value.get::<gdk::FileList>() {
+                    select_files_to_send_cb(&imp, file_list.files());
+                }
+
+                true
+            }
+        ));
+
+        let manage_files_add_drop_target = gtk::DropTarget::builder()
+            .name("manage-files-add-drop-target")
+            .actions(gdk::DragAction::COPY)
+            .formats(&gdk::ContentFormats::for_type(gdk::FileList::static_type()))
+            .build();
+        imp.manage_files_nav_content
+            .get()
+            .add_controller(manage_files_add_drop_target.clone());
+        manage_files_add_drop_target.connect_drop(clone!(
             #[weak]
             imp,
             #[upgrade_or]
@@ -279,6 +318,7 @@ impl QuickShareApplicationWindow {
                 true
             }
         ));
+
         // imp.main_nav_view.get().push_by_tag("transfer_history_page");
 
         let device_name = &self.get_device_name_state();
@@ -305,60 +345,95 @@ impl QuickShareApplicationWindow {
             }
         ));
 
+        imp.manage_files_listbox.bind_model(
+            Some(&imp.manage_files_model),
+            clone!(
+                #[weak]
+                imp,
+                #[upgrade_or]
+                adw::Bin::new().into(),
+                move |model| {
+                    let model_item = model.downcast_ref::<gio::File>().unwrap();
+                    widgets::create_file_card(&imp.obj(), &imp.manage_files_model, model_item)
+                        .into()
+                }
+            ),
+        );
+
         fn select_files_to_send_cb(imp: &imp::QuickShareApplicationWindow, files: Vec<gio::File>) {
             if files.len() == 0 {
                 // FIXME: Show toast about not being able to access files
             } else {
+                // FIXME: don't accept files that are already in the list
+                // No duplicates!
+                imp.manage_files_count_label.set_label(
+                    &formatx!(
+                        gettext("{} Files"),
+                        files.len() + imp.manage_files_model.n_items() as usize
+                    )
+                    .unwrap(),
+                );
+
+                if let Some(tag) = imp.main_nav_view.visible_page_tag() {
+                    if &tag != "manage_files_nav_page" {
+                        imp.main_nav_view.push_by_tag("manage_files_nav_page");
+                    }
+                }
+
+                for file in &files {
+                    imp.manage_files_model.append(file);
+                }
+
                 // imp.send_stack
                 //     .get()
                 //     .set_visible_child_name("send_nearby_devices_page");
 
                 // FIXME:!
-                let title = formatx!(
-                    &ngettext(
-                        "{} file is ready to send",
-                        "{} files are ready to send",
-                        files.len() as u32,
-                    ),
-                    files.len()
-                )
-                .unwrap_or_default();
+                // let title = formatx!(
+                //     &ngettext(
+                //         "{} file is ready to send",
+                //         "{} files are ready to send",
+                //         files.len() as u32,
+                //     ),
+                //     files.len()
+                // )
+                // .unwrap_or_default();
 
-                imp.selected_files_card_title.get().set_label(&title);
+                // imp.selected_files_card_title.get().set_label(&title);
+                // imp.selected_files_to_send.as_ref().borrow_mut().clear();
 
-                imp.selected_files_to_send.as_ref().borrow_mut().clear();
-                for file in &files {
-                    tracing::info!(file = ?file.path(), "Selected file");
-                    if let Some(path) = file.path() {
-                        imp.selected_files_to_send.as_ref().borrow_mut().push(path);
-                    }
-                }
+                // for file in &files {
+                //     tracing::info!(file = ?file.path(), "Selected file");
+                //     if let Some(path) = file.path() {
+                //         imp.selected_files_to_send.as_ref().borrow_mut().push(path);
+                //     }
+                // }
 
-                imp.selected_files_card_caption.get().set_label(
-                    &imp.selected_files_to_send
-                        .as_ref()
-                        .borrow()
-                        .iter()
-                        .map(|it| it.file_name().and_then(|it| Some(it.to_string_lossy())))
-                        .flatten()
-                        .collect::<Vec<_>>()
-                        .join(", "),
-                );
+                // imp.selected_files_card_caption.get().set_label(
+                //     &imp.selected_files_to_send
+                //         .as_ref()
+                //         .borrow()
+                //         .iter()
+                //         .map(|it| it.file_name().and_then(|it| Some(it.to_string_lossy())))
+                //         .flatten()
+                //         .collect::<Vec<_>>()
+                //         .join(", "),
+                // );
 
                 // FIXME:!
                 // imp.obj().start_mdns_discovery();
             }
         }
 
-        imp.send_select_files_button.connect_clicked(clone!(
-            #[weak]
-            imp,
-            move |_| {
-                gtk::FileDialog::new().open_multiple(
-                    imp.obj()
-                        .root()
-                        .and_downcast_ref::<adw::ApplicationWindow>(),
-                    None::<&gio::Cancellable>,
+        fn select_files_via_dialog(imp: &imp::QuickShareApplicationWindow) {
+            gtk::FileDialog::new().open_multiple(
+                imp.obj()
+                    .root()
+                    .and_downcast_ref::<adw::ApplicationWindow>(),
+                None::<&gio::Cancellable>,
+                clone!(
+                    #[weak]
+                    imp,
                     move |files| {
                         if let Ok(files) = files {
                             let mut files_vec = Vec::with_capacity(files.n_items() as usize);
@@ -369,8 +444,24 @@ impl QuickShareApplicationWindow {
 
                             select_files_to_send_cb(&imp, files_vec);
                         };
-                    },
-                );
+                    }
+                ),
+            );
+        }
+
+        imp.manage_files_add_files_button.connect_clicked(clone!(
+            #[weak]
+            imp,
+            move |_| {
+                select_files_via_dialog(&imp);
+            }
+        ));
+        imp.send_select_files_button.connect_clicked(clone!(
+            #[weak]
+            imp,
+            move |_| {
+                imp.manage_files_model.remove_all();
+                select_files_via_dialog(&imp);
             }
         ));
         imp.selected_files_card_cancel_button
