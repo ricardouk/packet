@@ -361,7 +361,8 @@ impl QuickShareApplicationWindow {
             self,
             move |entry| {
                 entry.set_editable(false);
-                this.set_device_name(entry.text().as_str());
+                // FIXME:!
+                // this.set_device_name(entry.text().as_str());
                 entry.set_editable(true);
             }
         ));
@@ -586,7 +587,6 @@ impl QuickShareApplicationWindow {
             obj: &adw::SwitchRow,
             imp: &imp::QuickShareApplicationWindow,
         ) {
-            tracing::info!("HELLO");
             if obj.is_active() {
                 imp.bottom_bar_title.set_label(&gettext("Ready to receive"));
                 imp.bottom_bar_image.set_icon_name(Some("sonar-symbolic"));
