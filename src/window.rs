@@ -4,6 +4,7 @@ use adw::prelude::*;
 use adw::subclass::prelude::*;
 use formatx::formatx;
 use gettextrs::{gettext, ngettext};
+use gtk::gio::SettingsBindFlags;
 use gtk::glib::clone;
 use gtk::{gdk, gio, glib};
 
@@ -264,6 +265,16 @@ impl QuickShareApplicationWindow {
 
     fn setup_ui(&self) {
         let imp = self.imp();
+
+        imp.device_visibility_switch
+            .set_active(imp.settings.boolean("device-visibility"));
+        imp.settings
+            .bind(
+                "device-visibility",
+                &imp.device_visibility_switch.get(),
+                "active",
+            )
+            .build();
 
         imp.recipient_listbox.bind_model(
             Some(&imp.recipient_model),
@@ -762,8 +773,6 @@ impl QuickShareApplicationWindow {
                     tracing::debug!("RQS service has been reset");
 
                     // FIXME: Show a toast for device name change success?
-
-                    imp.device_visibility_switch.set_active(true);
                 }
             ));
         } else {
@@ -784,6 +793,7 @@ impl QuickShareApplicationWindow {
 
         let (tx, rx) = async_channel::bounded(1);
 
+        let is_device_visible = imp.settings.boolean("device-visibility");
         let device_name = self.get_device_name_state();
         tokio_runtime().spawn(async move {
             let download_path = directories::UserDirs::new()
@@ -796,7 +806,11 @@ impl QuickShareApplicationWindow {
 
             // FIXME: Allow setting a const port number in app preferences and, download_path
             let mut rqs = rqs_lib::RQS::new(
-                rqs_lib::Visibility::Visible,
+                if is_device_visible {
+                    rqs_lib::Visibility::Visible
+                } else {
+                    rqs_lib::Visibility::Invisible
+                },
                 None,
                 Some(download_path),
                 Some(device_name.to_string()),
@@ -821,7 +835,6 @@ impl QuickShareApplicationWindow {
 
                 tracing::debug!("Fetched RQS instance after run()");
 
-                imp.device_visibility_switch.set_active(true);
                 imp.root_stack.get().set_visible_child_name("main_page");
 
                 spawn_rqs_receiver_tasks(&imp);

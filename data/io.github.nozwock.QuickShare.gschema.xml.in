@@ -17,5 +17,9 @@
       <default>""</default>
       <summary>Device name</summary>
     </key>
+    <key name="device-visibility" type="b">
+      <default>true</default>
+      <summary>Device visibility</summary>
+    </key>
   </schema>
 </schemalist>
