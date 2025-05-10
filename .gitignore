@@ -12,3 +12,10 @@
 /.vscode
 
 /subprojects/blueprint-compiler
+
+# Python
+# For Workbench workspaces
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
