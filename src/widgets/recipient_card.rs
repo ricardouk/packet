@@ -1,9 +1,12 @@
+use std::cell::RefCell;
+
 use crate::{
     objects::{
         self,
         data_transfer::{DataTransferObject, TransferKind},
     },
     tokio_runtime,
+    utils::DataTransferEta,
     window::QuickShareApplicationWindow,
 };
 
@@ -173,7 +176,25 @@ pub fn create_recipient_card(
     let progress_bar = gtk::ProgressBar::builder().visible(false).build();
     main_box.append(&progress_bar);
 
-    // FIXME: make eta label functioning
+    let total_size = imp
+        .manage_files_model
+        .iter::<gio::File>()
+        .filter_map(|it| it.ok())
+        .filter_map(|it| {
+            it.query_info(
+                gio::FILE_ATTRIBUTE_STANDARD_SIZE,
+                gio::FileQueryInfoFlags::NONE,
+                None::<&gio::Cancellable>,
+            )
+            .ok()
+        })
+        .map(|it| it.size() as usize)
+        .fold(0, |acc, x| acc + x);
+
+    tracing::debug!(total_size);
+
+    let eta_estimator = RefCell::new(DataTransferEta::new(total_size));
+
     let eta_label = gtk::Label::builder()
         .halign(gtk::Align::Start)
         .wrap(true)
@@ -272,9 +293,6 @@ pub fn create_recipient_card(
             )
             .unwrap();
 
-            // FIXME: prevent this!
-            // ListBoxRow activatable affects senstivity of children too
-
             if let Some(ref state) = channel_message.0.state {
                 match state {
                     State::Initial => {}
@@ -287,7 +305,6 @@ pub fn create_recipient_card(
                     State::ReceivedPairedKeyResult => {}
                     State::WaitingForUserConsent => {}
                     State::ReceivingFiles => {}
-                    // FIXME: Separate this out
                     State::SentUkeyClientInit
                     | State::SentUkeyClientFinish
                     | State::SentIntroduction => {
@@ -298,6 +315,8 @@ pub fn create_recipient_card(
                         result_label.set_visible(true);
                         result_label.set_label(&gettext("Requested"));
                         result_label.set_css_classes(&["caption", "accent"]);
+
+                        eta_estimator.borrow_mut().prepare_for_new_transfer(None);
                     }
                     State::SendingFiles => {
                         set_row_activatable(model_item, &clickable_row_to_send, false);
@@ -305,6 +324,20 @@ pub fn create_recipient_card(
                         cancel_transfer_button.set_sensitive(true);
                         result_label.set_visible(false);
                         eta_label.set_visible(true);
+                        let eta_text = {
+                            if let Some(meta) = &channel_message.meta {
+                                eta_estimator
+                                    .borrow_mut()
+                                    .step_with(meta.ack_bytes as usize);
+                            }
+
+                            formatx!(
+                                gettext("About {} left"),
+                                eta_estimator.borrow().get_estimate_string()
+                            )
+                            .unwrap()
+                        };
+                        eta_label.set_label(&eta_text);
 
                         progress_bar.set_visible(true);
                         set_progress_bar_fraction(&progress_bar, &channel_message);
@@ -341,6 +374,7 @@ pub fn create_recipient_card(
                         cancel_transfer_button.set_visible(false);
                         set_row_activatable(model_item, &clickable_row_to_send, false);
                         progress_bar.set_visible(false);
+                        eta_label.set_visible(false);
 
                         let finished_text = {
                             let file_count = channel_message
