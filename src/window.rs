@@ -39,7 +39,9 @@ mod imp {
         pub main_nav_view: TemplateChild<adw::NavigationView>,
 
         #[template_child]
-        pub main_page_box: TemplateChild<gtk::Box>,
+        pub main_box: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub main_nav_page: TemplateChild<adw::NavigationPage>,
 
         #[template_child]
         pub receive_view_stack_page: TemplateChild<adw::ViewStackPage>,
@@ -259,7 +261,8 @@ impl QuickShareApplicationWindow {
             .actions(gdk::DragAction::COPY)
             .formats(&gdk::ContentFormats::for_type(gdk::FileList::static_type()))
             .build();
-        imp.main_page_box
+        // FIXME: add the drop zone to the next select files page as well
+        imp.main_nav_page
             .get()
             .add_controller(files_drop_target.clone());
 

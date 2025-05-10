@@ -86,13 +86,13 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                     }
                 }
 
-                Box main_page_box {
+                Box main_box {
                     orientation: vertical;
                     hexpand: true;
                     vexpand: true;
 
                     Adw.NavigationView main_nav_view {
-                        Adw.NavigationPage {
+                        Adw.NavigationPage main_nav_page {
                             child: ScrolledWindow {
                                 vexpand: true;
                                 hexpand: true;
