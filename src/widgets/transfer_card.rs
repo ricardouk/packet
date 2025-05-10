@@ -237,7 +237,7 @@ pub fn create_data_transfer_card(
                     if let Some(pos) = model.find(&model_item) {
                         model.remove(pos);
                     }
-                    imp.active_file_requests
+                    imp.receive_transfers_id_cache
                         .blocking_lock()
                         .remove(&model_item.channel_message().id);
                 }
@@ -448,7 +448,7 @@ pub fn create_data_transfer_card(
                     if let Some(pos) = model.find(&model_item) {
                         model.remove(pos);
                     }
-                    imp.active_discovered_endpoints
+                    imp.send_transfers_id_cache
                         .blocking_lock()
                         .remove(&model_item.channel_message().id);
                 }

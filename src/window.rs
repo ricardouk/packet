@@ -121,8 +121,9 @@ mod imp {
         pub receive_file_transfer_model: gio::ListStore,
         #[default(gio::ListStore::new::<DataTransferObject>())]
         pub send_file_transfer_model: gio::ListStore,
-        pub active_discovered_endpoints: Arc<Mutex<HashMap<String, DataTransferObject>>>,
-        pub active_file_requests: Arc<Mutex<HashMap<String, DataTransferObject>>>,
+
+        pub send_transfers_id_cache: Arc<Mutex<HashMap<String, DataTransferObject>>>,
+        pub receive_transfers_id_cache: Arc<Mutex<HashMap<String, DataTransferObject>>>,
 
         pub rqs_looping_async_tasks: RefCell<Vec<LoopingTaskHandle>>,
     }
@@ -302,7 +303,7 @@ impl QuickShareApplicationWindow {
             imp,
             move |_| {
                 // Clear previous recipients
-                imp.active_discovered_endpoints.blocking_lock().clear();
+                imp.send_transfers_id_cache.blocking_lock().clear();
                 imp.recipient_model.remove_all();
 
                 imp.obj().start_mdns_discovery(None);
@@ -916,7 +917,7 @@ impl QuickShareApplicationWindow {
                                     // );
 
                                     let mut active_file_requests =
-                                        imp.active_file_requests.lock().await;
+                                        imp.receive_transfers_id_cache.lock().await;
                                     if let Some(file_transfer) = active_file_requests.get(id) {
                                         // Update file request state
                                         file_transfer.set_channel_message(
@@ -952,7 +953,7 @@ impl QuickShareApplicationWindow {
                                     Some(rqs_lib::channel::TransferType::Inbound) => {
                                         // Receive
                                         let active_file_requests =
-                                            imp.active_file_requests.lock().await;
+                                            imp.receive_transfers_id_cache.lock().await;
                                         if let Some(model_item) = active_file_requests.get(id) {
                                             model_item.set_channel_message(
                                                 data_transfer::ChannelMessage(channel_message),
@@ -962,7 +963,7 @@ impl QuickShareApplicationWindow {
                                     Some(rqs_lib::channel::TransferType::Outbound) => {
                                         // Send
                                         let active_discovered_endpoints =
-                                            imp.active_discovered_endpoints.lock().await;
+                                            imp.send_transfers_id_cache.lock().await;
 
                                         if let Some(model_item) =
                                             active_discovered_endpoints.get(id)
@@ -1025,7 +1026,7 @@ impl QuickShareApplicationWindow {
                             let endpoint_info = rx.recv().await.unwrap();
 
                             let mut active_discovered_endpoints =
-                                imp.active_discovered_endpoints.lock().await;
+                                imp.send_transfers_id_cache.lock().await;
                             if let Some(file_transfer) =
                                 active_discovered_endpoints.get(&endpoint_info.id)
                             {
