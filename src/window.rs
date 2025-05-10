@@ -270,14 +270,11 @@ impl QuickShareApplicationWindow {
         // FIXME:! remove test code
         imp.root_stack.set_visible_child_name("main_page");
 
-        // FIXME: Add filters, don't accept directories
-        // Only files!
         let files_drop_target = gtk::DropTarget::builder()
             .name("add-files-drop-target")
             .actions(gdk::DragAction::COPY)
             .formats(&gdk::ContentFormats::for_type(gdk::FileList::static_type()))
             .build();
-        // FIXME: add the drop zone to the next select files page as well
         imp.main_nav_content
             .get()
             .add_controller(files_drop_target.clone());
@@ -388,8 +385,6 @@ impl QuickShareApplicationWindow {
             if files.len() == 0 {
                 // FIXME: Show toast about not being able to access files
             } else {
-                // FIXME: don't accept files that are already in the list
-                // No duplicates!
                 let file_count = files.len() + imp.manage_files_model.n_items() as usize;
                 imp.manage_files_count_label.set_label(
                     &formatx!(
