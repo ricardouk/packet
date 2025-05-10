@@ -63,6 +63,8 @@ mod imp {
         #[default(gio::ListStore::new::<DataTransferObject>())]
         pub recipient_model: gio::ListStore,
 
+        pub is_mdns_discovery_on: Rc<RefCell<bool>>,
+
         // ---
         #[template_child]
         pub receive_view_stack_page: TemplateChild<adw::ViewStackPage>,
@@ -292,6 +294,8 @@ impl QuickShareApplicationWindow {
                 imp.active_discovered_endpoints.blocking_lock().clear();
                 imp.recipient_model.remove_all();
 
+                imp.obj().start_mdns_discovery();
+
                 imp.main_nav_view.push_by_tag("select_recipient_nav_page");
             }
         ));
@@ -442,8 +446,6 @@ impl QuickShareApplicationWindow {
                 for file in &files {
                     imp.manage_files_model.append(file);
                 }
-
-                imp.obj().start_mdns_discovery();
             }
         }
 
@@ -641,43 +643,48 @@ impl QuickShareApplicationWindow {
     fn start_mdns_discovery(&self) {
         let imp = self.imp();
 
-        // FIXME: Only start mdns discovery if it isn't on already
-        // Use some state on window
+        if !*imp.is_mdns_discovery_on.borrow() {
+            tokio_runtime().spawn(clone!(
+                #[weak(rename_to = mdns_discovery_broadcast_tx)]
+                imp.mdns_discovery_broadcast_tx,
+                #[weak(rename_to = rqs)]
+                imp.rqs,
+                async move {
+                    _ = rqs
+                        .lock()
+                        .await
+                        .as_mut()
+                        .unwrap()
+                        .discovery(
+                            mdns_discovery_broadcast_tx
+                                .lock()
+                                .await
+                                .as_ref()
+                                .unwrap()
+                                .clone(),
+                        )
+                        .inspect_err(|err| tracing::error!(%err));
+                }
+            ));
 
-        tokio_runtime().spawn(clone!(
-            #[weak(rename_to = mdns_discovery_broadcast_tx)]
-            imp.mdns_discovery_broadcast_tx,
-            #[weak(rename_to = rqs)]
-            imp.rqs,
-            async move {
-                _ = rqs
-                    .lock()
-                    .await
-                    .as_mut()
-                    .unwrap()
-                    .discovery(
-                        mdns_discovery_broadcast_tx
-                            .lock()
-                            .await
-                            .as_ref()
-                            .unwrap()
-                            .clone(),
-                    )
-                    .inspect_err(|err| tracing::error!(%err));
-            }
-        ));
+            *imp.is_mdns_discovery_on.borrow_mut() = true;
+        }
     }
 
     fn stop_mdns_discovery(&self) {
         let imp = self.imp();
 
-        tokio_runtime().spawn(clone!(
-            #[weak(rename_to = rqs)]
-            imp.rqs,
-            async move {
-                rqs.lock().await.as_mut().unwrap().stop_discovery();
-            }
-        ));
+        if *imp.is_mdns_discovery_on.borrow() {
+            tokio_runtime().spawn(clone!(
+                #[weak(rename_to = rqs)]
+                imp.rqs,
+                async move {
+                    rqs.lock().await.as_mut().unwrap().stop_discovery();
+                }
+            ));
+
+            *imp.is_mdns_discovery_on.borrow_mut() = false;
+        }
     }
 
     fn is_no_file_being_send(&self) -> bool {
