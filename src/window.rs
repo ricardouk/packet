@@ -174,6 +174,14 @@ mod imp {
                 tracing::warn!("Failed to save app state, {}", &err);
             }
 
+            // Abort all looping tasks before closing
+            while let Some(join_handle) = self.rqs_looping_async_tasks.borrow_mut().pop() {
+                match join_handle {
+                    LoopingTaskHandle::Tokio(join_handle) => join_handle.abort(),
+                    LoopingTaskHandle::Glib(join_handle) => join_handle.abort(),
+                }
+            }
+
             let (tx, rx) = async_channel::bounded(1);
             tokio_runtime().spawn(clone!(
                 #[weak(rename_to = rqs)]
@@ -184,6 +192,7 @@ mod imp {
                         if let Some(rqs) = rqs_guard.as_mut() {
                             // FIXME: put a timeout here
                             // Only wait for a few seconds
+                            // Seems to take a long time in VM for some reason
                             rqs.stop().await;
                             tracing::info!("Stopped RQS service");
                         }
