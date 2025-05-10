@@ -282,6 +282,27 @@ impl QuickShareApplicationWindow {
             .get()
             .add_controller(files_drop_target.clone());
 
+        fn filter_added_files(model: &gio::ListStore, mut files: Vec<gio::File>) -> Vec<gio::File> {
+            files
+                .into_iter()
+                .filter(|file| {
+                    file.query_file_type(
+                        gio::FileQueryInfoFlags::NOFOLLOW_SYMLINKS,
+                        gio::Cancellable::NONE,
+                    ) == gio::FileType::Regular
+                })
+                .filter(|file| {
+                    for existing_file in model.iter::<gio::File>().filter_map(|it| it.ok()) {
+                        if existing_file.parse_name() == file.parse_name() {
+                            return false;
+                        }
+                    }
+
+                    true
+                })
+                .collect::<Vec<_>>()
+        }
+
         files_drop_target.connect_drop(clone!(
             #[weak]
             imp,
@@ -293,7 +314,7 @@ impl QuickShareApplicationWindow {
                     select_files_to_send_cb(&imp, file_list.files());
                 }
 
-                true
+                false
             }
         ));
 
@@ -312,10 +333,13 @@ impl QuickShareApplicationWindow {
             false,
             move |_, value, _, _| {
                 if let Ok(file_list) = value.get::<gdk::FileList>() {
-                    select_files_to_send_cb(&imp, file_list.files());
+                    select_files_to_send_cb(
+                        &imp,
+                        filter_added_files(&imp.manage_files_model, file_list.files()),
+                    );
                 }
 
-                true
+                false
             }
         ));
 
@@ -442,7 +466,10 @@ impl QuickShareApplicationWindow {
                                 files_vec.push(file);
                             }
 
-                            select_files_to_send_cb(&imp, files_vec);
+                            select_files_to_send_cb(
+                                &imp,
+                                filter_added_files(&imp.manage_files_model, files_vec),
+                            );
                         };
                     }
                 ),
