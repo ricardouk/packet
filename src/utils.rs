@@ -31,7 +31,10 @@ const STEPS_TRACK_COUNT: usize = 5;
 /// https://github.com/Manishearth/rustup.rs/blob/1.0.0/src/rustup-cli/download_tracker.rs
 #[derive(Debug, Clone, better_default::Default)]
 pub struct DataTransferEta {
-    total_len: usize,
+    // Making it pub so we can check if Estimator is in initial state
+    // Need to do this because the RefCell<Option<DataTransferEtaBoxed>> wouldn't
+    // satisfy glib::Property
+    pub total_len: usize,
     total_transferred: usize,
 
     transferred_this_sec: usize,

@@ -18,6 +18,8 @@ pub enum LoopingTaskHandle {
     Glib(glib::JoinHandle<()>),
 }
 
+// FIXME: Bundle all icons used in the app except the Adwaita mime-type icons for consistency on different platforms
+
 mod imp {
     use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
@@ -510,8 +512,13 @@ impl QuickShareApplicationWindow {
                 adw::Bin::new().into(),
                 move |obj| {
                     let model_item = obj.downcast_ref::<DataTransferObject>().unwrap();
-                    widgets::create_recipient_card(&imp.obj(), &imp.recipient_model, model_item)
-                        .into()
+                    widgets::create_recipient_card(
+                        &imp.obj(),
+                        &imp.recipient_model,
+                        model_item,
+                        Some(()),
+                    )
+                    .into()
                 }
             ),
         );

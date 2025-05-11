@@ -6,7 +6,6 @@ use crate::{
         data_transfer::{DataTransferObject, TransferKind},
     },
     tokio_runtime,
-    utils::DataTransferEta,
     window::QuickShareApplicationWindow,
 };
 
@@ -69,14 +68,7 @@ pub fn handle_recipient_card_clicked(
             .unwrap();
 
     let endpoint_info = model_item.endpoint_info();
-
-    let files_to_send = imp
-        .manage_files_model
-        .iter::<gio::File>()
-        .filter_map(|it| it.ok())
-        .filter_map(|it| it.path())
-        .map(|it| it.to_string_lossy().to_string())
-        .collect::<Vec<_>>();
+    let files_to_send = model_item.imp().files_to_send.borrow().clone();
 
     tokio_runtime().spawn(clone!(
         #[weak(rename_to = file_sender)]
@@ -110,17 +102,56 @@ pub fn create_recipient_card(
     win: &QuickShareApplicationWindow,
     _model: &gio::ListStore,
     model_item: &DataTransferObject,
+    init_model_state: Option<()>,
 ) -> adw::Bin {
     // Send Only!
     assert_eq!(model_item.transfer_kind(), TransferKind::Send);
 
     let imp = win.imp();
 
-    let title = model_item
-        .endpoint_info()
-        .name
-        .clone()
-        .unwrap_or(gettext("Unknown device").into());
+    if init_model_state.is_some() {
+        let files_to_send = imp
+            .manage_files_model
+            .iter::<gio::File>()
+            .filter_map(|it| it.ok())
+            .filter_map(|it| it.path())
+            .map(|it| it.to_string_lossy().to_string())
+            .collect::<Vec<_>>();
+        *model_item.imp().files_to_send.borrow_mut() = files_to_send;
+
+        if model_item.endpoint_info().present.is_some() {
+            let title = model_item
+                .endpoint_info()
+                .name
+                .clone()
+                .unwrap_or(gettext("Unknown device").into());
+            model_item.set_device_name(title.clone());
+        }
+
+        let eta_estimator = &model_item.imp().eta_estimator;
+        if eta_estimator.borrow().total_len == 0 {
+            let total_size = imp
+                .manage_files_model
+                .iter::<gio::File>()
+                .filter_map(|it| it.ok())
+                .filter_map(|it| {
+                    it.query_info(
+                        gio::FILE_ATTRIBUTE_STANDARD_SIZE,
+                        gio::FileQueryInfoFlags::NONE,
+                        None::<&gio::Cancellable>,
+                    )
+                    .ok()
+                })
+                .map(|it| it.size() as usize)
+                .fold(0, |acc, x| acc + x);
+
+            eta_estimator
+                .borrow_mut()
+                .prepare_for_new_transfer(Some(total_size));
+        }
+    }
+
+    let title = model_item.device_name();
 
     // `card` style will be applied with `boxed-list*` on ListBox
     // v/h-align would prevent the card from expanding when space is available
@@ -161,7 +192,7 @@ pub fn create_recipient_card(
     let title_label = gtk::Label::builder()
         .halign(gtk::Align::Start)
         .wrap(true)
-        .label(title)
+        .label(&title)
         .css_classes(["title-4"])
         .build();
     let result_label = gtk::Label::builder()
@@ -175,25 +206,6 @@ pub fn create_recipient_card(
 
     let progress_bar = gtk::ProgressBar::builder().visible(false).build();
     main_box.append(&progress_bar);
-
-    let total_size = imp
-        .manage_files_model
-        .iter::<gio::File>()
-        .filter_map(|it| it.ok())
-        .filter_map(|it| {
-            it.query_info(
-                gio::FILE_ATTRIBUTE_STANDARD_SIZE,
-                gio::FileQueryInfoFlags::NONE,
-                None::<&gio::Cancellable>,
-            )
-            .ok()
-        })
-        .map(|it| it.size() as usize)
-        .fold(0, |acc, x| acc + x);
-
-    tracing::debug!(total_size);
-
-    let eta_estimator = RefCell::new(DataTransferEta::new(total_size));
 
     let eta_label = gtk::Label::builder()
         .halign(gtk::Align::Start)
@@ -254,150 +266,172 @@ pub fn create_recipient_card(
 
     fn set_row_activatable(
         model_item: &DataTransferObject,
-        row: &gtk::ListBoxRow,
+        row: Option<&gtk::ListBoxRow>,
         activatable: bool,
     ) {
-        if model_item.endpoint_info().present.is_none() {
-            row.set_activatable(false);
-        } else {
-            row.set_activatable(activatable);
+        if let Some(row) = row {
+            if model_item.endpoint_info().present.is_none() {
+                row.set_activatable(false);
+            } else {
+                row.set_activatable(activatable);
+            }
         }
     }
+
+    let listbox_row = RefCell::new(None);
+    let update_ui = move |win: &QuickShareApplicationWindow, model_item: &DataTransferObject| {
+        use rqs_lib::State;
+
+        let imp = win.imp();
+
+        let channel_message = model_item.channel_message();
+        if listbox_row.borrow().is_none() {
+            *listbox_row.borrow_mut() = get_listbox_row_from_model_item::<DataTransferObject>(
+                &imp.recipient_model,
+                &imp.recipient_listbox,
+                model_item,
+            );
+        }
+        let listbox_row_ref = listbox_row.borrow();
+        let eta_estimator = model_item.imp().eta_estimator.as_ref();
+
+        if let Some(ref state) = channel_message.0.state {
+            match state {
+                State::Initial => {}
+                State::ReceivedConnectionRequest => {}
+                State::SentUkeyServerInit => {}
+                State::SentPairedKeyEncryption => {}
+                State::ReceivedUkeyClientFinish => {}
+                State::SentConnectionResponse => {}
+                State::SentPairedKeyResult => {}
+                State::ReceivedPairedKeyResult => {}
+                State::WaitingForUserConsent => {}
+                State::ReceivingFiles => {}
+                State::SentUkeyClientInit
+                | State::SentUkeyClientFinish
+                | State::SentIntroduction => {
+                    set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
+                    cancel_transfer_button.set_visible(true);
+                    cancel_transfer_button.set_sensitive(true);
+
+                    result_label.set_visible(true);
+                    result_label.set_label(&gettext("Requested"));
+                    result_label.set_css_classes(&["caption", "accent"]);
+
+                    eta_estimator.borrow_mut().prepare_for_new_transfer(None);
+                }
+                State::SendingFiles => {
+                    set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
+                    cancel_transfer_button.set_visible(true);
+                    cancel_transfer_button.set_sensitive(true);
+                    result_label.set_visible(false);
+                    eta_label.set_visible(true);
+                    let eta_text = {
+                        if let Some(meta) = &channel_message.meta {
+                            eta_estimator
+                                .borrow_mut()
+                                .step_with(meta.ack_bytes as usize);
+                        }
+
+                        formatx!(
+                            gettext("About {} left"),
+                            eta_estimator.borrow().get_estimate_string()
+                        )
+                        .unwrap()
+                    };
+                    eta_label.set_label(&eta_text);
+
+                    progress_bar.set_visible(true);
+                    set_progress_bar_fraction(&progress_bar, &channel_message);
+                }
+                State::Disconnected => {
+                    // FIXME: the Disconnect message you'll get can have no rtype
+                    // and so it's not received in the widget
+                    // leaving the card in Sending Files state
+                    // Take a look at what the hell is happening with rqs_lib
+                    // rqs_lib::manager: TcpServer: error while handling client:
+                    // quickshare_gtk::window: Received on UI thread, Disconnected message
+                    // with None rtype (to differentiate Outbound/Inbound)
+
+                    // FIXME: Wait for 5~10 seconds after a send and timeout
+                    // if did not receive SendingFiles within that timeframe
+                    // This is how google does it in their client
+                    set_row_activatable(model_item, listbox_row_ref.as_ref(), true);
+                    progress_bar.set_visible(false);
+                    cancel_transfer_button.set_visible(false);
+                    eta_label.set_visible(false);
+
+                    result_label.set_visible(true);
+                    result_label.set_label(&gettext("Failed"));
+                    result_label.set_css_classes(&["caption", "error"]);
+                }
+                State::Rejected => {
+                    // FIXME: Outbound(Reject) is not handled on lib side
+                    // rqs_lib::hdl::outbound: Cannot process: consent denied: Reject
+                }
+                State::Cancelled => {
+                    progress_bar.set_visible(false);
+                    cancel_transfer_button.set_visible(false);
+                    eta_label.set_visible(false);
+                    result_label.set_visible(false);
+
+                    // Resetting state, permitting removal
+                    // Remove immediately here if endpoint info is reset?
+                    model_item.set_channel_message(objects::ChannelMessage::default());
+                    set_row_activatable(model_item, listbox_row_ref.as_ref(), true);
+                }
+                State::Finished => {
+                    cancel_transfer_button.set_visible(false);
+                    set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
+                    progress_bar.set_visible(false);
+                    eta_label.set_visible(false);
+
+                    let finished_text = {
+                        let file_count = model_item.imp().files_to_send.borrow().len();
+                        formatx!(
+                            ngettext("Sent {} file", "Sent {} files", file_count as u32),
+                            file_count
+                        )
+                        .unwrap_or_default()
+                    };
+
+                    result_label.set_visible(true);
+                    result_label.set_label(&finished_text);
+                    result_label.set_css_classes(&["caption", "accent"]);
+                }
+            };
+        }
+    };
+
+    let set_list_row_state = move |win: &QuickShareApplicationWindow,
+                                   model_item: &DataTransferObject| {
+        let imp = win.imp();
+        if let Some(row) = get_listbox_row_from_model_item::<DataTransferObject>(
+            &imp.recipient_model,
+            &imp.recipient_listbox,
+            model_item,
+        ) {
+            set_row_activatable(model_item, Some(&row), true);
+        };
+    };
+
+    // Set initial widget state based on model's state
+    set_list_row_state(win, model_item);
+    update_ui(win, model_item);
+
+    // Modify widget based on events
     model_item.connect_endpoint_info_notify(clone!(
         #[weak]
         imp,
         move |model_item| {
-            if let Some(row) = get_listbox_row_from_model_item::<DataTransferObject>(
-                &imp.recipient_model,
-                &imp.recipient_listbox,
-                model_item,
-            ) {
-                set_row_activatable(model_item, &row, true);
-            };
+            set_list_row_state(&imp.obj(), model_item);
         }
     ));
-
     model_item.connect_channel_message_notify(clone!(
         #[weak]
         imp,
         move |model_item| {
-            use rqs_lib::State;
-
-            let _endpoint_info = model_item.endpoint_info();
-            let channel_message = model_item.channel_message();
-
-            let clickable_row_to_send = get_listbox_row_from_model_item::<DataTransferObject>(
-                &imp.recipient_model,
-                &imp.recipient_listbox,
-                model_item,
-            )
-            .unwrap();
-
-            if let Some(ref state) = channel_message.0.state {
-                match state {
-                    State::Initial => {}
-                    State::ReceivedConnectionRequest => {}
-                    State::SentUkeyServerInit => {}
-                    State::SentPairedKeyEncryption => {}
-                    State::ReceivedUkeyClientFinish => {}
-                    State::SentConnectionResponse => {}
-                    State::SentPairedKeyResult => {}
-                    State::ReceivedPairedKeyResult => {}
-                    State::WaitingForUserConsent => {}
-                    State::ReceivingFiles => {}
-                    State::SentUkeyClientInit
-                    | State::SentUkeyClientFinish
-                    | State::SentIntroduction => {
-                        set_row_activatable(model_item, &clickable_row_to_send, false);
-                        cancel_transfer_button.set_visible(true);
-                        cancel_transfer_button.set_sensitive(true);
-
-                        result_label.set_visible(true);
-                        result_label.set_label(&gettext("Requested"));
-                        result_label.set_css_classes(&["caption", "accent"]);
-
-                        eta_estimator.borrow_mut().prepare_for_new_transfer(None);
-                    }
-                    State::SendingFiles => {
-                        set_row_activatable(model_item, &clickable_row_to_send, false);
-                        cancel_transfer_button.set_visible(true);
-                        cancel_transfer_button.set_sensitive(true);
-                        result_label.set_visible(false);
-                        eta_label.set_visible(true);
-                        let eta_text = {
-                            if let Some(meta) = &channel_message.meta {
-                                eta_estimator
-                                    .borrow_mut()
-                                    .step_with(meta.ack_bytes as usize);
-                            }
-
-                            formatx!(
-                                gettext("About {} left"),
-                                eta_estimator.borrow().get_estimate_string()
-                            )
-                            .unwrap()
-                        };
-                        eta_label.set_label(&eta_text);
-
-                        progress_bar.set_visible(true);
-                        set_progress_bar_fraction(&progress_bar, &channel_message);
-                    }
-                    State::Disconnected => {
-                        // FIXME: Wait for 5~10 seconds after a send and timeout
-                        // if did not receive SendingFiles within that timeframe
-                        // This is how google does it in their client
-                        set_row_activatable(model_item, &clickable_row_to_send, true);
-                        progress_bar.set_visible(false);
-                        cancel_transfer_button.set_visible(false);
-                        eta_label.set_visible(false);
-
-                        result_label.set_visible(true);
-                        result_label.set_label(&gettext("Failed"));
-                        result_label.set_css_classes(&["caption", "error"]);
-                    }
-                    State::Rejected => {
-                        // FIXME: Outbound(Reject) is not handled on lib side
-                        // rqs_lib::hdl::outbound: Cannot process: consent denied: Reject
-                    }
-                    State::Cancelled => {
-                        progress_bar.set_visible(false);
-                        cancel_transfer_button.set_visible(false);
-                        eta_label.set_visible(false);
-                        result_label.set_visible(false);
-
-                        // Resetting state, permitting removal
-                        // Remove immediately here if endpoint info is reset?
-                        model_item.set_channel_message(objects::ChannelMessage::default());
-                        set_row_activatable(model_item, &clickable_row_to_send, true);
-                    }
-                    State::Finished => {
-                        cancel_transfer_button.set_visible(false);
-                        set_row_activatable(model_item, &clickable_row_to_send, false);
-                        progress_bar.set_visible(false);
-                        eta_label.set_visible(false);
-
-                        let finished_text = {
-                            let file_count = channel_message
-                                .meta
-                                .as_ref()
-                                .unwrap()
-                                .files
-                                .as_ref()
-                                .unwrap()
-                                .len();
-                            formatx!(
-                                ngettext("Sent {} file", "Sent {} files", file_count as u32),
-                                file_count
-                            )
-                            .unwrap_or_default()
-                        };
-
-                        result_label.set_visible(true);
-                        result_label.set_label(&finished_text);
-                        result_label.set_css_classes(&["caption", "accent"]);
-                    }
-                };
-            }
+            update_ui(&imp.obj(), model_item);
         }
     ));
 
