@@ -67,6 +67,15 @@ pub fn handle_recipient_card_clicked(
         get_model_item_from_listbox::<DataTransferObject>(&imp.recipient_model, list_box, row)
             .unwrap();
 
+    emit_send_files(win, &model_item);
+
+    // Only reset this on Cancelled
+    row.set_activatable(false);
+}
+
+fn emit_send_files(win: &QuickShareApplicationWindow, model_item: &DataTransferObject) {
+    let imp = win.imp();
+
     let endpoint_info = model_item.endpoint_info();
     let files_to_send = model_item.imp().files_to_send.borrow().clone();
 
@@ -221,6 +230,26 @@ pub fn create_recipient_card(
     };
 
     root_box.append(&adw::Bin::builder().hexpand(true).build());
+
+    let retry_button = gtk::Button::builder()
+        .valign(gtk::Align::Center)
+        .halign(gtk::Align::Center)
+        .icon_name("view-refresh-symbolic")
+        .css_classes(["circular"])
+        .tooltip_text(&gettext("Retry"))
+        .visible(false)
+        .build();
+    root_box.append(&retry_button);
+    retry_button.connect_clicked(clone!(
+        #[weak]
+        imp,
+        #[weak]
+        model_item,
+        move |button| {
+            emit_send_files(&imp.obj(), &model_item);
+        }
+    ));
+
     let cancel_transfer_button = gtk::Button::builder()
         .valign(gtk::Align::Center)
         .halign(gtk::Align::Center)
@@ -284,6 +313,7 @@ pub fn create_recipient_card(
     }
 
     let listbox_row = RefCell::new(None);
+    let _retry_button = retry_button.clone();
     let update_ui = move |win: &QuickShareApplicationWindow, model_item: &DataTransferObject| {
         use rqs_lib::State;
 
@@ -318,6 +348,7 @@ pub fn create_recipient_card(
                     set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
                     cancel_transfer_button.set_visible(true);
                     cancel_transfer_button.set_sensitive(true);
+                    retry_button.set_visible(false);
 
                     result_label.set_visible(true);
                     result_label.set_label(&gettext("Requested"));
@@ -330,6 +361,7 @@ pub fn create_recipient_card(
                     cancel_transfer_button.set_visible(false);
                     result_label.set_visible(false);
                     eta_label.set_visible(true);
+                    retry_button.set_visible(false);
                     let eta_text = {
                         if let Some(meta) = &channel_message.meta {
                             eta_estimator
@@ -352,10 +384,11 @@ pub fn create_recipient_card(
                     // FIXME: Wait for 5~10 seconds after a send and timeout
                     // if did not receive SendingFiles within that timeframe
                     // This is how google does it in their client
-                    set_row_activatable(model_item, listbox_row_ref.as_ref(), true);
+                    set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
                     progress_bar.set_visible(false);
                     cancel_transfer_button.set_visible(false);
                     eta_label.set_visible(false);
+                    retry_button.set_visible(true);
 
                     result_label.set_visible(true);
                     result_label.set_label(&gettext("Failed"));
@@ -370,6 +403,7 @@ pub fn create_recipient_card(
                     cancel_transfer_button.set_visible(false);
                     eta_label.set_visible(false);
                     result_label.set_visible(false);
+                    retry_button.set_visible(true);
 
                     // Resetting state, permitting removal
                     // Remove immediately here if endpoint info is reset?
@@ -381,6 +415,7 @@ pub fn create_recipient_card(
                     set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
                     progress_bar.set_visible(false);
                     eta_label.set_visible(false);
+                    retry_button.set_visible(false);
 
                     let finished_text = {
                         let file_count = model_item.imp().files_to_send.borrow().len();
@@ -416,13 +451,14 @@ pub fn create_recipient_card(
     update_ui(win, model_item);
 
     // Modify widget based on events
-    model_item.connect_endpoint_info_notify(clone!(
-        #[weak]
-        imp,
-        move |model_item| {
-            set_list_row_state(&imp.obj(), model_item);
+    let retry_button = _retry_button;
+    model_item.connect_endpoint_info_notify(move |model_item| {
+        if model_item.endpoint_info().present.is_none() {
+            retry_button.set_sensitive(false);
+        } else {
+            retry_button.set_sensitive(true);
         }
-    ));
+    });
     model_item.connect_channel_message_notify(clone!(
         #[weak]
         imp,
