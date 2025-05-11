@@ -4,6 +4,7 @@ use crate::{
     objects::{
         self,
         data_transfer::{DataTransferObject, TransferKind},
+        TransferState,
     },
     tokio_runtime,
     window::QuickShareApplicationWindow,
@@ -210,8 +211,16 @@ pub fn create_recipient_card(
         .visible(false)
         .css_classes(["caption"])
         .build();
+    let unavailibility_label = gtk::Label::builder()
+        .halign(gtk::Align::Start)
+        .wrap(true)
+        .label(&gettext("Unavailable"))
+        .visible(false)
+        .css_classes(["caption", "dim-label"])
+        .build();
     main_box.append(&title_label);
     main_box.append(&result_label);
+    main_box.append(&unavailibility_label);
 
     let progress_bar = gtk::ProgressBar::builder().visible(false).build();
     main_box.append(&progress_bar);
@@ -312,27 +321,34 @@ pub fn create_recipient_card(
         }
     }
 
-    let set_list_row_state = move |win: &QuickShareApplicationWindow,
-                                   model_item: &DataTransferObject| {
-        let imp = win.imp();
-        if let Some(row) = get_listbox_row_from_model_item::<DataTransferObject>(
-            &imp.recipient_model,
-            &imp.recipient_listbox,
-            model_item,
-        ) {
-            set_row_activatable(model_item, Some(&row), true);
-        };
-    };
-
     let listbox_row = RefCell::new(None);
     model_item.connect_endpoint_info_notify(clone!(
         #[weak]
+        win,
+        #[weak]
         retry_button,
+        #[weak]
+        unavailibility_label,
         move |model_item| {
+            let imp = win.imp();
+            let is_idle_card = model_item.transfer_state() == TransferState::AwaitingConsentOrIdle;
+
+            if is_idle_card {
+                if let Some(row) = get_listbox_row_from_model_item::<DataTransferObject>(
+                    &imp.recipient_model,
+                    &imp.recipient_listbox,
+                    model_item,
+                ) {
+                    set_row_activatable(model_item, Some(&row), true);
+                };
+            }
+
             if model_item.endpoint_info().present.is_none() {
                 retry_button.set_sensitive(false);
+                unavailibility_label.set_visible(is_idle_card);
             } else {
                 retry_button.set_sensitive(true);
+                unavailibility_label.set_visible(false);
             }
         }
     ));
@@ -368,10 +384,15 @@ pub fn create_recipient_card(
                     State::SentUkeyClientInit
                     | State::SentUkeyClientFinish
                     | State::SentIntroduction => {
+                        model_item.set_transfer_state(TransferState::RequestedForConsent);
+
                         set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
-                        cancel_transfer_button.set_visible(true);
-                        cancel_transfer_button.set_sensitive(true);
+
+                        unavailibility_label.set_visible(false);
                         retry_button.set_visible(false);
+
+                        cancel_transfer_button.set_sensitive(true);
+                        cancel_transfer_button.set_visible(true);
 
                         result_label.set_visible(true);
                         result_label.set_label(&gettext("Requested"));
@@ -380,11 +401,15 @@ pub fn create_recipient_card(
                         eta_estimator.borrow_mut().prepare_for_new_transfer(None);
                     }
                     State::SendingFiles => {
+                        model_item.set_transfer_state(TransferState::OngoingTransfer);
+
                         set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
+
                         cancel_transfer_button.set_visible(false);
                         result_label.set_visible(false);
-                        eta_label.set_visible(true);
+                        unavailibility_label.set_visible(false);
                         retry_button.set_visible(false);
+
                         let eta_text = {
                             if let Some(meta) = &channel_message.meta {
                                 eta_estimator
@@ -398,19 +423,24 @@ pub fn create_recipient_card(
                             )
                             .unwrap()
                         };
+                        eta_label.set_visible(true);
                         eta_label.set_label(&eta_text);
 
                         progress_bar.set_visible(true);
                         set_progress_bar_fraction(&progress_bar, &channel_message);
                     }
                     State::Disconnected => {
+                        model_item.set_transfer_state(TransferState::Failed);
                         // FIXME: Wait for 5~10 seconds after a send and timeout
                         // if did not receive SendingFiles within that timeframe
                         // This is how google does it in their client
                         set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
+
                         progress_bar.set_visible(false);
                         cancel_transfer_button.set_visible(false);
                         eta_label.set_visible(false);
+                        unavailibility_label.set_visible(false);
+
                         retry_button.set_visible(true);
 
                         result_label.set_visible(true);
@@ -418,27 +448,36 @@ pub fn create_recipient_card(
                         result_label.set_css_classes(&["caption", "error"]);
                     }
                     State::Rejected => {
+                        model_item.set_transfer_state(TransferState::Failed);
                         // FIXME: Outbound(Reject) is not handled on lib side
                         // rqs_lib::hdl::outbound: Cannot process: consent denied: Reject
                     }
                     State::Cancelled => {
+                        model_item.set_transfer_state(TransferState::AwaitingConsentOrIdle);
+
+                        set_row_activatable(model_item, listbox_row_ref.as_ref(), true);
+
                         progress_bar.set_visible(false);
                         cancel_transfer_button.set_visible(false);
                         eta_label.set_visible(false);
                         result_label.set_visible(false);
-                        retry_button.set_visible(true);
+                        retry_button.set_visible(false);
 
-                        // Resetting state, permitting removal
-                        // Remove immediately here if endpoint info is reset?
+                        unavailibility_label
+                            .set_visible(model_item.endpoint_info().present.is_none());
+
                         model_item.set_channel_message(objects::ChannelMessage::default());
-                        set_row_activatable(model_item, listbox_row_ref.as_ref(), true);
                     }
                     State::Finished => {
-                        cancel_transfer_button.set_visible(false);
+                        model_item.set_transfer_state(TransferState::Done);
+
                         set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
+
+                        cancel_transfer_button.set_visible(false);
                         progress_bar.set_visible(false);
                         eta_label.set_visible(false);
                         retry_button.set_visible(false);
+                        unavailibility_label.set_visible(false);
 
                         let finished_text = {
                             let file_count = model_item.imp().files_to_send.borrow().len();
@@ -459,7 +498,6 @@ pub fn create_recipient_card(
     ));
 
     // Set initial widget state based on model's state
-    set_list_row_state(win, model_item);
     model_item.notify_endpoint_info();
     model_item.notify_channel_message();
 

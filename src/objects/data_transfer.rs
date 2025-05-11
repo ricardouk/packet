@@ -63,6 +63,17 @@ pub enum TransferKind {
     Send,
 }
 
+#[derive(Debug, Clone, Default, PartialEq, glib::Boxed)]
+#[boxed_type(name = "TransferStateBoxed")]
+pub enum TransferState {
+    #[default]
+    AwaitingConsentOrIdle,
+    RequestedForConsent,
+    OngoingTransfer,
+    Failed,
+    Done,
+}
+
 pub mod imp {
     use std::{cell::RefCell, rc::Rc};
 
@@ -83,6 +94,8 @@ pub mod imp {
         // For easier bindings
         #[property(get, set)]
         transfer_kind: RefCell<TransferKind>,
+        #[property(get, set)]
+        transfer_state: RefCell<TransferState>,
         #[property(get, set)]
         device_name: RefCell<String>,
     }

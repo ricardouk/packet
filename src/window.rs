@@ -1078,25 +1078,10 @@ impl QuickShareApplicationWindow {
                             if let Some(data_transfer) =
                                 send_transfers_id_cache_guard.get(&endpoint_info.id)
                             {
-                                if endpoint_info.present.is_none()
-                                    && data_transfer.channel_message().state.is_none()
-                                {
-                                    // Endpoint disconnected, remove endpoint
-                                    tracing::info!(
-                                        ?endpoint_info,
-                                        "Removing disconnected endpoint"
-                                    );
-                                    if let Some(pos) = imp.recipient_model.find(data_transfer) {
-                                        imp.recipient_model.remove(pos);
-                                    }
-                                    send_transfers_id_cache_guard.remove(&endpoint_info.id);
-                                } else {
-                                    // Update endpoint
-                                    tracing::info!(?endpoint_info, "Updated endpoint info");
-                                    data_transfer.set_endpoint_info(data_transfer::EndpointInfo(
-                                        endpoint_info,
-                                    ));
-                                }
+                                // Update endpoint
+                                tracing::info!(?endpoint_info, "Updated endpoint info");
+                                data_transfer
+                                    .set_endpoint_info(data_transfer::EndpointInfo(endpoint_info));
                             } else {
                                 // Set new endpoint
                                 tracing::info!(?endpoint_info, "Connected endpoint");
