@@ -312,128 +312,6 @@ pub fn create_recipient_card(
         }
     }
 
-    let listbox_row = RefCell::new(None);
-    let _retry_button = retry_button.clone();
-    let update_ui = move |win: &QuickShareApplicationWindow, model_item: &DataTransferObject| {
-        use rqs_lib::State;
-
-        let imp = win.imp();
-
-        let channel_message = model_item.channel_message();
-        if listbox_row.borrow().is_none() {
-            *listbox_row.borrow_mut() = get_listbox_row_from_model_item::<DataTransferObject>(
-                &imp.recipient_model,
-                &imp.recipient_listbox,
-                model_item,
-            );
-        }
-        let listbox_row_ref = listbox_row.borrow();
-        let eta_estimator = model_item.imp().eta_estimator.as_ref();
-
-        if let Some(ref state) = channel_message.0.state {
-            match state {
-                State::Initial => {}
-                State::ReceivedConnectionRequest => {}
-                State::SentUkeyServerInit => {}
-                State::SentPairedKeyEncryption => {}
-                State::ReceivedUkeyClientFinish => {}
-                State::SentConnectionResponse => {}
-                State::SentPairedKeyResult => {}
-                State::ReceivedPairedKeyResult => {}
-                State::WaitingForUserConsent => {}
-                State::ReceivingFiles => {}
-                State::SentUkeyClientInit
-                | State::SentUkeyClientFinish
-                | State::SentIntroduction => {
-                    set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
-                    cancel_transfer_button.set_visible(true);
-                    cancel_transfer_button.set_sensitive(true);
-                    retry_button.set_visible(false);
-
-                    result_label.set_visible(true);
-                    result_label.set_label(&gettext("Requested"));
-                    result_label.set_css_classes(&["caption", "accent"]);
-
-                    eta_estimator.borrow_mut().prepare_for_new_transfer(None);
-                }
-                State::SendingFiles => {
-                    set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
-                    cancel_transfer_button.set_visible(false);
-                    result_label.set_visible(false);
-                    eta_label.set_visible(true);
-                    retry_button.set_visible(false);
-                    let eta_text = {
-                        if let Some(meta) = &channel_message.meta {
-                            eta_estimator
-                                .borrow_mut()
-                                .step_with(meta.ack_bytes as usize);
-                        }
-
-                        formatx!(
-                            gettext("About {} left"),
-                            eta_estimator.borrow().get_estimate_string()
-                        )
-                        .unwrap()
-                    };
-                    eta_label.set_label(&eta_text);
-
-                    progress_bar.set_visible(true);
-                    set_progress_bar_fraction(&progress_bar, &channel_message);
-                }
-                State::Disconnected => {
-                    // FIXME: Wait for 5~10 seconds after a send and timeout
-                    // if did not receive SendingFiles within that timeframe
-                    // This is how google does it in their client
-                    set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
-                    progress_bar.set_visible(false);
-                    cancel_transfer_button.set_visible(false);
-                    eta_label.set_visible(false);
-                    retry_button.set_visible(true);
-
-                    result_label.set_visible(true);
-                    result_label.set_label(&gettext("Failed"));
-                    result_label.set_css_classes(&["caption", "error"]);
-                }
-                State::Rejected => {
-                    // FIXME: Outbound(Reject) is not handled on lib side
-                    // rqs_lib::hdl::outbound: Cannot process: consent denied: Reject
-                }
-                State::Cancelled => {
-                    progress_bar.set_visible(false);
-                    cancel_transfer_button.set_visible(false);
-                    eta_label.set_visible(false);
-                    result_label.set_visible(false);
-                    retry_button.set_visible(true);
-
-                    // Resetting state, permitting removal
-                    // Remove immediately here if endpoint info is reset?
-                    model_item.set_channel_message(objects::ChannelMessage::default());
-                    set_row_activatable(model_item, listbox_row_ref.as_ref(), true);
-                }
-                State::Finished => {
-                    cancel_transfer_button.set_visible(false);
-                    set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
-                    progress_bar.set_visible(false);
-                    eta_label.set_visible(false);
-                    retry_button.set_visible(false);
-
-                    let finished_text = {
-                        let file_count = model_item.imp().files_to_send.borrow().len();
-                        formatx!(
-                            ngettext("Sent {} file", "Sent {} files", file_count as u32),
-                            file_count
-                        )
-                        .unwrap_or_default()
-                    };
-
-                    result_label.set_visible(true);
-                    result_label.set_label(&finished_text);
-                    result_label.set_css_classes(&["caption", "accent"]);
-                }
-            };
-        }
-    };
-
     let set_list_row_state = move |win: &QuickShareApplicationWindow,
                                    model_item: &DataTransferObject| {
         let imp = win.imp();
@@ -446,26 +324,144 @@ pub fn create_recipient_card(
         };
     };
 
-    // Set initial widget state based on model's state
-    set_list_row_state(win, model_item);
-    update_ui(win, model_item);
-
-    // Modify widget based on events
-    let retry_button = _retry_button;
-    model_item.connect_endpoint_info_notify(move |model_item| {
-        if model_item.endpoint_info().present.is_none() {
-            retry_button.set_sensitive(false);
-        } else {
-            retry_button.set_sensitive(true);
+    let listbox_row = RefCell::new(None);
+    model_item.connect_endpoint_info_notify(clone!(
+        #[weak]
+        retry_button,
+        move |model_item| {
+            if model_item.endpoint_info().present.is_none() {
+                retry_button.set_sensitive(false);
+            } else {
+                retry_button.set_sensitive(true);
+            }
         }
-    });
+    ));
     model_item.connect_channel_message_notify(clone!(
         #[weak]
         imp,
         move |model_item| {
-            update_ui(&imp.obj(), model_item);
+            use rqs_lib::State;
+
+            let channel_message = model_item.channel_message();
+            if listbox_row.borrow().is_none() {
+                *listbox_row.borrow_mut() = get_listbox_row_from_model_item::<DataTransferObject>(
+                    &imp.recipient_model,
+                    &imp.recipient_listbox,
+                    model_item,
+                );
+            }
+            let listbox_row_ref = listbox_row.borrow();
+            let eta_estimator = model_item.imp().eta_estimator.as_ref();
+
+            if let Some(ref state) = channel_message.0.state {
+                match state {
+                    State::Initial => {}
+                    State::ReceivedConnectionRequest => {}
+                    State::SentUkeyServerInit => {}
+                    State::SentPairedKeyEncryption => {}
+                    State::ReceivedUkeyClientFinish => {}
+                    State::SentConnectionResponse => {}
+                    State::SentPairedKeyResult => {}
+                    State::ReceivedPairedKeyResult => {}
+                    State::WaitingForUserConsent => {}
+                    State::ReceivingFiles => {}
+                    State::SentUkeyClientInit
+                    | State::SentUkeyClientFinish
+                    | State::SentIntroduction => {
+                        set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
+                        cancel_transfer_button.set_visible(true);
+                        cancel_transfer_button.set_sensitive(true);
+                        retry_button.set_visible(false);
+
+                        result_label.set_visible(true);
+                        result_label.set_label(&gettext("Requested"));
+                        result_label.set_css_classes(&["caption", "accent"]);
+
+                        eta_estimator.borrow_mut().prepare_for_new_transfer(None);
+                    }
+                    State::SendingFiles => {
+                        set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
+                        cancel_transfer_button.set_visible(false);
+                        result_label.set_visible(false);
+                        eta_label.set_visible(true);
+                        retry_button.set_visible(false);
+                        let eta_text = {
+                            if let Some(meta) = &channel_message.meta {
+                                eta_estimator
+                                    .borrow_mut()
+                                    .step_with(meta.ack_bytes as usize);
+                            }
+
+                            formatx!(
+                                gettext("About {} left"),
+                                eta_estimator.borrow().get_estimate_string()
+                            )
+                            .unwrap()
+                        };
+                        eta_label.set_label(&eta_text);
+
+                        progress_bar.set_visible(true);
+                        set_progress_bar_fraction(&progress_bar, &channel_message);
+                    }
+                    State::Disconnected => {
+                        // FIXME: Wait for 5~10 seconds after a send and timeout
+                        // if did not receive SendingFiles within that timeframe
+                        // This is how google does it in their client
+                        set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
+                        progress_bar.set_visible(false);
+                        cancel_transfer_button.set_visible(false);
+                        eta_label.set_visible(false);
+                        retry_button.set_visible(true);
+
+                        result_label.set_visible(true);
+                        result_label.set_label(&gettext("Failed"));
+                        result_label.set_css_classes(&["caption", "error"]);
+                    }
+                    State::Rejected => {
+                        // FIXME: Outbound(Reject) is not handled on lib side
+                        // rqs_lib::hdl::outbound: Cannot process: consent denied: Reject
+                    }
+                    State::Cancelled => {
+                        progress_bar.set_visible(false);
+                        cancel_transfer_button.set_visible(false);
+                        eta_label.set_visible(false);
+                        result_label.set_visible(false);
+                        retry_button.set_visible(true);
+
+                        // Resetting state, permitting removal
+                        // Remove immediately here if endpoint info is reset?
+                        model_item.set_channel_message(objects::ChannelMessage::default());
+                        set_row_activatable(model_item, listbox_row_ref.as_ref(), true);
+                    }
+                    State::Finished => {
+                        cancel_transfer_button.set_visible(false);
+                        set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
+                        progress_bar.set_visible(false);
+                        eta_label.set_visible(false);
+                        retry_button.set_visible(false);
+
+                        let finished_text = {
+                            let file_count = model_item.imp().files_to_send.borrow().len();
+                            formatx!(
+                                ngettext("Sent {} file", "Sent {} files", file_count as u32),
+                                file_count
+                            )
+                            .unwrap_or_default()
+                        };
+
+                        result_label.set_visible(true);
+                        result_label.set_label(&finished_text);
+                        result_label.set_css_classes(&["caption", "accent"]);
+                    }
+                };
+            }
         }
     ));
+
+    // Set initial widget state based on model's state
+    set_list_row_state(win, model_item);
+    model_item.notify_endpoint_info();
+    model_item.notify_channel_message();
 
     root_bin
 }
