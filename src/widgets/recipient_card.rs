@@ -345,14 +345,6 @@ pub fn create_recipient_card(
                     set_progress_bar_fraction(&progress_bar, &channel_message);
                 }
                 State::Disconnected => {
-                    // FIXME: the Disconnect message you'll get can have no rtype
-                    // and so it's not received in the widget
-                    // leaving the card in Sending Files state
-                    // Take a look at what the hell is happening with rqs_lib
-                    // rqs_lib::manager: TcpServer: error while handling client:
-                    // quickshare_gtk::window: Received on UI thread, Disconnected message
-                    // with None rtype (to differentiate Outbound/Inbound)
-
                     // FIXME: Wait for 5~10 seconds after a send and timeout
                     // if did not receive SendingFiles within that timeframe
                     // This is how google does it in their client

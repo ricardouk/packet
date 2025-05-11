@@ -999,7 +999,29 @@ impl QuickShareApplicationWindow {
                                             );
                                         }
                                     }
-                                    _ => {}
+                                    _ => {
+                                        // FIXME: the Disconnect message you'll get can have no rtype
+                                        // and so it's not received in the widget
+                                        // leaving the card in Sending Files state
+                                        // Take a look at what the hell is happening with rqs_lib
+                                        // rqs_lib::manager: TcpServer: error while handling client:
+                                        // quickshare_gtk::window: Received on UI thread, Disconnected message
+                                        // with None rtype (to differentiate Outbound/Inbound)
+
+                                        // As a bandit fix, assume this message is Outbound
+                                        if channel_message.state == Some(State::Disconnected) {
+                                            let send_transfers_id_cache =
+                                                imp.send_transfers_id_cache.lock().await;
+
+                                            if let Some(model_item) =
+                                                send_transfers_id_cache.get(id)
+                                            {
+                                                model_item.set_channel_message(
+                                                    data_transfer::ChannelMessage(channel_message),
+                                                );
+                                            }
+                                        }
+                                    }
                                 };
                             }
                         };
