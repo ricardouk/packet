@@ -230,6 +230,11 @@ pub fn create_recipient_card(
         .visible(false)
         .build();
     root_box.append(&cancel_transfer_button);
+
+    // FIXME: CancelTransfer doesn't do anything on the library side
+    // during SendingFiles phase, it transmits the files regardless,
+    // look into it.
+    // Setting the button to not visible in SendingFiles until it's fixed.
     cancel_transfer_button.connect_clicked(clone!(
         #[weak(rename_to = rqs)]
         imp.rqs,
@@ -239,17 +244,17 @@ pub fn create_recipient_card(
             // FIXME: Immediately change the UI to cancelled state
             // or keep the current behaviour of making the button insensitive
             // after one click
-            button.set_sensitive(false);
-            rqs.blocking_lock()
-                .as_mut()
-                .unwrap()
-                .message_sender
-                .send(ChannelMessage {
-                    id: id.clone(),
-                    action: Some(rqs_lib::channel::ChannelAction::CancelTransfer),
-                    ..Default::default()
-                })
-                .unwrap();
+            let mut guard = rqs.blocking_lock();
+            if let Some(rqs) = guard.as_mut() {
+                _ = rqs
+                    .message_sender
+                    .send(ChannelMessage {
+                        id: id.clone(),
+                        action: Some(rqs_lib::channel::ChannelAction::CancelTransfer),
+                        ..Default::default()
+                    })
+                    .inspect_err(|err| tracing::error!(%err));
+            }
         }
     ));
 
@@ -322,8 +327,7 @@ pub fn create_recipient_card(
                 }
                 State::SendingFiles => {
                     set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
-                    cancel_transfer_button.set_visible(true);
-                    cancel_transfer_button.set_sensitive(true);
+                    cancel_transfer_button.set_visible(false);
                     result_label.set_visible(false);
                     eta_label.set_visible(true);
                     let eta_text = {
