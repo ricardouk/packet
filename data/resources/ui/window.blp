@@ -160,6 +160,9 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                             tag: "manage_files_nav_page";
 
                             child: Adw.ToolbarView {
+                                // TODO: Maybe instead of a back button, there could be a trash can button that clears all files,
+                                // but asking for a confirmation before that?
+
                                 [top]
                                 Adw.HeaderBar {
                                     [end]
@@ -233,8 +236,8 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
                                     Button manage_files_send_button {
                                         label: _("Send");
-                                        margin-top: 12;
-                                        margin-bottom: 12;
+                                        margin-top: 18;
+                                        margin-bottom: 6;
                                         margin-start: 12;
                                         margin-end: 12;
                                         halign: center;
