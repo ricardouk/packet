@@ -24,7 +24,7 @@ menu primary_menu {
         }
 
         item {
-            label: _("_About Drop");
+            label: _("_About Packet");
             action: "app.about";
         }
     }
@@ -49,7 +49,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
         StackPage {
             name: "loading_service_page";
-            title: _("Drop");
+            title: _("Packet");
 
             child: Adw.ToolbarView {
                 [top]
@@ -63,7 +63,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
                 Adw.StatusPage {
                     vexpand: true;
-                    title: _("Setting up Drop...");
+                    title: _("Setting up Packet...");
 
                     Adw.Spinner {
                         height-request: 64;
@@ -123,7 +123,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                             }
 
                                             Label {
-                                                label: _("Drop");
+                                                label: _("Packet");
 
                                                 styles [
                                                     "title-1",

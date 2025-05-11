@@ -1,4 +1,4 @@
-# <img src="data/icons/io.github.nozwock.QuickShare.svg" width="64" /> Drop
+# <img src="data/icons/io.github.nozwock.QuickShare.svg" width="64" /> Packet
 
 An implementation of Android's NearbyShare/QuickShare for Linux with a GTK4 interface.
 
@@ -7,11 +7,11 @@ An implementation of Android's NearbyShare/QuickShare for Linux with a GTK4 inte
 </div>
 
 ## Installation
-Drop is available as a flatpak.
+Packet is available as a flatpak.
 
 <!-- FIXME Uncomment once published at Flathub -->
 <!-- #### Flathub -->
-<!-- Drop is available on Flathub! -->
+<!-- Packet is available on Flathub! -->
 <!-- <a href="https://flathub.org/apps/details/io.github.nozwock.QuickShare"> -->
 <!-- <img src="https://flathub.org/api/badge?svg&locale=en&light" width="190px" /> -->
 <!-- </a> -->
@@ -21,5 +21,5 @@ Nightly flatpak builds are available from [here](https://nightly.link/nozwock/qu
 
 <!-- FIXME Uncomment once pot/po files are in-place and tested -->
 <!-- ## Translations -->
-<!-- Helping to translate Drop or add support to a new language is very -->
+<!-- Helping to translate Packet or add support to a new language is very -->
 <!-- welcome. You can find everything you need at: -->

@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Drop
+Name=Packet
 Comment=Android's NearbyShare/QuickShare for Linux
 Type=Application
 Exec=quickshare-gtk

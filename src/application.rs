@@ -123,7 +123,7 @@ impl QuickShareApplication {
         // https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1.7/class.AboutDialog.html
         // https://github.com/youpie/Iconic/blob/main/src/application.rs
         let dialog = adw::AboutDialog::builder()
-            .application_name(gettext("Drop"))
+            .application_name(gettext("Packet"))
             .application_icon(APP_ID)
             .version(VERSION)
             .developer_name("nozwock")
@@ -142,7 +142,7 @@ impl QuickShareApplication {
     }
 
     pub fn run(&self) -> glib::ExitCode {
-        info!("Drop ({})", APP_ID);
+        info!("Packet ({})", APP_ID);
         info!("Version: {} ({})", VERSION, PROFILE);
         info!("Datadir: {}", PKGDATADIR);
 
