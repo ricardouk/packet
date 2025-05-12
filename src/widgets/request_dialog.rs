@@ -25,7 +25,10 @@ pub fn create_receive_request_dialog(
 ) {
     let imp = win.imp();
 
-    let dialog = adw::Dialog::new();
+    let dialog = adw::Dialog::builder()
+        .content_width(400)
+        .content_height(250)
+        .build();
     let toolbar_view = adw::ToolbarView::builder()
         .top_bar_style(adw::ToolbarStyle::Flat)
         .extend_content_to_top_edge(true)
@@ -126,7 +129,6 @@ pub fn create_receive_request_dialog(
     let copy_text_button = gtk::Button::builder()
         .valign(gtk::Align::Center)
         .hexpand(true)
-        .height_request(50)
         .icon_name("edit-copy-symbolic")
         .tooltip_text(&gettext("Copy to clipboard"))
         .css_classes(["circular", "flat"])
@@ -418,7 +420,6 @@ pub fn create_receive_request_dialog(
                             caption_label.set_visible(true);
                             consent_box.set_visible(false);
                             header_bar.set_show_end_title_buttons(true);
-                            copy_text_button.set_visible(true);
 
                             title_label.set_visible(false);
                             dialog.set_title(&gettext("Done"));
@@ -439,6 +440,7 @@ pub fn create_receive_request_dialog(
 
                                     caption_label.set_label(&text);
                                 } else {
+                                    copy_text_button.set_visible(true);
                                     // FIXME: Can't handle WiFi shares yet
                                     // TextPayloadInfo not exposed by the library
                                     let text_type = msg.get_text_data().unwrap().kind.unwrap();
