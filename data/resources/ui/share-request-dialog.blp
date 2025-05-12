@@ -15,7 +15,7 @@ template $PacketShareRequestDialog: Adw.Dialog {
         Adw.HeaderBar header_bar {
             show-end-title-buttons: false;
 
-            [end]
+            [start]
             Button copy_text_button {
                 visible: false;
                 valign: center;
@@ -23,6 +23,21 @@ template $PacketShareRequestDialog: Adw.Dialog {
                 icon-name: "edit-copy-symbolic";
                 tooltip-text: _("Copy to clipboard");
                 clicked => $handle_copy_text() swapped;
+
+                styles [
+                    "circular",
+                    "flat",
+                ]
+            }
+
+            [start]
+            Button save_text_button {
+                visible: false;
+                valign: center;
+                hexpand: true;
+                icon-name: "document-save-symbolic";
+                tooltip-text: _("Save text as file");
+                clicked => $handle_save_text() swapped;
 
                 styles [
                     "circular",
@@ -39,6 +54,7 @@ template $PacketShareRequestDialog: Adw.Dialog {
             Box root_box {
                 orientation: vertical;
                 valign: center;
+                hexpand: true;
                 margin-top: 18;
                 margin-bottom: 18;
                 margin-start: 18;
@@ -111,8 +127,11 @@ template $PacketShareRequestDialog: Adw.Dialog {
 
                 Frame text_view_frame {
                     visible: false;
+                    vexpand: true;
 
                     ScrolledWindow {
+                        vexpand: true;
+
                         TextView text_view {
                             top-margin: 12;
                             bottom-margin: 12;
@@ -122,6 +141,7 @@ template $PacketShareRequestDialog: Adw.Dialog {
                             cursor-visible: false;
                             monospace: true;
                             wrap-mode: word_char;
+                            vexpand: true;
                         }
                     }
                 }

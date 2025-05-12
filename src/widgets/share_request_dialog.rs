@@ -33,6 +33,8 @@ mod imp {
         pub header_bar: TemplateChild<adw::HeaderBar>,
         #[template_child]
         pub copy_text_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub save_text_button: TemplateChild<gtk::Button>,
 
         #[template_child]
         pub root_box: TemplateChild<gtk::Box>,
@@ -220,6 +222,9 @@ impl ShareRequestDialog {
             false,
         );
         clipboard.set_text(&text);
+    }
+    #[template_callback]
+    fn handle_save_text(&self, _: &gtk::Button) {
     }
 
     pub fn setup_ui(&self) {
@@ -418,7 +423,9 @@ impl ShareRequestDialog {
 
                                         imp.caption_label.set_label(&text);
                                     } else {
+                                        imp.caption_label.set_visible(false);
                                         imp.copy_text_button.set_visible(true);
+                                        imp.root_box.set_valign(gtk::Align::Fill);
                                         // FIXME: Can't handle WiFi shares yet
                                         // TextPayloadInfo not exposed by the library
                                         let text_type = msg.get_text_data().unwrap().kind.unwrap();
@@ -436,16 +443,19 @@ impl ShareRequestDialog {
                                         let text = if text_type.clone() as u32
                                             == TextPayloadType::Text as u32
                                         {
+                                            imp.save_text_button.set_visible(true);
                                             let text = _text.trim();
                                             &text[1..text.len() - 1] // Remove quotes put in there by the lib :(
                                         } else {
                                             &_text
                                         };
 
-                                        imp.caption_label.set_label(&format!(
-                                            "Received {}",
-                                            format!("{:?}", text_type)
-                                        ));
+                                        let text_type_str = match text_type {
+                                            TextPayloadType::Url => gettext("Link"),
+                                            TextPayloadType::Text => gettext("Text"),
+                                            TextPayloadType::Wifi => gettext("Wi-Fi"),
+                                        };
+                                        imp.obj().set_title(&text_type_str);
                                         imp.text_view_frame.set_visible(true);
                                         imp.text_view.set_buffer(Some(
                                             &gtk::TextBuffer::builder().text(text).build(),
@@ -453,13 +463,9 @@ impl ShareRequestDialog {
 
                                         if text_type.clone() as u32 == TextPayloadType::Wifi as u32
                                         {
-                                            imp.caption_label.set_label(
-                                                &formatx!(
-                                                    &gettext("{}, not implemented yet :("),
-                                                    &imp.caption_label.label()
-                                                )
-                                                .unwrap(),
-                                            );
+                                            imp.caption_label.set_visible(true);
+                                            imp.caption_label
+                                                .set_label(&gettext("Not implemented yet :("));
                                         }
                                     }
                                 };
