@@ -80,6 +80,21 @@ fn emit_send_files(win: &QuickShareApplicationWindow, model_item: &DataTransferO
     let endpoint_info = model_item.endpoint_info();
     let files_to_send = model_item.imp().files_to_send.borrow().clone();
 
+    // Only one transfer at a time is supported by the protocol
+    // Whether it be receiving or sending
+    let will_be_queued = imp
+        .recipient_model
+        .iter::<DataTransferObject>()
+        .filter_map(|it| it.ok())
+        .find(|it| match it.transfer_state() {
+            TransferState::RequestedForConsent | TransferState::OngoingTransfer => true,
+            _ => false,
+        })
+        .is_some();
+    if will_be_queued {
+        model_item.set_transfer_state(TransferState::Queued);
+    }
+
     tokio_runtime().spawn(clone!(
         #[weak(rename_to = file_sender)]
         imp.file_sender,
@@ -221,6 +236,17 @@ pub fn create_recipient_card(
     main_box.append(&title_label);
     main_box.append(&result_label);
     main_box.append(&unavailibility_label);
+
+    model_item.connect_transfer_state_notify(clone!(
+        #[weak]
+        result_label,
+        move |model_item| {
+            if model_item.transfer_state() == TransferState::Queued {
+                result_label.set_visible(true);
+                result_label.set_label(&gettext("Queued"));
+            };
+        }
+    ));
 
     let progress_bar = gtk::ProgressBar::builder().visible(false).build();
     main_box.append(&progress_bar);

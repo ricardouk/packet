@@ -66,6 +66,7 @@ pub enum TransferKind {
 #[derive(Debug, Clone, Default, PartialEq, glib::Boxed)]
 #[boxed_type(name = "TransferStateBoxed")]
 pub enum TransferState {
+    Queued,
     #[default]
     AwaitingConsentOrIdle,
     RequestedForConsent,
