@@ -78,60 +78,28 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                     }
                                 }
 
-                                ScrolledWindow main_nav_content {
-                                    hscrollbar-policy: never;
+                                Adw.StatusPage main_nav_content {
                                     vexpand: true;
                                     hexpand: true;
+                                    icon-name: "network-transmit-receive-symbolic";
+                                    title: _("Packet");
+                                    description: _("Drag, add, or paste a file to begin");
 
-                                    Adw.Clamp {
-                                        maximum-size: 550;
+                                    child: Button main_add_files_button {
+                                        margin-top: 24;
+                                        halign: center;
 
-                                        Box {
-                                            orientation: vertical;
-                                            halign: center;
-                                            valign: center;
-                                            spacing: 12;
-                                            margin-top: 24;
-                                            margin-bottom: 24;
-                                            margin-start: 24;
-                                            margin-end: 24;
-
-                                            Image {
-                                                icon-name: "phone-symbolic";
-                                                pixel-size: 128;
-                                                margin-bottom: 24;
-                                            }
-
-                                            Label {
-                                                label: _("Packet");
-
-                                                styles [
-                                                    "title-1",
-                                                ]
-                                            }
-
-                                            Label {
-                                                label: _("Drag, add, or paste a file to begin");
-                                                wrap: true;
-                                            }
-
-                                            Button main_add_files_button {
-                                                margin-top: 24;
-                                                halign: center;
-
-                                                Adw.ButtonContent {
-                                                    label: _("Add Files");
-                                                    icon-name: "list-add-symbolic";
-                                                }
-
-                                                styles [
-                                                    "pill",
-                                                    "suggested-action",
-                                                    "accent",
-                                                ]
-                                            }
+                                        Adw.ButtonContent {
+                                            label: _("Add Files");
+                                            icon-name: "list-add-symbolic";
                                         }
-                                    }
+
+                                        styles [
+                                            "pill",
+                                            "suggested-action",
+                                            "accent",
+                                        ]
+                                    };
                                 }
                             };
                         }

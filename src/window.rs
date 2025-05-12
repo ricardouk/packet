@@ -61,7 +61,7 @@ mod imp {
         #[template_child]
         pub main_box: TemplateChild<gtk::Box>,
         #[template_child]
-        pub main_nav_content: TemplateChild<gtk::ScrolledWindow>,
+        pub main_nav_content: TemplateChild<adw::StatusPage>,
         #[template_child]
         pub main_add_files_button: TemplateChild<gtk::Button>,
 
