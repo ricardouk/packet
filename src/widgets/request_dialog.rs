@@ -333,6 +333,7 @@ pub fn create_receive_request_dialog(
                             consent_box.set_visible(false);
                             header_bar.set_show_end_title_buttons(true);
 
+                            title_label.set_label(&gettext("Done"));
                             let finished_text = {
                                 if let Some(files) = msg.get_filenames() {
                                     formatx!(
