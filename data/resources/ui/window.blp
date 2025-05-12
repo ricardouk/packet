@@ -34,16 +34,6 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
     width-request: 360;
     height-request: 294;
 
-    Adw.Breakpoint {
-        condition ("max-width: 560sp")
-
-        setters {
-            // Switcher
-            // to_be_removed_header_bar.title-widget: null;
-            // transfer_kind_switcher_bar.reveal: true;
-        }
-    }
-
     Stack root_stack {
         transition-type: crossfade;
 
@@ -247,99 +237,6 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                             "pill",
                                             "suggested-action",
                                         ]
-                                    }
-                                }
-                            };
-                        }
-
-                        Adw.NavigationPage {
-                            tag: "select_recipient_nav_page";
-
-                            child: Adw.ToolbarView {
-                                [top]
-                                Adw.HeaderBar {
-                                    [end]
-                                    MenuButton {
-                                        icon-name: "open-menu-symbolic";
-                                        menu-model: primary_menu;
-                                        primary: true;
-                                    }
-                                }
-
-                                Box select_recipient_box {
-                                    orientation: vertical;
-                                    hexpand: true;
-                                    vexpand: true;
-
-                                    ScrolledWindow {
-                                        hscrollbar-policy: never;
-                                        hexpand: true;
-                                        vexpand: true;
-
-                                        Adw.Clamp {
-                                            maximum-size: 550;
-
-                                            Box {
-                                                orientation: vertical;
-                                                margin-top: 24;
-                                                margin-bottom: 24;
-                                                margin-start: 24;
-                                                margin-end: 24;
-                                                spacing: 12;
-
-                                                Label {
-                                                    label: _("Select recipient");
-                                                    wrap: true;
-
-                                                    styles [
-                                                        "title-1",
-                                                    ]
-                                                }
-
-                                                Box loading_recipients_box {
-                                                    // `visibility` is set when ListBox is empty
-                                                    orientation: vertical;
-                                                    height-request: 150;
-                                                    valign: center;
-                                                    spacing: 12;
-
-                                                    Adw.Spinner {
-                                                        margin-top: 12;
-                                                        height-request: 48;
-                                                    }
-
-                                                    Label {
-                                                        label: _("Looking for nearby devices...");
-                                                        wrap: true;
-                                                    }
-                                                }
-
-                                                ListBox recipient_listbox {
-                                                    selection-mode: none;
-
-                                                    styles [
-                                                        "boxed-list-separate",
-                                                    ]
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    Adw.Clamp {
-                                        maximum-size: 550;
-
-                                        Label select_recipient_troubleshoot_label {
-                                            // FIXME: check whether wifi/bluetooth is enabled or not
-                                            // if not, change the text to ask the user to turn them on
-                                            label: _("If you can't see the recipient, make sure their device is visible.");
-                                            margin-top: 12;
-                                            margin-bottom: 12;
-                                            margin-start: 12;
-                                            margin-end: 12;
-                                            wrap: true;
-
-                                            styles []
-                                        }
                                     }
                                 }
                             };
@@ -666,6 +563,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                             // internal
                                             label: "Visible as \"{}\"";
                                             margin-top: 2;
+                                            ellipsize: end;
                                             halign: start;
 
                                             styles [
@@ -692,6 +590,109 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                     }
                 }
             };
+        }
+    }
+}
+
+Adw.Dialog select_recipients_dialog {
+    title: _("Select Recipients");
+
+    Adw.ToolbarView {
+        top-bar-style: flat;
+
+        [top]
+        Adw.HeaderBar {
+            [start]
+            Button {
+                icon-name: "view-refresh-symbolic";
+                valign: center;
+
+                styles [
+                    "circular",
+                    "flat",
+                ]
+            }
+
+            [end]
+            Button {
+                icon-name: "help-about-symbolic";
+                valign: center;
+
+                styles [
+                    "circular",
+                    "flat",
+                ]
+            }
+        }
+
+        Box select_recipient_box {
+            orientation: vertical;
+            hexpand: true;
+            vexpand: true;
+
+            ScrolledWindow {
+                propagate-natural-height: true;
+                propagate-natural-width: true;
+                hscrollbar-policy: never;
+                hexpand: true;
+                vexpand: true;
+
+                Adw.Clamp {
+                    maximum-size: 550;
+
+                    Box {
+                        orientation: vertical;
+                        margin-top: 24;
+                        margin-bottom: 24;
+                        margin-start: 24;
+                        margin-end: 24;
+                        spacing: 12;
+
+                        Box loading_recipients_box {
+                            // `visibility` is set when ListBox is empty
+                            orientation: vertical;
+                            vexpand: true;
+                            valign: center;
+                            spacing: 12;
+
+                            Adw.Spinner {
+                                margin-top: 12;
+                                height-request: 48;
+                            }
+
+                            Label {
+                                label: _("Looking for nearby devices...");
+                                wrap: true;
+                            }
+                        }
+
+                        ListBox recipient_listbox {
+                            selection-mode: none;
+
+                            styles [
+                                "boxed-list",
+                            ]
+                        }
+                    }
+                }
+            }
+
+            Adw.Clamp {
+                maximum-size: 550;
+
+                Label select_recipient_troubleshoot_label {
+                    // FIXME: check whether wifi/bluetooth is enabled or not
+                    // if not, change the text to ask the user to turn them on
+                    label: _("If you can't see the recipient, make sure their device is visible.");
+                    margin-top: 12;
+                    margin-bottom: 12;
+                    margin-start: 12;
+                    margin-end: 12;
+                    wrap: true;
+
+                    styles []
+                }
+            }
         }
     }
 }

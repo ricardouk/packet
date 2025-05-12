@@ -77,6 +77,8 @@ mod imp {
         pub manage_files_model: gio::ListStore,
 
         #[template_child]
+        pub select_recipients_dialog: TemplateChild<adw::Dialog>,
+        #[template_child]
         pub recipient_listbox: TemplateChild<gtk::ListBox>,
         #[template_child]
         pub loading_recipients_box: TemplateChild<gtk::Box>,
@@ -423,16 +425,6 @@ impl QuickShareApplicationWindow {
                 false
             }
         ));
-
-        imp.main_nav_view.connect_popped(clone!(
-            #[weak]
-            imp,
-            move |_obj, page| {
-                if page.tag().unwrap().as_str() == "select_recipient_nav_page" {
-                    imp.obj().stop_mdns_discovery();
-                }
-            }
-        ));
     }
 
     fn setup_manage_files_page(&self) {
@@ -455,7 +447,8 @@ impl QuickShareApplicationWindow {
 
                 imp.obj().start_mdns_discovery(None);
 
-                imp.main_nav_view.push_by_tag("select_recipient_nav_page");
+                imp.select_recipients_dialog
+                    .present(imp.obj().root().as_ref());
             }
         ));
 
@@ -498,6 +491,14 @@ impl QuickShareApplicationWindow {
                 }
             ),
         );
+
+        imp.select_recipients_dialog.connect_closed(clone!(
+            #[weak]
+            imp,
+            move |_| {
+                imp.obj().stop_mdns_discovery();
+            }
+        ));
     }
 
     fn setup_recipient_page(&self) {
