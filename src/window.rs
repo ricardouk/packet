@@ -10,6 +10,7 @@ use gtk::{gdk, gio, glib};
 use crate::application::QuickShareApplication;
 use crate::config::{APP_ID, PROFILE};
 use crate::objects::data_transfer::{self, DataTransferObject, TransferKind};
+use crate::objects::TransferState;
 use crate::{tokio_runtime, widgets};
 
 #[derive(Debug)]
@@ -78,6 +79,10 @@ mod imp {
 
         #[template_child]
         pub select_recipients_dialog: TemplateChild<adw::Dialog>,
+        #[template_child]
+        pub select_recipient_refresh_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub select_recipient_troubleshoot_button: TemplateChild<gtk::Button>,
         #[template_child]
         pub recipient_listbox: TemplateChild<gtk::ListBox>,
         #[template_child]
@@ -540,6 +545,37 @@ impl QuickShareApplicationWindow {
                 } else {
                     loading_recipients_box.set_visible(false);
                 }
+            }
+        ));
+
+        imp.select_recipient_refresh_button.connect_clicked(clone!(
+            #[weak]
+            imp,
+            move |_| {
+                {
+                    let mut guard = imp.send_transfers_id_cache.blocking_lock();
+                    for (pos, obj) in imp
+                        .recipient_model
+                        .iter::<DataTransferObject>()
+                        .enumerate()
+                        .filter_map(|(pos, it)| it.ok().and_then(|it| Some((pos, it))))
+                        .filter(|(_, it)| match it.transfer_state() {
+                            TransferState::Queued
+                            | TransferState::RequestedForConsent
+                            | TransferState::OngoingTransfer => false,
+                            TransferState::AwaitingConsentOrIdle
+                            | TransferState::Failed
+                            | TransferState::Done => true,
+                        })
+                        .collect::<Vec<_>>()
+                    {
+                        imp.recipient_model.remove(pos as u32);
+                        guard.remove(&obj.endpoint_info().id);
+                    }
+                }
+
+                imp.obj().stop_mdns_discovery();
+                imp.obj().start_mdns_discovery(None);
             }
         ));
     }
