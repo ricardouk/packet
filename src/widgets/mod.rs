@@ -1,5 +1,6 @@
 mod file_card;
 mod recipient_card;
+mod request_dialog;
 mod transfer_card;
 
 use std::{collections::HashMap, sync::Arc};
@@ -10,6 +11,7 @@ use gtk::{
     glib::object::Cast,
 };
 pub use recipient_card::*;
+pub use request_dialog::*;
 use tokio::sync::Mutex;
 pub use transfer_card::*;
 

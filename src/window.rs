@@ -1,4 +1,6 @@
+use std::cell::RefCell;
 use std::path::PathBuf;
+use std::rc::Rc;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
@@ -10,7 +12,7 @@ use gtk::{gdk, gio, glib};
 use crate::application::QuickShareApplication;
 use crate::config::{APP_ID, PROFILE};
 use crate::objects::data_transfer::{self, DataTransferObject, TransferKind};
-use crate::objects::TransferState;
+use crate::objects::{self, TransferState};
 use crate::{tokio_runtime, widgets};
 
 #[derive(Debug)]
@@ -91,7 +93,6 @@ mod imp {
         pub recipient_model: gio::ListStore,
 
         pub send_transfers_id_cache: Arc<Mutex<HashMap<String, DataTransferObject>>>,
-        pub receive_transfers_id_cache: Arc<Mutex<HashMap<String, DataTransferObject>>>,
 
         // RQS State
         pub rqs: Arc<Mutex<Option<rqs_lib::RQS>>>,
@@ -955,6 +956,9 @@ impl QuickShareApplicationWindow {
                 #[weak]
                 imp,
                 async move {
+                    let mut received_requests_events_tx: Option<
+                        async_channel::Sender<objects::ChannelMessage>,
+                    > = None;
                     loop {
                         let channel_message = rx.recv().await.unwrap();
 
@@ -979,29 +983,16 @@ impl QuickShareApplicationWindow {
                             State::WaitingForUserConsent => {
                                 // Receive data transfer requests
                                 {
-                                    let mut receive_transfers_id_cache =
-                                        imp.receive_transfers_id_cache.lock().await;
-                                    if let Some(data_transfer) = receive_transfers_id_cache.get(id)
-                                    {
-                                        // Update data request state
-                                        data_transfer.set_channel_message(
-                                            data_transfer::ChannelMessage(channel_message),
-                                        );
-                                    } else {
-                                        // Add new data request
-                                        let obj = DataTransferObject::new(TransferKind::Receive);
-                                        let id = id.clone();
-                                        obj.set_channel_message(data_transfer::ChannelMessage(
-                                            channel_message,
-                                        ));
-                                        imp.receive_file_transfer_model.insert(0, &obj);
-                                        receive_transfers_id_cache.insert(id, obj);
-
-                                        imp.receive_view_stack_page.set_badge_number(
-                                            imp.receive_view_stack_page.badge_number() + 1,
-                                        );
-                                        imp.receive_view_stack_page.set_needs_attention(true);
-                                    }
+                                    let (tx, rx) = async_channel::bounded(10);
+                                    received_requests_events_tx = Some(tx);
+                                    widgets::create_receive_request_dialog(
+                                        &imp.obj(),
+                                        &Rc::new(RefCell::new(widgets::ReceiveRequestState {
+                                            msg: objects::ChannelMessage(channel_message),
+                                            ..Default::default()
+                                        })),
+                                        rx,
+                                    );
                                 }
                             }
                             State::SentUkeyClientInit
@@ -1016,14 +1007,12 @@ impl QuickShareApplicationWindow {
                                 match channel_message.rtype {
                                     Some(rqs_lib::channel::TransferType::Inbound) => {
                                         // Receive
-                                        let receive_transfers_id_cache =
-                                            imp.receive_transfers_id_cache.lock().await;
-                                        if let Some(model_item) = receive_transfers_id_cache.get(id)
-                                        {
-                                            model_item.set_channel_message(
-                                                data_transfer::ChannelMessage(channel_message),
-                                            );
-                                        }
+                                        received_requests_events_tx
+                                            .as_mut()
+                                            .unwrap()
+                                            .send(objects::ChannelMessage(channel_message))
+                                            .await
+                                            .unwrap();
                                     }
                                     Some(rqs_lib::channel::TransferType::Outbound) => {
                                         // Send

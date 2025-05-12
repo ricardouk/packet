@@ -32,3 +32,4 @@ whoami = "1.6.0"
 async-channel = "2.3.1"
 directories = "6.0.0"
 formatx = "0.2.4"
+human_bytes = { version = "0.4.3", default-features = false }

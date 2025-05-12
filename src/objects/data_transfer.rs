@@ -29,9 +29,17 @@ pub struct TextData {
 }
 
 impl ChannelMessage {
-    pub fn get_device_name(channel_message: &rqs_lib::channel::ChannelMessage) -> String {
+    pub fn _get_device_name(channel_message: &rqs_lib::channel::ChannelMessage) -> String {
         channel_message
             .meta
+            .as_ref()
+            .and_then(|meta| meta.source.as_ref())
+            .map(|source| source.name.clone())
+            .unwrap_or(gettext("Unknown device"))
+    }
+
+    pub fn get_device_name(&self) -> String {
+        self.meta
             .as_ref()
             .and_then(|meta| meta.source.as_ref())
             .map(|source| source.name.clone())

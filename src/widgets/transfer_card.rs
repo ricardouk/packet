@@ -25,7 +25,7 @@ pub fn create_data_transfer_card(
     let (caption, title) = match model_item.transfer_kind() {
         TransferKind::Receive => {
             let device_name =
-                objects::ChannelMessage::get_device_name(&model_item.channel_message().0);
+                objects::ChannelMessage::_get_device_name(&model_item.channel_message().0);
 
             let caption = if let Some(files) = model_item.channel_message().get_filenames() {
                 formatx!(
@@ -237,9 +237,9 @@ pub fn create_data_transfer_card(
                     if let Some(pos) = model.find(&model_item) {
                         model.remove(pos);
                     }
-                    imp.receive_transfers_id_cache
-                        .blocking_lock()
-                        .remove(&model_item.channel_message().id);
+                    // imp.receive_transfers_id_cache
+                    //     .blocking_lock()
+                    //     .remove(&model_item.channel_message().id);
                 }
             ));
 
