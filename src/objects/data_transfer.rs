@@ -121,13 +121,13 @@ impl DataTransferObject {
 
         obj
     }
-    pub fn copy(value: DataTransferObject) -> Self {
-        let obj = Self::new(value.transfer_kind());
-        obj.set_endpoint_info(value.endpoint_info());
-        obj.set_channel_message(value.channel_message());
-        obj.set_device_name(value.device_name());
-        *obj.imp().eta_estimator.borrow_mut() = value.imp().eta_estimator.borrow().clone();
-        *obj.imp().files_to_send.borrow_mut() = value.imp().files_to_send.borrow().clone();
+    pub fn copy(&self) -> Self {
+        let obj = Self::new(self.transfer_kind());
+        obj.set_endpoint_info(self.endpoint_info());
+        obj.set_channel_message(self.channel_message());
+        obj.set_device_name(self.device_name());
+        *obj.imp().eta_estimator.borrow_mut() = self.imp().eta_estimator.borrow().clone();
+        *obj.imp().files_to_send.borrow_mut() = self.imp().files_to_send.borrow().clone();
 
         obj
     }
