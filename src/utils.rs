@@ -144,10 +144,10 @@ impl fmt::Display for HumanReadable {
                     min,
                     ngettext("minute", "minutes", min),
                     sec,
-                    ngettext("second", "seconds", min)
+                    ngettext("second", "seconds", sec)
                 )
             } else {
-                write!(f, "{:3.0} {}", self.0, ngettext("second", "seconds", sec))
+                write!(f, "{:3.0} {}", sec, ngettext("second", "seconds", sec))
             }
         }
     }
