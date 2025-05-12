@@ -10,7 +10,7 @@ use rqs_lib::hdl::TextPayloadType;
 
 use crate::{
     objects::{self, TransferState},
-    window::QuickShareApplicationWindow,
+    window::{LoopingTaskHandle, QuickShareApplicationWindow},
 };
 
 mod imp {
@@ -294,7 +294,7 @@ impl ShareRequestDialog {
         }
 
         let init_id = msg.id.clone();
-        glib::spawn_future_local(clone!(
+        let handle = glib::spawn_future_local(clone!(
             #[weak]
             imp,
             async move {
@@ -470,5 +470,10 @@ impl ShareRequestDialog {
                 }
             }
         ));
+
+        win.imp()
+            .looping_async_tasks
+            .borrow_mut()
+            .push(LoopingTaskHandle::Glib(handle));
     }
 }

@@ -101,7 +101,7 @@ mod imp {
             Arc<Mutex<Option<tokio::sync::broadcast::Sender<rqs_lib::EndpointInfo>>>>,
         pub is_mdns_discovery_on: Rc<RefCell<bool>>,
 
-        pub rqs_looping_async_tasks: RefCell<Vec<LoopingTaskHandle>>,
+        pub looping_async_tasks: RefCell<Vec<LoopingTaskHandle>>,
     }
 
     #[glib::object_subclass]
@@ -154,7 +154,7 @@ mod imp {
             }
 
             // Abort all looping tasks before closing
-            while let Some(join_handle) = self.rqs_looping_async_tasks.borrow_mut().pop() {
+            while let Some(join_handle) = self.looping_async_tasks.borrow_mut().pop() {
                 match join_handle {
                     LoopingTaskHandle::Tokio(join_handle) => join_handle.abort(),
                     LoopingTaskHandle::Glib(join_handle) => join_handle.abort(),
@@ -840,7 +840,7 @@ impl QuickShareApplicationWindow {
                     }
                 }
             ));
-            imp.rqs_looping_async_tasks
+            imp.looping_async_tasks
                 .borrow_mut()
                 .push(LoopingTaskHandle::Tokio(handle));
 
@@ -954,7 +954,7 @@ impl QuickShareApplicationWindow {
                     }
                 }
             ));
-            imp.rqs_looping_async_tasks
+            imp.looping_async_tasks
                 .borrow_mut()
                 .push(LoopingTaskHandle::Glib(handle));
 
@@ -987,7 +987,7 @@ impl QuickShareApplicationWindow {
                     }
                 }
             ));
-            imp.rqs_looping_async_tasks
+            imp.looping_async_tasks
                 .borrow_mut()
                 .push(LoopingTaskHandle::Tokio(handle));
 
@@ -1021,7 +1021,7 @@ impl QuickShareApplicationWindow {
                     }
                 }
             ));
-            imp.rqs_looping_async_tasks
+            imp.looping_async_tasks
                 .borrow_mut()
                 .push(LoopingTaskHandle::Glib(handle));
 
@@ -1053,7 +1053,7 @@ impl QuickShareApplicationWindow {
                     }
                 }
             ));
-            imp.rqs_looping_async_tasks
+            imp.looping_async_tasks
                 .borrow_mut()
                 .push(LoopingTaskHandle::Tokio(handle));
 
