@@ -239,12 +239,35 @@ pub fn create_recipient_card(
 
     model_item.connect_transfer_state_notify(clone!(
         #[weak]
+        imp,
+        #[weak]
         result_label,
         move |model_item| {
             if model_item.transfer_state() == TransferState::Queued {
                 result_label.set_visible(true);
                 result_label.set_label(&gettext("Queued"));
             };
+
+            // Prevent exiting the recipients view until all transfers
+            // are settled
+            let is_transfer_active = imp
+                .recipient_model
+                .iter::<DataTransferObject>()
+                .filter_map(|it| it.ok())
+                .find(|it| match it.transfer_state() {
+                    TransferState::Queued
+                    | TransferState::RequestedForConsent
+                    | TransferState::OngoingTransfer => true,
+                    TransferState::AwaitingConsentOrIdle
+                    | TransferState::Failed
+                    | TransferState::Done => false,
+                })
+                .is_some();
+            if is_transfer_active {
+                imp.select_recipients_dialog.set_can_close(false);
+            } else {
+                imp.select_recipients_dialog.set_can_close(true);
+            }
         }
     ));
 
