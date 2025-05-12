@@ -224,8 +224,7 @@ impl ShareRequestDialog {
         clipboard.set_text(&text);
     }
     #[template_callback]
-    fn handle_save_text(&self, _: &gtk::Button) {
-    }
+    fn handle_save_text(&self, _: &gtk::Button) {}
 
     pub fn setup_ui(&self) {
         let imp = self.imp();

@@ -3,7 +3,7 @@ using Adw 1;
 
 template $PacketShareRequestDialog: Adw.Dialog {
     content-width: 400;
-    content-height: 250;
+    content-height: 200;
     // Properties are set for the default state, WaitingForConsent
     // The widget state will get modified internally as needed
     Adw.ToolbarView toolbar_view {
@@ -64,6 +64,7 @@ template $PacketShareRequestDialog: Adw.Dialog {
                 Label heading_label {
                     // Used when title is not set to Dialog
                     label: _("Incoming Request");
+                    margin-bottom: 12;
 
                     styles [
                         "title-1",
@@ -78,6 +79,7 @@ template $PacketShareRequestDialog: Adw.Dialog {
                 Box consent_box {
                     hexpand: true;
                     spacing: 12;
+                    margin-top: 8;
 
                     Button consent_decline_button {
                         valign: center;
@@ -85,6 +87,10 @@ template $PacketShareRequestDialog: Adw.Dialog {
                         height-request: 50;
                         label: _("Decline");
                         clicked => $handle_consent_decline() swapped;
+
+                        styles [
+                            "destructive-action",
+                        ]
                     }
 
                     Button consent_accept_button {
@@ -104,6 +110,7 @@ template $PacketShareRequestDialog: Adw.Dialog {
                     visible: false;
                     orientation: vertical;
                     spacing: 6;
+                    margin-top: 8;
 
                     Label eta_label {
                         halign: start;
@@ -115,7 +122,7 @@ template $PacketShareRequestDialog: Adw.Dialog {
                     Button cancel_transfer_button {
                         valign: center;
                         halign: center;
-                        margin-top: 12;
+                        margin-top: 20;
                         label: _("Cancel");
                         clicked => $handle_transfer_cancel() swapped;
 
