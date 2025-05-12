@@ -1,0 +1,145 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $PacketShareRequestDialog: Adw.Dialog {
+    content-width: 400;
+    content-height: 250;
+    // Properties are set for the default state, WaitingForConsent
+    // The widget state will get modified internally as needed
+    Adw.ToolbarView toolbar_view {
+        top-bar-style: flat;
+        extend-content-to-top-edge: true;
+        extend-content-to-bottom-edge: true;
+
+        [top]
+        Adw.HeaderBar header_bar {
+            show-end-title-buttons: false;
+
+            [end]
+            Button copy_text_button {
+                visible: false;
+                valign: center;
+                hexpand: true;
+                icon-name: "edit-copy-symbolic";
+                tooltip-text: _("Copy to clipboard");
+                clicked => $handle_copy_text() swapped;
+
+                styles [
+                    "circular",
+                    "flat",
+                ]
+            }
+        }
+
+        Adw.Clamp {
+            maximum-size: 550;
+            hexpand: true;
+            vexpand: true;
+
+            Box root_box {
+                orientation: vertical;
+                valign: center;
+                margin-top: 18;
+                margin-bottom: 18;
+                margin-start: 18;
+                margin-end: 18;
+                spacing: 12;
+
+                Label heading_label {
+                    // Used when title is not set to Dialog
+                    label: _("Incoming Request");
+
+                    styles [
+                        "title-1",
+                    ]
+                }
+
+                Label caption_label {
+                    use-markup: true;
+                    wrap: true;
+                }
+
+                Box consent_box {
+                    hexpand: true;
+                    spacing: 12;
+
+                    Button consent_decline_button {
+                        valign: center;
+                        hexpand: true;
+                        height-request: 50;
+                        label: _("Decline");
+                        clicked => $handle_consent_decline() swapped;
+                    }
+
+                    Button consent_accept_button {
+                        valign: center;
+                        hexpand: true;
+                        height-request: 50;
+                        label: _("Accept");
+                        clicked => $handle_consent_accept() swapped;
+
+                        styles [
+                            "suggested-action",
+                        ]
+                    }
+                }
+
+                Box progress_box {
+                    visible: false;
+                    orientation: vertical;
+                    spacing: 6;
+
+                    Label eta_label {
+                        halign: start;
+                        wrap: true;
+                    }
+
+                    ProgressBar progress_bar {}
+
+                    Button cancel_transfer_button {
+                        valign: center;
+                        halign: center;
+                        margin-top: 12;
+                        label: _("Cancel");
+                        clicked => $handle_transfer_cancel() swapped;
+
+                        styles [
+                            "pill",
+                        ]
+                    }
+                }
+
+                Frame text_view_frame {
+                    visible: false;
+
+                    ScrolledWindow {
+                        TextView text_view {
+                            top-margin: 12;
+                            bottom-margin: 12;
+                            left-margin: 12;
+                            right-margin: 12;
+                            editable: false;
+                            cursor-visible: false;
+                            monospace: true;
+                            wrap-mode: word_char;
+                        }
+                    }
+                }
+
+                Button open_uri_button {
+                    visible: false;
+                    halign: center;
+                    valign: center;
+                    height-request: 50;
+                    label: _("Open");
+                    clicked => $handle_uri_open() swapped;
+
+                    styles [
+                        "pill",
+                        "suggested-action",
+                    ]
+                }
+            }
+        }
+    }
+}

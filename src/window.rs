@@ -111,6 +111,8 @@ mod imp {
         type ParentType = adw::ApplicationWindow;
 
         fn class_init(klass: &mut Self::Class) {
+            widgets::ShareRequestDialog::ensure_type();
+
             klass.bind_template();
         }
 
@@ -875,12 +877,9 @@ impl QuickShareApplicationWindow {
                                 {
                                     let (tx, rx) = async_channel::bounded(10);
                                     received_requests_events_tx = Some(tx);
-                                    widgets::create_receive_request_dialog(
-                                        &imp.obj(),
-                                        &Rc::new(RefCell::new(widgets::ReceiveRequestState {
-                                            msg: objects::ChannelMessage(channel_message),
-                                            ..Default::default()
-                                        })),
+                                    widgets::ShareRequestDialog::new(
+                                        imp.obj().as_ref().clone(),
+                                        objects::ChannelMessage(channel_message),
                                         rx,
                                     );
                                 }
