@@ -303,7 +303,7 @@ pub fn create_recipient_card(
         imp,
         #[weak]
         model_item,
-        move |button| {
+        move |_button| {
             emit_send_files(&imp.obj(), &model_item);
         }
     ));
@@ -327,7 +327,7 @@ pub fn create_recipient_card(
         imp.rqs,
         #[strong]
         id,
-        move |button| {
+        move |_button| {
             // FIXME: Immediately change the UI to cancelled state
             // or keep the current behaviour of making the button insensitive
             // after one click

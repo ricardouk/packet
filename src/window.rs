@@ -1,5 +1,4 @@
 use std::cell::RefCell;
-use std::path::PathBuf;
 use std::rc::Rc;
 
 use adw::prelude::*;
@@ -103,38 +102,6 @@ mod imp {
         pub is_mdns_discovery_on: Rc<RefCell<bool>>,
 
         pub rqs_looping_async_tasks: RefCell<Vec<LoopingTaskHandle>>,
-
-        // ---
-        #[template_child]
-        pub transfer_kind_view_stack: TemplateChild<adw::ViewStack>,
-        #[template_child]
-        pub receive_view_stack_page: TemplateChild<adw::ViewStackPage>,
-
-        pub selected_files_to_send: Rc<RefCell<Vec<PathBuf>>>,
-
-        #[template_child]
-        pub receive_stack: TemplateChild<gtk::Stack>,
-        #[template_child]
-        pub receive_file_transfer_listbox: TemplateChild<gtk::ListBox>,
-        #[template_child]
-        pub send_stack: TemplateChild<gtk::Stack>,
-        #[template_child]
-        pub send_drop_files_bin: TemplateChild<adw::Bin>,
-        #[template_child]
-        pub selected_files_card_title: TemplateChild<gtk::Label>,
-        #[template_child]
-        pub selected_files_card_caption: TemplateChild<gtk::Label>,
-        #[template_child]
-        pub selected_files_card_cancel_button: TemplateChild<gtk::Button>,
-        #[template_child]
-        pub send_file_transfer_listbox: TemplateChild<gtk::ListBox>,
-
-        #[default(gio::ListStore::new::<DataTransferObject>())]
-        pub receive_file_transfer_model: gio::ListStore,
-        #[default(gio::ListStore::new::<DataTransferObject>())]
-        pub send_file_transfer_model: gio::ListStore,
-        // #[template_child]
-        // pub receive_idle_status_page: TemplateChild<adw::StatusPage>,
     }
 
     #[glib::object_subclass]
@@ -318,83 +285,6 @@ impl QuickShareApplicationWindow {
         self.setup_main_page();
         self.setup_manage_files_page();
         self.setup_recipient_page();
-
-        // FIXME:! remove old code
-        // imp.selected_files_card_cancel_button
-        //     .connect_clicked(clone!(
-        //         #[weak]
-        //         imp,
-        //         move |_| {
-        //             imp.send_stack
-        //                 .get()
-        //                 .set_visible_child_name("send_select_files_status_page");
-
-        //             imp.obj().stop_mdns_discovery();
-
-        //             // Clear all cards
-        //             imp.send_file_transfer_model.remove_all();
-        //             imp.send_transfers_id_cache.blocking_lock().clear();
-
-        //             imp.selected_files_to_send.as_ref().borrow_mut().clear();
-        //         }
-        // ));
-        // let send_file_transfer_model = &imp.send_file_transfer_model;
-        // let send_file_transfer_listbox = imp.send_file_transfer_listbox.get();
-        // send_file_transfer_listbox.bind_model(
-        //     Some(send_file_transfer_model),
-        //     clone!(
-        //         #[weak]
-        //         imp,
-        //         #[upgrade_or]
-        //         adw::Bin::new().into(),
-        //         move |obj| {
-        //             let model_item = obj.downcast_ref::<DataTransferObject>().unwrap();
-        //             widgets::create_recipient_card(
-        //                 &imp.obj(),
-        //                 &imp.send_file_transfer_model,
-        //                 model_item,
-        //             )
-        //             .into()
-        //         }
-        //     ),
-        // );
-
-        // FIXME:! old, keeping for reference during redesign
-        // let receive_file_transfer_model = &imp.receive_file_transfer_model;
-        // let receive_file_transfer_listbox = imp.receive_file_transfer_listbox.get();
-        // receive_file_transfer_listbox.bind_model(
-        //     Some(receive_file_transfer_model),
-        //     clone!(
-        //         #[weak]
-        //         imp,
-        //         #[upgrade_or]
-        //         adw::Bin::new().into(),
-        //         move |obj| {
-        //             let model_item = obj.downcast_ref::<DataTransferObject>().unwrap();
-        //             widgets::create_recipient_card(
-        //                 &imp.obj(),
-        //                 &imp.receive_file_transfer_model,
-        //                 model_item,
-        //             )
-        //             .into()
-        //         }
-        //     ),
-        // );
-
-        // FIXME:!
-        // receive_file_transfer_model.connect_items_changed(clone!(
-        //     #[weak]
-        //     imp,
-        //     move |model, _, _, _| {
-        //         if model.n_items() == 0 {
-        //             imp.receive_stack
-        //                 .set_visible_child_name("receive_idle_status_page");
-        //         } else {
-        //             imp.receive_stack
-        //                 .set_visible_child_name("receive_request_page");
-        //         }
-        //     }
-        // ));
     }
 
     fn setup_main_page(&self) {
