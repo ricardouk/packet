@@ -59,6 +59,7 @@ mod imp {
         #[template_child]
         pub open_uri_button: TemplateChild<gtk::Button>,
 
+        #[property(get, set)]
         pub win: RefCell<Option<QuickShareApplicationWindow>>,
 
         #[property(get, set)]
@@ -127,7 +128,7 @@ impl ShareRequestDialog {
             .eta
             .borrow_mut()
             .prepare_for_new_transfer(Some(event.meta.as_ref().unwrap().total_bytes as usize));
-        *obj.imp().win.borrow_mut() = Some(win);
+        obj.set_win(win);
 
         // Is this okay? feels weird
         obj.setup_ui();
@@ -137,7 +138,7 @@ impl ShareRequestDialog {
 
     #[template_callback]
     fn handle_consent_accept(&self, button: &gtk::Button) {
-        let win = self.imp().win.borrow().clone().unwrap();
+        let win = self.win().unwrap();
 
         button.set_sensitive(false);
         win.imp()
@@ -155,7 +156,7 @@ impl ShareRequestDialog {
     }
     #[template_callback]
     fn handle_consent_decline(&self, _: &gtk::Button) {
-        let win = self.imp().win.borrow().clone().unwrap();
+        let win = self.win().unwrap();
 
         self.close();
         win.imp()
@@ -173,7 +174,7 @@ impl ShareRequestDialog {
     }
     #[template_callback]
     fn handle_transfer_cancel(&self, button: &gtk::Button) {
-        let win = self.imp().win.borrow().clone().unwrap();
+        let win = self.win().unwrap();
 
         button.set_sensitive(false);
         win.imp()
@@ -224,7 +225,7 @@ impl ShareRequestDialog {
     pub fn setup_ui(&self) {
         let imp = self.imp();
 
-        let win = self.imp().win.borrow().clone().unwrap();
+        let win = self.win().unwrap();
 
         let rqs = &win.imp().rqs;
         // close-attempt doesn't seem to trigger at all
