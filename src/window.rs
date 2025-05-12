@@ -924,17 +924,28 @@ impl QuickShareApplicationWindow {
                                         // quickshare_gtk::window: Received on UI thread, Disconnected message
                                         // with None rtype (to differentiate Outbound/Inbound)
 
-                                        // As a bandit fix, assume this message is Outbound
+                                        // As a bandit fix, assume this message is both
+                                        // The issue occurs for both inbound/outbound.
                                         if channel_message.state == Some(State::Disconnected) {
-                                            let send_transfers_id_cache =
-                                                imp.send_transfers_id_cache.lock().await;
-
-                                            if let Some(model_item) =
-                                                send_transfers_id_cache.get(id)
                                             {
-                                                model_item.set_channel_message(
-                                                    data_transfer::ChannelMessage(channel_message),
-                                                );
+                                                let send_transfers_id_cache =
+                                                    imp.send_transfers_id_cache.lock().await;
+
+                                                if let Some(model_item) =
+                                                    send_transfers_id_cache.get(id)
+                                                {
+                                                    model_item.set_channel_message(
+                                                        data_transfer::ChannelMessage(
+                                                            channel_message.clone(),
+                                                        ),
+                                                    );
+                                                }
+                                            }
+
+                                            if let Some(tx) = received_requests_events_tx.as_mut() {
+                                                tx.send(objects::ChannelMessage(channel_message))
+                                                    .await
+                                                    .unwrap();
                                             }
                                         }
                                     }

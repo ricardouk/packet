@@ -385,16 +385,18 @@ pub fn create_receive_request_dialog(
                         }
                         State::SendingFiles => {}
                         State::Disconnected => {
-                            // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
-                            // reject request and show this error, it's usually because the sender
-                            // disconnected from the network
-                            progress_box.set_visible(false);
-                            caption_label.set_visible(true);
-                            consent_box.set_visible(false);
-                            header_bar.set_show_end_title_buttons(true);
+                            if msg.id == init_id {
+                                // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
+                                // reject request and show this error, it's usually because the sender
+                                // disconnected from the network
+                                progress_box.set_visible(false);
+                                caption_label.set_visible(true);
+                                consent_box.set_visible(false);
+                                header_bar.set_show_end_title_buttons(true);
 
-                            caption_label.set_label(&gettext("Unexpected disconnection"));
-                            break;
+                                caption_label.set_label(&gettext("Unexpected disconnection"));
+                                break;
+                            }
                         }
                         State::Rejected => {
                             break;
