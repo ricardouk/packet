@@ -99,6 +99,7 @@ impl QuickShareApplication {
     fn setup_accels(&self) {
         self.set_accels_for_action("app.quit", &["<Control>q"]);
         self.set_accels_for_action("window.close", &["<Control>w"]);
+        self.set_accels_for_action("win.preferences", &["<Control>comma"]);
     }
 
     fn setup_css(&self) {
@@ -113,6 +114,7 @@ impl QuickShareApplication {
         }
     }
 
+    #[allow(dead_code)]
     fn authors() -> Vec<&'static str> {
         // Authors are defined in Cargo.toml
         env!("CARGO_PKG_AUTHORS").split(":").collect()
@@ -123,12 +125,13 @@ impl QuickShareApplication {
         // https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1.7/class.AboutDialog.html
         // https://github.com/youpie/Iconic/blob/main/src/application.rs
         let dialog = adw::AboutDialog::builder()
-            .application_name(gettext("QuickShare"))
+            .application_name(gettext("Packet"))
             .application_icon(APP_ID)
             .version(VERSION)
             .developer_name("nozwock")
             // format: "Name https://example.com" or "Name <email@example.com>"
-            .developers(Self::authors())
+            .developers(["nozwock https://github.com/nozwock"])
+            .designers(["Dominik Baran https://gitlab.gnome.org/wallaby"])
             .license_type(gtk::License::Gpl30)
             .issue_url("https://github.com/nozwock/quickshare-gtk/issues")
             .website("https://github.com/nozwock/quickshare-gtk")
@@ -142,7 +145,7 @@ impl QuickShareApplication {
     }
 
     pub fn run(&self) -> glib::ExitCode {
-        info!("QuickShare ({})", APP_ID);
+        info!("Packet ({})", APP_ID);
         info!("Version: {} ({})", VERSION, PROFILE);
         info!("Datadir: {}", PKGDATADIR);
 

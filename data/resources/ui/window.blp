@@ -2,20 +2,10 @@ using Gtk 4.0;
 using Adw 1;
 
 menu primary_menu {
-    // section {
-    //     item {
-    //         label: _("Device name");
-    //         action: "";
-    //     }
-    //     item {
-    //         label: _("Allow receiving files");
-    //         action: "win.toggle-visibility";
-    //     }
-    // }
     section {
         item {
             label: _("_Preferences");
-            action: "app.preferences";
+            action: "win.preferences";
         }
 
         item {
@@ -24,7 +14,7 @@ menu primary_menu {
         }
 
         item {
-            label: _("_About QuickShare");
+            label: _("_About Packet");
             action: "app.about";
         }
     }
@@ -34,24 +24,12 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
     width-request: 360;
     height-request: 294;
 
-    Adw.Breakpoint {
-        condition ("max-width: 560sp")
-
-        setters {
-            // Sidebar
-            main_page_split_view.collapsed: true;
-            // Switcher
-            transfer_kind_header_bar.title-widget: null;
-            transfer_kind_switcher_bar.reveal: true;
-        }
-    }
-
     Stack root_stack {
         transition-type: crossfade;
 
         StackPage {
             name: "loading_service_page";
-            title: _("QuickShare");
+            title: _("Packet");
 
             child: Adw.ToolbarView {
                 [top]
@@ -65,7 +43,7 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
                 Adw.StatusPage {
                     vexpand: true;
-                    title: _("Setting up QuickShare...");
+                    title: _("Setting up Packet...");
 
                     Adw.Spinner {
                         height-request: 64;
@@ -77,376 +55,324 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
         StackPage {
             name: "main_page";
 
-            child: Adw.OverlaySplitView main_page_split_view {
-                show-sidebar: bind show_sidebar_button.active;
-                min-sidebar-width: 240;
-                max-sidebar-width: 340;
+            child: Adw.ToolbarView {
+                extend-content-to-top-edge: true;
 
-                sidebar: Adw.NavigationPage {
-                    title: _("QuickShare");
+                Adw.ToastOverlay toast_overlay {
+                    Box {
+                        orientation: vertical;
+                        hexpand: true;
+                        vexpand: true;
 
-                    Adw.ToolbarView {
-                        [top]
-                        Adw.HeaderBar {
-                            [end]
-                            MenuButton {
-                                icon-name: "open-menu-symbolic";
-                                menu-model: primary_menu;
-                                primary: true;
-                            }
-                        }
-
-                        content: Box {
-                            margin-start: 12;
-                            margin-end: 12;
-                            margin-top: 12;
-                            margin-bottom: 12;
+                        Box main_box {
                             orientation: vertical;
-                            spacing: 12;
+                            hexpand: true;
+                            vexpand: true;
 
-                            Adw.PreferencesGroup {
-                                separate-rows: true;
+                            Adw.NavigationView main_nav_view {
+                                Adw.NavigationPage {
+                                    title: "main_nav_page";
+                                    tag: "main_nav_page";
 
-                                Adw.EntryRow device_name_entry {
-                                    title: _("Device name");
-                                    show-apply-button: true;
-                                }
+                                    child: Adw.ToolbarView {
+                                        [top]
+                                        Adw.HeaderBar {
+                                            show-title: false;
 
-                                Adw.SwitchRow device_visibility_switch {
-                                    title: _("Visibility");
-                                    subtitle: _("Visbile to nearby devices");
-                                }
-                            }
+                                            [end]
+                                            MenuButton {
+                                                icon-name: "open-menu-symbolic";
+                                                menu-model: primary_menu;
+                                                primary: true;
+                                            }
+                                        }
 
-                            Adw.Bin {
-                                vexpand: true;
-                            }
-                        };
-                    }
-                };
+                                        Adw.StatusPage main_nav_content {
+                                            vexpand: true;
+                                            hexpand: true;
+                                            icon-name: "network-transmit-receive-symbolic";
+                                            title: _("Packet");
+                                            description: _("Add, or drop a file to send");
 
-                // Content of Split View
-                content: Adw.NavigationPage {
-                    Adw.NavigationView transfer_kind_nav_view {
-                        // Page containing Send/Receive tabs
-                        Adw.NavigationPage {
-                            Adw.ToolbarView {
-                                [top]
-                                Adw.HeaderBar transfer_kind_header_bar {
-                                    [start]
-                                    ToggleButton show_sidebar_button {
-                                        icon-name: "sidebar-show-symbolic";
-                                        tooltip-text: _("Toggle Sidebar");
-                                        active: bind main_page_split_view.show-sidebar;
-                                    }
+                                            child: Button main_add_files_button {
+                                                label: _("Add Files");
+                                                margin-top: 24;
+                                                halign: center;
 
-                                    title-widget: Adw.ViewSwitcher {
-                                        stack: transfer_kind_view_stack;
-                                        policy: wide;
+                                                styles [
+                                                    "pill",
+                                                    "suggested-action",
+                                                    "accent",
+                                                ]
+                                            };
+                                        }
                                     };
                                 }
 
-                                Adw.ViewStack transfer_kind_view_stack {
-                                    Adw.ViewStackPage receive_view_stack_page {
-                                        name: "receive";
-                                        title: _("Receive");
-                                        icon-name: "vertical-arrows-long-up-symbolic";
-                                        badge-number: 0;
-                                        needs-attention: false;
+                                Adw.NavigationPage {
+                                    title: "manage_files_nav_page";
+                                    tag: "manage_files_nav_page";
 
-                                        child: Stack receive_stack {
-                                            transition-type: crossfade;
+                                    child: Adw.ToolbarView {
+                                        [top]
+                                        Adw.HeaderBar {
+                                            show-title: false;
 
-                                            StackPage {
-                                                name: "receive_idle_status_page";
-
-                                                child: Adw.StatusPage receive_idle_status_page {
-                                                    // `title` is also gets set on the code side
-                                                    icon-name: "background-app-ghost-symbolic";
-                                                    title: _("Invisible");
-                                                };
+                                            [end]
+                                            MenuButton {
+                                                icon-name: "open-menu-symbolic";
+                                                menu-model: primary_menu;
+                                                primary: true;
                                             }
+                                        }
 
-                                            StackPage {
-                                                name: "receive_request_page";
+                                        Box manage_files_nav_content {
+                                            orientation: vertical;
+                                            hexpand: true;
+                                            vexpand: true;
 
-                                                child: ScrolledWindow {
-                                                    hexpand: true;
-                                                    vexpand: true;
-                                                    hscrollbar-policy: never;
+                                            ScrolledWindow {
+                                                hscrollbar-policy: never;
+                                                vexpand: true;
+                                                hexpand: true;
+
+                                                Adw.Clamp {
+                                                    maximum-size: 550;
 
                                                     Box {
-                                                        margin-start: 12;
-                                                        margin-end: 12;
-                                                        margin-top: 12;
-                                                        margin-bottom: 12;
                                                         orientation: vertical;
+                                                        spacing: 12;
+                                                        margin-top: 24;
+                                                        margin-bottom: 24;
+                                                        margin-start: 24;
+                                                        margin-end: 24;
 
-                                                        Adw.Clamp {
-                                                            maximum-size: 500;
+                                                        Box {
+                                                            // Header bar
+                                                            orientation: horizontal;
 
-                                                            Box {
-                                                                spacing: 12;
-                                                                orientation: vertical;
+                                                            styles [
+                                                                "title-4",
+                                                            ]
 
-                                                                Label {
-                                                                    label: _("Share requests");
-                                                                    wrap: true;
-
-                                                                    styles [
-                                                                        "title-1",
-                                                                    ]
-                                                                }
-
-                                                                ListBox receive_file_transfer_listbox {
-                                                                    selection-mode: none;
-
-                                                                    styles [
-                                                                        "boxed-list-separate",
-                                                                    ]
-                                                                }
+                                                            Label manage_files_count_label {
+                                                                // Internal
+                                                                label: "3 Files";
                                                             }
-                                                        }
-                                                    }
-                                                };
-                                            }
-                                        };
-                                    }
 
-                                    Adw.ViewStackPage {
-                                        name: "send";
-                                        title: _("Send");
-                                        icon-name: "vertical-arrows-long-down-symbolic";
+                                                            Adw.Bin {
+                                                                hexpand: true;
+                                                            }
 
-                                        child: Stack send_stack {
-                                            transition-type: crossfade;
-
-                                            StackPage {
-                                                name: "send_select_files_status_page";
-
-                                                child: Adw.Bin send_drop_files_bin {
-                                                    Adw.Clamp {
-                                                        maximum-size: 500;
-
-                                                        Adw.StatusPage {
-                                                            title: _("Send Files");
-                                                            icon-name: "send-to-symbolic";
-                                                            description: _("Select or drop the files to send");
-
-                                                            Button send_select_files_button {
-                                                                halign: center;
+                                                            Button manage_files_add_files_button {
+                                                                Adw.ButtonContent {
+                                                                    label: _("Add File");
+                                                                    icon-name: "plus-symbolic";
+                                                                }
 
                                                                 styles [
-                                                                    "suggested-action",
-                                                                    "pill",
+                                                                    "flat",
                                                                 ]
-
-                                                                Adw.ButtonContent {
-                                                                    label: _("Select files");
-                                                                    icon-name: "list-add-symbolic";
-                                                                }
                                                             }
                                                         }
-                                                    }
-                                                };
-                                            }
 
-                                            StackPage {
-                                                name: "send_nearby_devices_page";
+                                                        ListBox manage_files_listbox {
+                                                            selection-mode: none;
 
-                                                child: ScrolledWindow {
-                                                    hexpand: true;
-                                                    vexpand: true;
-                                                    hscrollbar-policy: never;
-
-                                                    Box {
-                                                        margin-start: 12;
-                                                        margin-end: 12;
-                                                        margin-top: 12;
-                                                        margin-bottom: 12;
-                                                        orientation: vertical;
-
-                                                        Adw.Clamp {
-                                                            maximum-size: 500;
-
-                                                            Box {
-                                                                orientation: vertical;
-                                                                spacing: 12;
-
-                                                                Label {
-                                                                    label: _("Selected files");
-                                                                    wrap: true;
-
-                                                                    styles [
-                                                                        "title-1",
-                                                                    ]
-                                                                }
-
-                                                                Box selected_files_card {
-                                                                    orientation: vertical;
-
-                                                                    styles [
-                                                                        "card",
-                                                                    ]
-
-                                                                    Box {
-                                                                        margin-top: 18;
-                                                                        margin-bottom: 18;
-                                                                        margin-start: 18;
-                                                                        margin-end: 18;
-                                                                        spacing: 12;
-                                                                        orientation: vertical;
-
-                                                                        Box {
-                                                                            spacing: 18;
-
-                                                                            Adw.Avatar {
-                                                                                icon-name: "folder-templates-symbolic";
-                                                                                size: 48;
-                                                                            }
-
-                                                                            Box {
-                                                                                orientation: vertical;
-                                                                                spacing: 6;
-
-                                                                                Label selected_files_card_title {
-                                                                                    halign: start;
-
-                                                                                    styles [
-                                                                                        "title-4",
-                                                                                    ]
-                                                                                }
-
-                                                                                Label selected_files_card_caption {
-                                                                                    halign: start;
-                                                                                    wrap: true;
-                                                                                    ellipsize: end;
-                                                                                    max-width-chars: 100;
-
-                                                                                    styles [
-                                                                                        "caption",
-                                                                                    ]
-                                                                                }
-                                                                            }
-                                                                        }
-
-                                                                        Box {
-                                                                            spacing: 12;
-
-                                                                            Button selected_files_card_cancel_button {
-                                                                                hexpand: true;
-                                                                                can-shrink: false;
-                                                                                label: _("Cancel");
-
-                                                                                styles [
-                                                                                    "pill",
-                                                                                ]
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-
-                                                                Box {
-                                                                    orientation: vertical;
-                                                                    spacing: 12;
-                                                                    hexpand: true;
-
-                                                                    Label {
-                                                                        label: _("Nearby devices");
-                                                                        margin-top: 12;
-                                                                        wrap: true;
-
-                                                                        styles [
-                                                                            "title-1",
-                                                                        ]
-                                                                    }
-
-                                                                    Box loading_nearby_devices_box {
-                                                                        // visibility is set when ListBox is empty
-                                                                        orientation: vertical;
-                                                                        height-request: 150;
-                                                                        valign: center;
-                                                                        spacing: 12;
-
-                                                                        Label {
-                                                                            label: _("Looking for nearby devices...");
-                                                                            wrap: true;
-                                                                        }
-
-                                                                        Adw.Spinner {
-                                                                            margin-top: 24;
-                                                                            height-request: 48;
-                                                                        }
-
-                                                                        Box {
-                                                                            orientation: vertical;
-                                                                            margin-top: 14;
-                                                                            valign: center;
-                                                                            halign: center;
-
-                                                                            Label {
-                                                                                margin-top: 24;
-                                                                                margin-bottom: 24;
-                                                                                margin-start: 24;
-                                                                                margin-end: 24;
-                                                                                label: _("If you can't see your Android device, then first make sure that the Wi-Fi and Bluetooth is turned on.\
-                                                                            \nThen, go to the <b>Files</b> app by Google and open the <b>Quick Share</b> tab or view.");
-                                                                                use-markup: true;
-                                                                                wrap: true;
-                                                                                hexpand: true;
-
-                                                                                styles [
-                                                                                    "caption",
-                                                                                ]
-                                                                            }
-
-                                                                            styles [
-                                                                                "card",
-                                                                            ]
-                                                                        }
-                                                                    }
-
-                                                                    ListBox send_file_transfer_listbox {
-                                                                        selection-mode: none;
-
-                                                                        styles [
-                                                                            "boxed-list-separate",
-                                                                        ]
-                                                                    }
-                                                                }
-                                                            }
+                                                            styles [
+                                                                "boxed-list",
+                                                            ]
                                                         }
                                                     }
-                                                };
+                                                }
                                             }
-                                        };
-                                    }
-                                }
 
-                                [bottom]
-                                Adw.ViewSwitcherBar transfer_kind_switcher_bar {
-                                    stack: transfer_kind_view_stack;
+                                            Button manage_files_send_button {
+                                                label: _("Send");
+                                                margin-top: 18;
+                                                margin-bottom: 6;
+                                                margin-start: 12;
+                                                margin-end: 12;
+                                                halign: center;
+                                                valign: center;
+
+                                                styles [
+                                                    "pill",
+                                                    "suggested-action",
+                                                ]
+                                            }
+                                        }
+                                    };
                                 }
                             }
                         }
 
-                        Adw.NavigationPage {
-                            tag: "transfer_history_page";
+                        Adw.Clamp {
+                            maximum-size: 550;
 
-                            Adw.ToolbarView {
-                                [top]
-                                Adw.HeaderBar {
-                                    show-title: false;
-                                }
+                            Box bottom_bar {
+                                orientation: vertical;
+                                valign: end;
 
-                                Adw.StatusPage {
-                                    title: _("Transfer history");
+                                Box {
+                                    orientation: vertical;
+                                    margin-top: 12;
+                                    margin-bottom: 12;
+                                    margin-start: 12;
+                                    margin-end: 12;
+                                    halign: center;
+                                    hexpand: true;
+                                    spacing: 4;
+
+                                    Box {
+                                        halign: center;
+                                        spacing: 8;
+
+                                        Image bottom_bar_image {
+                                            // internal
+                                            icon-name: "sonar-symbolic";
+                                            pixel-size: 24;
+
+                                            styles [
+                                                "accent",
+                                            ]
+                                        }
+
+                                        Label bottom_bar_title {
+                                            // internal
+                                            label: "Ready";
+
+                                            styles [
+                                                "title-4",
+                                                "accent",
+                                            ]
+                                        }
+                                    }
+
+                                    Label bottom_bar_caption {
+                                        // internal
+                                        label: "Visible as \"{}\"";
+                                        ellipsize: end;
+                                    }
                                 }
                             }
                         }
                     }
-                };
+                }
             };
+        }
+    }
+}
+
+Adw.Dialog select_recipients_dialog {
+    title: _("Select Recipients");
+    content-height: -1;
+    // This will work but affects both the height and width
+    // but we don't width to get messed up, so set Dialog's
+    // content-height to -1 any time adding a item to the
+    // list box. That'll force it to recalculate size.
+    // follows-content-size: true;
+    Adw.ToolbarView {
+        top-bar-style: flat;
+
+        [top]
+        Adw.HeaderBar {
+            [start]
+            Button select_recipient_refresh_button {
+                icon-name: "view-refresh-symbolic";
+                valign: center;
+
+                styles [
+                    "circular",
+                    "flat",
+                ]
+            }
+        }
+
+        Box select_recipient_box {
+            orientation: vertical;
+            hexpand: true;
+            vexpand: true;
+
+            ScrolledWindow {
+                propagate-natural-height: true;
+                propagate-natural-width: true;
+                hscrollbar-policy: never;
+                hexpand: true;
+                vexpand: true;
+
+                Adw.Clamp {
+                    maximum-size: 550;
+
+                    Box {
+                        orientation: vertical;
+                        margin-top: 24;
+                        margin-bottom: 24;
+                        margin-start: 24;
+                        margin-end: 24;
+                        spacing: 12;
+
+                        Box loading_recipients_box {
+                            // `visibility` is set when ListBox is empty
+                            orientation: vertical;
+                            vexpand: true;
+                            valign: center;
+                            spacing: 12;
+
+                            Adw.Spinner {
+                                margin-top: 12;
+                                height-request: 48;
+                            }
+                        }
+
+                        ListBox recipient_listbox {
+                            selection-mode: none;
+
+                            styles [
+                                "boxed-list",
+                            ]
+                        }
+                    }
+                }
+            }
+
+            Adw.Clamp {
+                maximum-size: 550;
+
+                Label select_recipient_troubleshoot_label {
+                    // FIXME: check whether wifi/bluetooth is enabled or not
+                    // if not, change the text to ask the user to turn them on
+                    label: _("If you can't see the recipient, make sure their device is visible.");
+                    margin-top: 12;
+                    margin-bottom: 12;
+                    margin-start: 12;
+                    margin-end: 12;
+                    wrap: true;
+
+                    styles []
+                }
+            }
+        }
+    }
+}
+
+Adw.PreferencesDialog preferences_dialog {
+    title: _("Preferences");
+    content-width: 360;
+
+    Adw.PreferencesPage {
+        Adw.PreferencesGroup {
+            title: _("Network");
+
+            Adw.EntryRow device_name_entry {
+                title: _("Device Name");
+                show-apply-button: true;
+            }
+
+            Adw.SwitchRow device_visibility_switch {
+                title: _("Visibility");
+                subtitle: _("Whether others can see this device");
+            }
         }
     }
 }

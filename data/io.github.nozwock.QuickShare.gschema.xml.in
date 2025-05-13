@@ -17,5 +17,13 @@
       <default>""</default>
       <summary>Device name</summary>
     </key>
+    <key name="device-visibility" type="b">
+      <default>true</default>
+      <summary>Device visibility</summary>
+    </key>
+    <key name="download-folder" type="s">
+      <default>""</default>
+      <summary>Download folder</summary>
+    </key>
   </schema>
 </schemalist>

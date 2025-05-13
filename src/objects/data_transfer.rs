@@ -2,8 +2,9 @@ use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::glib;
+use rqs_lib::hdl::TextPayloadType;
 
-use crate::impl_deref_for_newtype;
+use crate::{impl_deref_for_newtype, utils};
 
 #[derive(Debug, Clone, Default, glib::Boxed)]
 #[boxed_type(name = "StateBoxed")]
@@ -24,14 +25,21 @@ impl_deref_for_newtype!(ChannelMessage, rqs_lib::channel::ChannelMessage);
 pub struct TextData {
     pub description: String,
     pub text: String,
-    // FIXME: Check text type once hdl::TextPayloadType is exported
-    // kind: rqs_lib::hdl::TextPayloadType
+    pub kind: Option<TextPayloadType>,
 }
 
 impl ChannelMessage {
-    pub fn get_device_name(channel_message: &rqs_lib::channel::ChannelMessage) -> String {
+    pub fn _get_device_name(channel_message: &rqs_lib::channel::ChannelMessage) -> String {
         channel_message
             .meta
+            .as_ref()
+            .and_then(|meta| meta.source.as_ref())
+            .map(|source| source.name.clone())
+            .unwrap_or(gettext("Unknown device"))
+    }
+
+    pub fn get_device_name(&self) -> String {
+        self.meta
             .as_ref()
             .and_then(|meta| meta.source.as_ref())
             .map(|source| source.name.clone())
@@ -48,13 +56,14 @@ impl ChannelMessage {
                 Some(TextData {
                     description: description.clone(),
                     text: meta.text_payload.clone().unwrap_or_default(),
+                    kind: meta.text_type.clone(),
                 })
             })
         })
     }
 }
 
-#[derive(Debug, Clone, Default, glib::Boxed)]
+#[derive(Debug, Clone, Default, PartialEq, glib::Boxed)]
 #[boxed_type(name = "TransferKindBoxed")]
 pub enum TransferKind {
     #[default]
@@ -62,8 +71,20 @@ pub enum TransferKind {
     Send,
 }
 
-mod imp {
-    use std::cell::RefCell;
+#[derive(Debug, Clone, Default, PartialEq, glib::Boxed)]
+#[boxed_type(name = "TransferStateBoxed")]
+pub enum TransferState {
+    Queued,
+    #[default]
+    AwaitingConsentOrIdle,
+    RequestedForConsent,
+    OngoingTransfer,
+    Failed,
+    Done,
+}
+
+pub mod imp {
+    use std::{cell::RefCell, rc::Rc};
 
     use gtk::glib::Properties;
 
@@ -72,14 +93,20 @@ mod imp {
     #[derive(Debug, Default, Properties)]
     #[properties(wrapper_type = super::DataTransferObject)]
     pub struct DataTransferObject {
-        #[property(get, set)]
-        transfer_kind: RefCell<TransferKind>,
-        #[property(get, set)]
-        transfer_state: RefCell<State>,
+        pub eta_estimator: Rc<RefCell<utils::DataTransferEta>>,
+        pub files_to_send: Rc<RefCell<Vec<String>>>,
+        // For modifying widget by listening for events
         #[property(get, set)]
         endpoint_info: RefCell<EndpointInfo>,
         #[property(get, set)]
         channel_message: RefCell<ChannelMessage>,
+        // For easier bindings
+        #[property(get, set)]
+        transfer_kind: RefCell<TransferKind>,
+        #[property(get, set)]
+        transfer_state: RefCell<TransferState>,
+        #[property(get, set)]
+        device_name: RefCell<String>,
     }
 
     #[glib::object_subclass]
@@ -100,6 +127,16 @@ impl DataTransferObject {
     pub fn new(kind: TransferKind) -> Self {
         let obj: Self = glib::Object::builder().build();
         obj.set_transfer_kind(kind);
+
+        obj
+    }
+    pub fn copy(&self) -> Self {
+        let obj = Self::new(self.transfer_kind());
+        obj.set_endpoint_info(self.endpoint_info());
+        obj.set_channel_message(self.channel_message());
+        obj.set_device_name(self.device_name());
+        *obj.imp().eta_estimator.borrow_mut() = self.imp().eta_estimator.borrow().clone();
+        *obj.imp().files_to_send.borrow_mut() = self.imp().files_to_send.borrow().clone();
 
         obj
     }
