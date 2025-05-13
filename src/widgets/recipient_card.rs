@@ -182,10 +182,10 @@ pub fn create_recipient_card(
     // v/h-align would prevent the card from expanding when space is available
     let root_box = gtk::Box::builder()
         .orientation(gtk::Orientation::Horizontal)
-        .margin_start(18)
-        .margin_end(18)
-        .margin_top(18)
-        .margin_bottom(18)
+        .margin_start(12)
+        .margin_end(12)
+        .margin_top(12)
+        .margin_bottom(12)
         .spacing(12)
         .build();
     let root_bin = adw::Bin::builder().child(&root_box).build();
