@@ -527,6 +527,7 @@ impl QuickShareApplicationWindow {
             move |entry| {
                 entry.set_editable(false);
                 this.set_device_name(entry.text().as_str());
+                visibility_toggle_ui_update(&this.imp().device_visibility_switch, this.imp());
                 entry.set_editable(true);
             }
         ));
@@ -740,6 +741,8 @@ impl QuickShareApplicationWindow {
         // we won't proceed if they exist
         if self.is_no_file_being_send() {
             // FIXME: Show a progress dialog conveying service restart?
+
+            self.set_device_name_state(name).unwrap();
 
             imp.rqs
                 .blocking_lock()
