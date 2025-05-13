@@ -135,6 +135,8 @@ pub fn create_recipient_card(
     let imp = win.imp();
 
     if init_model_state.is_some() {
+        model_item.set_device_name(model_item.endpoint_info().name.clone().unwrap_or_default());
+
         let files_to_send = imp
             .manage_files_model
             .iter::<gio::File>()
