@@ -282,7 +282,12 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
 Adw.Dialog select_recipients_dialog {
     title: _("Select Recipients");
-
+    content-height: -1;
+    // This will work but affects both the height and width
+    // but we don't width to get messed up, so set Dialog's
+    // content-height to -1 any time adding a item to the
+    // list box. That'll force it to recalculate size.
+    // follows-content-size: true;
     Adw.ToolbarView {
         top-bar-style: flat;
 

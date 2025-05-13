@@ -462,11 +462,12 @@ impl QuickShareApplicationWindow {
             #[weak]
             imp,
             move |model, _, _, _| {
-                let loading_recipients_box = imp.loading_recipients_box.get();
                 if model.n_items() == 0 {
-                    loading_recipients_box.set_visible(true);
+                    imp.loading_recipients_box.set_visible(true);
+                    imp.recipient_listbox.set_visible(false);
                 } else {
-                    loading_recipients_box.set_visible(false);
+                    imp.loading_recipients_box.set_visible(false);
+                    imp.recipient_listbox.set_visible(true);
                 }
             }
         ));
@@ -1039,6 +1040,9 @@ impl QuickShareApplicationWindow {
                                 let id = endpoint_info.id.clone();
                                 obj.set_endpoint_info(data_transfer::EndpointInfo(endpoint_info));
                                 imp.recipient_model.insert(0, &obj);
+                                // Hack to make the recipient dialog's height grow according to
+                                // the list's content size.
+                                imp.select_recipients_dialog.set_content_height(-1);
                                 send_transfers_id_cache_guard.insert(id, obj);
                             }
                         }
