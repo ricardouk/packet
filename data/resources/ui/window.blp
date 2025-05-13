@@ -209,45 +209,44 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                 valign: end;
 
                                 Box {
+                                    orientation: vertical;
                                     margin-top: 12;
                                     margin-bottom: 12;
                                     margin-start: 12;
                                     margin-end: 12;
                                     halign: center;
                                     hexpand: true;
-
-                                    Image bottom_bar_image {
-                                        // internal
-                                        icon-name: "sonar-symbolic";
-                                        margin-end: 8;
-                                        icon-size: large;
-
-                                        styles [
-                                            "accent",
-                                        ]
-                                    }
+                                    spacing: 4;
 
                                     Box {
-                                        orientation: vertical;
+                                        halign: center;
+                                        spacing: 8;
+
+                                        Image bottom_bar_image {
+                                            // internal
+                                            icon-name: "sonar-symbolic";
+                                            pixel-size: 24;
+
+                                            styles [
+                                                "accent",
+                                            ]
+                                        }
 
                                         Label bottom_bar_title {
                                             // internal
-                                            label: "Ready to receive";
-                                            halign: start;
+                                            label: "Ready";
 
                                             styles [
                                                 "title-4",
                                                 "accent",
                                             ]
                                         }
+                                    }
 
-                                        Label bottom_bar_caption {
-                                            // internal
-                                            label: "Visible as \"{}\"";
-                                            margin-top: 2;
-                                            ellipsize: end;
-                                            halign: start;
-                                        }
+                                    Label bottom_bar_caption {
+                                        // internal
+                                        label: "Visible as \"{}\"";
+                                        ellipsize: end;
                                     }
                                 }
                             }

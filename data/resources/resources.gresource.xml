@@ -11,9 +11,9 @@
     <file preprocess="xml-stripblanks" alias="vertical-arrows-long-down-symbolic.svg">../icons/actions/vertical-arrows-long-down-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="vertical-arrows-long-up-symbolic.svg">../icons/actions/vertical-arrows-long-up-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="cross-large-symbolic.svg">../icons/actions/cross-large-symbolic.svg</file>
-    <file preprocess="xml-stripblanks" alias="background-app-ghost-symbolic.svg">../icons/actions/background-app-ghost-symbolic.svg</file>
-    <file preprocess="xml-stripblanks" alias="sonar-symbolic.svg">../icons/actions/sonar-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="sliders-horizontal-symbolic.svg">../icons/actions/sliders-horizontal-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="plus-symbolic.svg">../icons/actions/plus-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="visible-symbolic.svg">../icons/actions/visible-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="eye-not-looking-symbolic.svg">../icons/actions/eye-not-looking-symbolic.svg</file>
   </gresource>
 </gresources>
