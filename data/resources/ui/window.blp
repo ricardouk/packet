@@ -5,7 +5,7 @@ menu primary_menu {
     section {
         item {
             label: _("_Preferences");
-            action: "app.preferences";
+            action: "win.preferences";
         }
 
         item {
@@ -207,67 +207,46 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                             Box bottom_bar {
                                 orientation: vertical;
                                 valign: end;
-                                halign: fill;
 
                                 Box {
-                                    margin-bottom: 12;
                                     margin-top: 12;
-                                    margin-end: 12;
+                                    margin-bottom: 12;
                                     margin-start: 12;
+                                    margin-end: 12;
+                                    halign: center;
                                     hexpand: true;
 
-                                    Box {
-                                        hexpand: true;
+                                    Image bottom_bar_image {
+                                        // internal
+                                        icon-name: "sonar-symbolic";
+                                        margin-end: 8;
+                                        icon-size: large;
 
-                                        Image bottom_bar_image {
+                                        styles [
+                                            "accent",
+                                        ]
+                                    }
+
+                                    Box {
+                                        orientation: vertical;
+
+                                        Label bottom_bar_title {
                                             // internal
-                                            icon-name: "sonar-symbolic";
-                                            margin-end: 8;
-                                            icon-size: large;
+                                            label: "Ready to receive";
+                                            halign: start;
 
                                             styles [
+                                                "title-4",
                                                 "accent",
                                             ]
                                         }
 
-                                        Box {
-                                            orientation: vertical;
-
-                                            Label bottom_bar_title {
-                                                // internal
-                                                label: "Ready to receive";
-                                                halign: start;
-
-                                                styles [
-                                                    "title-4",
-                                                    "accent",
-                                                ]
-                                            }
-
-                                            Label bottom_bar_caption {
-                                                // internal
-                                                label: "Visible as \"{}\"";
-                                                margin-top: 2;
-                                                ellipsize: end;
-                                                halign: start;
-
-                                                styles [
-                                                    "dimmed",
-                                                ]
-                                            }
-                                        }
-                                    }
-
-                                    [end]
-                                    Box {
-                                        valign: center;
-
-                                        Button transfer_settings_button {
-                                            icon-name: "sliders-horizontal-symbolic";
-
-                                            styles [
-                                                "circular",
-                                            ]
+                                        Label bottom_bar_caption {
+                                            // internal
+                                            label: "Visible as \"{}\"";
+                                            margin-top: 2;
+                                            ellipsize: end;
+                                            halign: start;
                                         }
                                     }
                                 }
@@ -388,51 +367,22 @@ Adw.Dialog select_recipients_dialog {
     }
 }
 
-Adw.Dialog transfer_settings_dialog {
-    title: _("Options");
+Adw.PreferencesDialog preferences_dialog {
+    title: _("Preferences");
+    content-width: 360;
 
-    Adw.ToolbarView {
-        top-bar-style: flat;
-        extend-content-to-top-edge: true;
+    Adw.PreferencesPage {
+        Adw.PreferencesGroup {
+            title: _("Network");
 
-        [top]
-        Adw.HeaderBar {
-            show-title: false;
-        }
+            Adw.EntryRow device_name_entry {
+                title: _("Device Name");
+                show-apply-button: true;
+            }
 
-        ScrolledWindow {
-            propagate-natural-height: true;
-            propagate-natural-width: true;
-
-            Box {
-                orientation: vertical;
-                margin-start: 24;
-                margin-end: 24;
-                margin-top: 24;
-                margin-bottom: 24;
-                valign: center;
-                halign: center;
-                spacing: 12;
-
-                Adw.PreferencesGroup {
-                    title: _("Device");
-                    hexpand: true;
-
-                    Adw.EntryRow device_name_entry {
-                        title: _("Device name");
-                        show-apply-button: true;
-                    }
-                }
-
-                Adw.PreferencesGroup {
-                    title: _("Visibility");
-                    hexpand: true;
-
-                    Adw.SwitchRow device_visibility_switch {
-                        title: _("Visibility");
-                        subtitle: _("Whether others can see this device");
-                    }
-                }
+            Adw.SwitchRow device_visibility_switch {
+                title: _("Visibility");
+                subtitle: _("Whether others can see this device");
             }
         }
     }

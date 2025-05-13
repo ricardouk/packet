@@ -35,6 +35,9 @@ mod imp {
         pub settings: gio::Settings,
 
         #[template_child]
+        pub preferences_dialog: TemplateChild<adw::PreferencesDialog>,
+
+        #[template_child]
         pub root_stack: TemplateChild<gtk::Stack>,
 
         #[template_child]
@@ -43,10 +46,6 @@ mod imp {
         #[template_child]
         pub main_nav_view: TemplateChild<adw::NavigationView>,
 
-        #[template_child]
-        pub transfer_settings_button: TemplateChild<gtk::Button>,
-        #[template_child]
-        pub transfer_settings_dialog: TemplateChild<adw::Dialog>,
         #[template_child]
         pub bottom_bar_image: TemplateChild<gtk::Image>,
         #[template_child]
@@ -257,6 +256,14 @@ impl QuickShareApplicationWindow {
     }
 
     fn setup_gactions(&self) {
+        let preferences = gio::ActionEntry::builder("preferences")
+            .activate(move |win: &Self, _, _| {
+                win.imp()
+                    .preferences_dialog
+                    .present(win.root().and_downcast_ref::<adw::ApplicationWindow>());
+            })
+            .build();
+
         let received_files = gio::ActionEntry::builder("received-files")
             .activate(move |win: &Self, _, _| {
                 // Open current download folder
@@ -271,7 +278,7 @@ impl QuickShareApplicationWindow {
             })
             .build();
 
-        self.add_action_entries([received_files]);
+        self.add_action_entries([preferences, received_files]);
     }
 
     fn get_device_name_state(&self) -> glib::GString {
@@ -506,15 +513,6 @@ impl QuickShareApplicationWindow {
 
     fn setup_bottom_bar(&self) {
         let imp = self.imp();
-
-        imp.transfer_settings_button.connect_clicked(clone!(
-            #[weak]
-            imp,
-            move |_| {
-                imp.transfer_settings_dialog
-                    .present(Some(imp.obj().as_ref()));
-            }
-        ));
 
         imp.device_name_entry.connect_apply(clone!(
             #[weak(rename_to = this)]

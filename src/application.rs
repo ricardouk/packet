@@ -99,6 +99,7 @@ impl QuickShareApplication {
     fn setup_accels(&self) {
         self.set_accels_for_action("app.quit", &["<Control>q"]);
         self.set_accels_for_action("window.close", &["<Control>w"]);
+        self.set_accels_for_action("win.preferences", &["<Control>comma"]);
     }
 
     fn setup_css(&self) {
