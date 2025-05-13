@@ -479,6 +479,41 @@ pub fn present_share_request_ui(
                         open_uri_button.set_visible(false);
                     }
 
+                    save_text_button.connect_clicked(clone!(
+                        #[weak]
+                        win,
+                        #[weak]
+                        text_view,
+                        move |_| {
+                            let text = text_view.buffer().text(
+                                &text_view.buffer().start_iter(),
+                                &text_view.buffer().end_iter(),
+                                false,
+                            );
+
+                            glib::spawn_future_local(async move {
+                                let file = gtk::FileDialog::new()
+                                    .save_text_file_future(Some(&win))
+                                    .await
+                                    .unwrap()
+                                    .0
+                                    .unwrap();
+
+                                let text_bytes = text.into_bytes();
+                                file.create_readwrite_future(
+                                    gio::FileCreateFlags::REPLACE_DESTINATION,
+                                    Default::default(),
+                                )
+                                .await
+                                .unwrap()
+                                .output_stream()
+                                .write_all_future(text_bytes, Default::default())
+                                .await
+                                .unwrap();
+                            });
+                        }
+                    ));
+
                     let clipboard = win.clipboard();
                     copy_text_button.connect_clicked(clone!(
                         #[weak]
