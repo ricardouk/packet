@@ -281,17 +281,6 @@ Adw.Dialog select_recipients_dialog {
                     "flat",
                 ]
             }
-
-            [end]
-            Button select_recipient_troubleshoot_button {
-                icon-name: "help-about-symbolic";
-                valign: center;
-
-                styles [
-                    "circular",
-                    "flat",
-                ]
-            }
         }
 
         Box select_recipient_box {
@@ -327,11 +316,6 @@ Adw.Dialog select_recipients_dialog {
                             Adw.Spinner {
                                 margin-top: 12;
                                 height-request: 48;
-                            }
-
-                            Label {
-                                label: _("Looking for nearby devices...");
-                                wrap: true;
                             }
                         }
 

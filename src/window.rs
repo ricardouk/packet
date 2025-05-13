@@ -88,8 +88,6 @@ mod imp {
         #[template_child]
         pub select_recipient_refresh_button: TemplateChild<gtk::Button>,
         #[template_child]
-        pub select_recipient_troubleshoot_button: TemplateChild<gtk::Button>,
-        #[template_child]
         pub recipient_listbox: TemplateChild<gtk::ListBox>,
         #[template_child]
         pub loading_recipients_box: TemplateChild<gtk::Box>,
