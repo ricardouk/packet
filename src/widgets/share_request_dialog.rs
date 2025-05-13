@@ -41,7 +41,6 @@ pub fn present_share_request_ui(
         .width_request(200)
         .build();
     progress_dialog.add_responses(&[("cancel", &gettext("Cancel"))]);
-    progress_dialog.set_response_appearance("cancel", adw::ResponseAppearance::Destructive);
     progress_dialog.set_default_response(None);
     progress_dialog.connect_response(
         None,
@@ -163,8 +162,6 @@ pub fn present_share_request_ui(
                     ("decline", &gettext("Decline")),
                     ("accept", &gettext("Accept")),
                 ]);
-                consent_dialog
-                    .set_response_appearance("decline", adw::ResponseAppearance::Destructive);
                 consent_dialog
                     .set_response_appearance("accept", adw::ResponseAppearance::Suggested);
 
