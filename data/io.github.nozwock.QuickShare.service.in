@@ -1,3 +1,3 @@
 [D-BUS Service]
 Name=@app-id@
-Exec=@bindir@/gtk-rust-template --gapplication-service
+Exec=@bindir@/quickshare-gtk --gapplication-service
