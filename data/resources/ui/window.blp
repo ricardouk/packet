@@ -71,11 +71,14 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
 
                             Adw.NavigationView main_nav_view {
                                 Adw.NavigationPage {
+                                    title: "main_nav_page";
                                     tag: "main_nav_page";
 
                                     child: Adw.ToolbarView {
                                         [top]
                                         Adw.HeaderBar {
+                                            show-title: false;
+
                                             [end]
                                             MenuButton {
                                                 icon-name: "open-menu-symbolic";
@@ -107,11 +110,14 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                 }
 
                                 Adw.NavigationPage {
+                                    title: "manage_files_nav_page";
                                     tag: "manage_files_nav_page";
 
                                     child: Adw.ToolbarView {
                                         [top]
                                         Adw.HeaderBar {
+                                            show-title: false;
+
                                             [end]
                                             MenuButton {
                                                 icon-name: "open-menu-symbolic";
