@@ -476,6 +476,8 @@ impl QuickShareApplicationWindow {
                     imp.loading_recipients_box.set_visible(false);
                     imp.recipient_listbox.set_visible(true);
                 }
+                // Force dialog to recalculate height here as well
+                imp.select_recipients_dialog.set_content_height(-1);
             }
         ));
 
