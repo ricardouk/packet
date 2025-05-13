@@ -1,6 +1,3 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use formatx::formatx;
@@ -111,8 +108,6 @@ mod imp {
         type ParentType = adw::ApplicationWindow;
 
         fn class_init(klass: &mut Self::Class) {
-            widgets::ShareRequestDialog::ensure_type();
-
             klass.bind_template();
         }
 
@@ -848,9 +843,7 @@ impl QuickShareApplicationWindow {
                 #[weak]
                 imp,
                 async move {
-                    let mut received_requests_events_tx: Option<
-                        async_channel::Sender<objects::ChannelMessage>,
-                    > = None;
+                    let mut share_request_state: Option<objects::ShareRequestState> = None;
                     loop {
                         let channel_message = rx.recv().await.unwrap();
 
@@ -875,13 +868,11 @@ impl QuickShareApplicationWindow {
                             State::WaitingForUserConsent => {
                                 // Receive data transfer requests
                                 {
-                                    let (tx, rx) = async_channel::bounded(10);
-                                    received_requests_events_tx = Some(tx);
-                                    widgets::ShareRequestDialog::new(
-                                        imp.obj().as_ref().clone(),
-                                        objects::ChannelMessage(channel_message),
-                                        rx,
+                                    let state = objects::ShareRequestState::new(
+                                        &objects::ChannelMessage(channel_message),
                                     );
+                                    widgets::present_share_request_ui(&imp.obj(), &state);
+                                    share_request_state = Some(state);
                                 }
                             }
                             State::SentUkeyClientInit
@@ -896,12 +887,11 @@ impl QuickShareApplicationWindow {
                                 match channel_message.rtype {
                                     Some(rqs_lib::channel::TransferType::Inbound) => {
                                         // Receive
-                                        received_requests_events_tx
-                                            .as_mut()
-                                            .unwrap()
-                                            .send(objects::ChannelMessage(channel_message))
-                                            .await
-                                            .unwrap();
+                                        if let Some(state) = share_request_state.as_mut() {
+                                            state.set_event(objects::ChannelMessage(
+                                                channel_message,
+                                            ));
+                                        }
                                     }
                                     Some(rqs_lib::channel::TransferType::Outbound) => {
                                         // Send
@@ -941,10 +931,10 @@ impl QuickShareApplicationWindow {
                                                 }
                                             }
 
-                                            if let Some(tx) = received_requests_events_tx.as_mut() {
-                                                tx.send(objects::ChannelMessage(channel_message))
-                                                    .await
-                                                    .unwrap();
+                                            if let Some(state) = share_request_state.as_mut() {
+                                                state.set_event(objects::ChannelMessage(
+                                                    channel_message,
+                                                ));
                                             }
                                         }
                                     }

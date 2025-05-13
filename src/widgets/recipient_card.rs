@@ -450,6 +450,9 @@ pub fn create_recipient_card(
                         eta_estimator.borrow_mut().prepare_for_new_transfer(None);
                     }
                     State::SendingFiles => {
+                        // FIXME: Don't send 0 byte files
+                        // The receiver can't receive it.
+                        // Disallow selecting 0 byte files
                         model_item.set_transfer_state(TransferState::OngoingTransfer);
 
                         set_row_activatable(model_item, listbox_row_ref.as_ref(), false);

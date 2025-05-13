@@ -1,7 +1,7 @@
 # Resources
 blueprints = custom_target(
   'blueprints',
-  input: files('ui/shortcuts.blp', 'ui/window.blp', 'ui/share-request-dialog.blp'),
+  input: files('ui/shortcuts.blp', 'ui/window.blp'),
   output: '.',
   command: [
     find_program('blueprint-compiler'),

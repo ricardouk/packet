@@ -9,477 +9,508 @@ use gtk::{
 use rqs_lib::hdl::TextPayloadType;
 
 use crate::{
-    objects::{self, TransferState},
-    window::{LoopingTaskHandle, QuickShareApplicationWindow},
+    objects::{self},
+    window::QuickShareApplicationWindow,
 };
 
-mod imp {
-
-    use std::{cell::RefCell, rc::Rc};
-
-    use glib::Properties;
-
-    use crate::{objects, utils::DataTransferEta};
-
-    use super::*;
-
-    #[derive(Debug, Default, gtk::CompositeTemplate, Properties)]
-    #[template(resource = "/io/github/nozwock/QuickShare/ui/share-request-dialog.ui")]
-    #[properties(wrapper_type = super::ShareRequestDialog)]
-    pub struct ShareRequestDialog {
-        #[template_child]
-        pub toolbar_view: TemplateChild<adw::ToolbarView>,
-        #[template_child]
-        pub header_bar: TemplateChild<adw::HeaderBar>,
-        #[template_child]
-        pub copy_text_button: TemplateChild<gtk::Button>,
-        #[template_child]
-        pub save_text_button: TemplateChild<gtk::Button>,
-
-        #[template_child]
-        pub root_box: TemplateChild<gtk::Box>,
-        #[template_child]
-        pub heading_label: TemplateChild<gtk::Label>,
-        #[template_child]
-        pub caption_label: TemplateChild<gtk::Label>,
-
-        #[template_child]
-        pub consent_box: TemplateChild<gtk::Box>,
-
-        #[template_child]
-        pub progress_box: TemplateChild<gtk::Box>,
-        #[template_child]
-        pub eta_label: TemplateChild<gtk::Label>,
-        #[template_child]
-        pub progress_bar: TemplateChild<gtk::ProgressBar>,
-
-        #[template_child]
-        pub text_view_frame: TemplateChild<gtk::Frame>,
-        #[template_child]
-        pub text_view: TemplateChild<gtk::TextView>,
-
-        #[template_child]
-        pub open_uri_button: TemplateChild<gtk::Button>,
-
-        #[property(get, set)]
-        pub win: RefCell<Option<QuickShareApplicationWindow>>,
-
-        #[property(get, set)]
-        pub event: RefCell<objects::ChannelMessage>,
-        pub eta: Rc<RefCell<DataTransferEta>>,
-
-        #[property(get, set)]
-        pub transfer_state: RefCell<objects::TransferState>,
-
-        pub event_rx: RefCell<Option<async_channel::Receiver<objects::ChannelMessage>>>,
-    }
-
-    #[glib::object_subclass]
-    impl ObjectSubclass for ShareRequestDialog {
-        const NAME: &'static str = "PacketShareRequestDialog";
-        type Type = super::ShareRequestDialog;
-        type ParentType = adw::Dialog;
-
-        fn class_init(klass: &mut Self::Class) {
-            klass.bind_template();
-            klass.bind_template_instance_callbacks();
-        }
-
-        // You must call `Widget`'s `init_template()` within `instance_init()`.
-        fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
-            obj.init_template();
-        }
-    }
-
-    #[glib::derived_properties]
-    impl ObjectImpl for ShareRequestDialog {
-        fn constructed(&self) {
-            self.parent_constructed();
-
-            let obj = self.obj();
-            // obj.setup_ui();
-        }
-    }
-    impl WidgetImpl for ShareRequestDialog {}
-    impl AdwDialogImpl for ShareRequestDialog {}
-}
-
-glib::wrapper! {
-    pub struct ShareRequestDialog(ObjectSubclass<imp::ShareRequestDialog>)
-        @extends adw::Dialog, gtk::Widget,
-        @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
-}
-
-impl Default for ShareRequestDialog {
-    fn default() -> Self {
-        glib::Object::builder().build()
+pub fn display_text_type(value: &TextPayloadType) -> String {
+    match value {
+        TextPayloadType::Url => gettext("Link"),
+        TextPayloadType::Text => gettext("Text"),
+        TextPayloadType::Wifi => gettext("Wi-Fi"),
     }
 }
 
-#[gtk::template_callbacks]
-impl ShareRequestDialog {
-    pub fn new(
-        win: QuickShareApplicationWindow,
-        event: objects::ChannelMessage,
-        event_rx: async_channel::Receiver<objects::ChannelMessage>,
-    ) -> Self {
-        let obj: Self = glib::Object::builder().build();
-        obj.set_event(&event);
-        *obj.imp().event_rx.borrow_mut() = Some(event_rx);
-        obj.imp()
-            .eta
-            .borrow_mut()
-            .prepare_for_new_transfer(Some(event.meta.as_ref().unwrap().total_bytes as usize));
-        obj.set_win(win);
+// Rewriting receive UI for the 4rd time ;(
+// Using a chain of AlertDialog this time
+pub fn present_share_request_ui(
+    win: &QuickShareApplicationWindow,
+    receive_state: &objects::ShareRequestState,
+) {
+    let init_id = receive_state.event().id.clone();
+    let win = win.clone();
 
-        // Is this okay? feels weird
-        obj.setup_ui();
-
-        obj
-    }
-
-    #[template_callback]
-    fn handle_consent_accept(&self, button: &gtk::Button) {
-        let win = self.win().unwrap();
-
-        button.set_sensitive(false);
-        win.imp()
-            .rqs
-            .blocking_lock()
-            .as_mut()
-            .unwrap()
-            .message_sender
-            .send(rqs_lib::channel::ChannelMessage {
-                id: self.event().id.to_string(),
-                action: Some(rqs_lib::channel::ChannelAction::AcceptTransfer),
-                ..Default::default()
-            })
-            .unwrap();
-    }
-    #[template_callback]
-    fn handle_consent_decline(&self, _: &gtk::Button) {
-        let win = self.win().unwrap();
-
-        self.close();
-        win.imp()
-            .rqs
-            .blocking_lock()
-            .as_mut()
-            .unwrap()
-            .message_sender
-            .send(rqs_lib::channel::ChannelMessage {
-                id: self.event().id.to_string(),
-                action: Some(rqs_lib::channel::ChannelAction::RejectTransfer),
-                ..Default::default()
-            })
-            .unwrap();
-    }
-    #[template_callback]
-    fn handle_transfer_cancel(&self, button: &gtk::Button) {
-        let win = self.win().unwrap();
-
-        button.set_sensitive(false);
-        win.imp()
-            .rqs
-            .blocking_lock()
-            .as_mut()
-            .unwrap()
-            .message_sender
-            .send(rqs_lib::channel::ChannelMessage {
-                id: self.event().id.to_string(),
-                action: Some(rqs_lib::channel::ChannelAction::CancelTransfer),
-                ..Default::default()
-            })
-            .unwrap();
-    }
-    #[template_callback]
-    fn handle_uri_open(&self, _: &gtk::Button) {
-        let imp = self.imp();
-
-        let url = imp.text_view.buffer().text(
-            &imp.text_view.buffer().start_iter(),
-            &imp.text_view.buffer().end_iter(),
-            false,
-        );
-
-        gtk::UriLauncher::new(&url).launch(
-            imp.obj()
-                .root()
-                .and_downcast_ref::<adw::ApplicationWindow>(),
-            None::<gio::Cancellable>.as_ref(),
-            |_err| {},
-        );
-    }
-    #[template_callback]
-    fn handle_copy_text(&self, _: &gtk::Button) {
-        let clipboard = self.clipboard();
-
-        let imp = self.imp();
-
-        let text = imp.text_view.buffer().text(
-            &imp.text_view.buffer().start_iter(),
-            &imp.text_view.buffer().end_iter(),
-            false,
-        );
-        clipboard.set_text(&text);
-    }
-    #[template_callback]
-    fn handle_save_text(&self, _: &gtk::Button) {}
-
-    pub fn setup_ui(&self) {
-        let imp = self.imp();
-
-        let win = self.win().unwrap();
-
-        let rqs = &win.imp().rqs;
-        // close-attempt doesn't seem to trigger at all
-        self.connect_closed(clone!(
-            #[weak(rename_to = this)]
-            self,
+    // Progress dialog
+    let progress_dialog = adw::AlertDialog::builder()
+        .heading(&gettext("Receiving"))
+        .width_request(200)
+        .build();
+    progress_dialog.add_responses(&[("cancel", &gettext("Cancel"))]);
+    progress_dialog.set_response_appearance("cancel", adw::ResponseAppearance::Destructive);
+    progress_dialog.set_default_response(None);
+    progress_dialog.connect_response(
+        None,
+        clone!(
             #[weak]
-            rqs,
-            move |_| {
-                if this.transfer_state() == TransferState::AwaitingConsentOrIdle {
-                    tracing::debug!("SHOULD TRIGGER?");
-                    rqs.blocking_lock()
-                        .as_mut()
-                        .unwrap()
-                        .message_sender
-                        .send(rqs_lib::channel::ChannelMessage {
-                            id: this.event().id.to_string(),
-                            action: Some(rqs_lib::channel::ChannelAction::RejectTransfer),
-                            ..Default::default()
-                        })
-                        .unwrap();
+            win,
+            #[weak]
+            receive_state,
+            move |dialog, response_id| {
+                match response_id {
+                    "cancel" => {
+                        // FIXME: show a toast notifying that the transfer was cancelled?
+                        dialog.set_response_enabled("cancel", false);
+                        win.imp()
+                            .rqs
+                            .blocking_lock()
+                            .as_mut()
+                            .unwrap()
+                            .message_sender
+                            .send(rqs_lib::channel::ChannelMessage {
+                                id: receive_state.event().id.to_string(),
+                                action: Some(rqs_lib::channel::ChannelAction::CancelTransfer),
+                                ..Default::default()
+                            })
+                            .unwrap();
+                    }
+                    _ => {}
                 }
             }
-        ));
+        ),
+    );
+    progress_dialog.set_can_close(false);
 
-        let msg = self.event();
-        // Setting initial state for WaitingForUserContent
-        {
-            // Present
-            self.present(Some(&win));
+    let progress_stack = gtk::Stack::new();
 
-            imp.consent_box.set_visible(true);
-            imp.caption_label.set_visible(true);
+    let progress_files_box = gtk::Box::builder()
+        .orientation(gtk::Orientation::Vertical)
+        .margin_start(24)
+        .margin_end(24)
+        .spacing(12)
+        .build();
+    progress_stack.add_named(&progress_files_box, Some("progress_files"));
 
-            imp.progress_box.set_visible(false);
+    let device_name = receive_state.event().get_device_name();
+    let device_name_box = create_device_name_box(&device_name);
+    device_name_box.set_margin_bottom(4);
+    progress_files_box.append(&device_name_box);
 
-            imp.heading_label.set_label(&gettext("Incoming Request"));
+    let progress_bar = gtk::ProgressBar::new();
+    progress_files_box.append(&progress_bar);
+    let eta_label = gtk::Label::builder()
+        .halign(gtk::Align::Center)
+        .wrap(true)
+        .css_classes(["dimmed"])
+        .build();
+    progress_files_box.append(&eta_label);
 
-            let total_bytes = msg.meta.as_ref().unwrap().total_bytes;
+    let progress_text_box = gtk::Box::builder()
+        .orientation(gtk::Orientation::Vertical)
+        .margin_start(24)
+        .margin_end(24)
+        .spacing(12)
+        .build();
 
-            imp.eta
-                .borrow_mut()
-                .prepare_for_new_transfer(Some(total_bytes as usize));
+    let device_name_box = create_device_name_box(&device_name);
+    device_name_box.set_margin_bottom(4);
+    progress_text_box.append(&device_name_box);
+    progress_text_box.append(&adw::Spinner::new());
+    progress_stack.add_named(&progress_text_box, Some("progress_text"));
 
-            let caption = if let Some(files) = msg.get_filenames() {
-                formatx!(
-                    ngettext(
-                        "{} wants to share {} file ({})",
-                        "{} wants to share {} files ({})",
-                        files.len() as u32
-                    ),
-                    msg.get_device_name(),
-                    files.len(),
-                    human_bytes::human_bytes(total_bytes as f64)
-                )
-                .unwrap_or_default()
-            } else {
-                formatx!(
-                    gettext("{} wants to share <i>{}</i>"),
-                    msg.get_device_name(),
-                    msg.get_text_data().unwrap().description.replace("\n", "")
-                )
-                .unwrap_or_default()
-            };
+    progress_dialog.set_extra_child(Some(&progress_stack));
 
-            imp.caption_label.set_label(&caption);
-        }
+    fn create_device_name_box(device_name: &str) -> gtk::Box {
+        let device_name_box = gtk::Box::builder()
+            .halign(gtk::Align::Center)
+            .spacing(8)
+            .build();
+        let avatar = adw::Avatar::builder()
+            .text(device_name)
+            .show_initials(true)
+            .size(32)
+            .build();
+        device_name_box.append(&avatar);
+        let device_label = gtk::Label::builder()
+            .label(device_name)
+            .halign(gtk::Align::Center)
+            .css_classes(["title-4"])
+            .build();
+        device_name_box.append(&device_label);
 
-        let init_id = msg.id.clone();
-        let handle = glib::spawn_future_local(clone!(
-            #[weak]
-            imp,
-            async move {
-                use rqs_lib::State;
-                let rx = &imp.event_rx;
+        device_name_box
+    }
 
-                loop {
-                    let msg = rx.borrow().as_ref().unwrap().recv().await;
+    receive_state.connect_event_notify(move |receive_state| {
+        use rqs_lib::State;
 
-                    if let Ok(msg) = &msg {
-                        imp.obj().set_event(msg);
-                    }
+        let msg = receive_state.event();
 
-                    if let Some((state, msg)) = msg
-                        .ok()
-                        .and_then(|it| Some((it.state.clone().unwrap_or(State::Initial), it)))
-                    {
-                        match state {
-                            State::Initial => {}
-                            State::ReceivedConnectionRequest => {}
-                            State::SentUkeyServerInit => {}
-                            State::SentUkeyClientInit => {}
-                            State::SentUkeyClientFinish => {}
-                            State::SentPairedKeyEncryption => {}
-                            State::ReceivedUkeyClientFinish => {}
-                            State::SentConnectionResponse => {}
-                            State::SentPairedKeyResult => {}
-                            State::SentIntroduction => {}
-                            State::ReceivedPairedKeyResult => {}
-                            State::WaitingForUserConsent => {}
-                            State::ReceivingFiles => {
-                                imp.obj().set_can_close(false);
-                                imp.obj().set_transfer_state(TransferState::OngoingTransfer);
-                                imp.caption_label.set_visible(false);
-                                imp.progress_box.set_visible(true);
-                                imp.consent_box.set_visible(false);
+        match msg.state.clone().unwrap_or(State::Initial) {
+            State::Initial => {}
+            State::ReceivedConnectionRequest => {}
+            State::SentUkeyServerInit => {}
+            State::SentUkeyClientInit => {}
+            State::SentUkeyClientFinish => {}
+            State::SentPairedKeyEncryption => {}
+            State::ReceivedUkeyClientFinish => {}
+            State::SentConnectionResponse => {}
+            State::SentPairedKeyResult => {}
+            State::SentIntroduction => {}
+            State::ReceivedPairedKeyResult => {}
+            State::WaitingForUserConsent => {
+                let dialog = adw::AlertDialog::builder()
+                    .heading(&gettext("Incoming Transfer"))
+                    .width_request(200)
+                    .build();
+                dialog.add_responses(&[
+                    ("decline", &gettext("Decline")),
+                    ("accept", &gettext("Accept")),
+                ]);
+                dialog.set_response_appearance("decline", adw::ResponseAppearance::Destructive);
+                dialog.set_response_appearance("accept", adw::ResponseAppearance::Suggested);
 
-                                imp.heading_label.set_label(&gettext("Receiving"));
+                dialog.set_default_response(Some("decline"));
+                dialog.set_close_response("decline");
 
-                                let eta_text = {
-                                    if let Some(meta) = &msg.meta {
-                                        imp.eta.borrow_mut().step_with(meta.ack_bytes as usize);
+                let info_box = gtk::Box::builder()
+                    .orientation(gtk::Orientation::Vertical)
+                    .halign(gtk::Align::Center)
+                    .spacing(8)
+                    .build();
+                dialog.set_extra_child(Some(&info_box));
 
-                                        if meta.total_bytes > 0 {
-                                            imp.progress_bar.set_fraction(
-                                                meta.ack_bytes as f64 / meta.total_bytes as f64,
-                                            );
-                                        }
-                                    }
+                let device_name = msg.get_device_name();
 
-                                    formatx!(
-                                        gettext("About {} left"),
-                                        imp.eta.borrow().get_estimate_string()
-                                    )
-                                    .unwrap()
-                                };
-                                imp.eta_label.set_label(&eta_text);
-                            }
-                            State::SendingFiles => {}
-                            State::Disconnected => {
-                                imp.obj().set_can_close(true);
-                                imp.obj().set_transfer_state(TransferState::Failed);
-                                if msg.id == init_id {
-                                    // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
-                                    // reject request and show this error, it's usually because the sender
-                                    // disconnected from the network
-                                    imp.progress_box.set_visible(false);
-                                    imp.caption_label.set_visible(true);
-                                    imp.consent_box.set_visible(false);
-                                    imp.header_bar.set_show_end_title_buttons(true);
+                let device_name_box = create_device_name_box(&device_name);
+                info_box.append(&device_name_box);
 
-                                    imp.caption_label
-                                        .set_label(&gettext("Unexpected disconnection"));
-                                    break;
-                                }
-                            }
-                            State::Rejected => {
-                                imp.obj().set_can_close(true);
-                                imp.obj().set_transfer_state(TransferState::Failed);
-                                break;
-                            }
-                            State::Cancelled => {
-                                imp.obj().set_can_close(true);
-                                imp.obj().set_transfer_state(TransferState::Failed);
-                                imp.header_bar.set_show_end_title_buttons(true);
+                let total_bytes = msg.meta.as_ref().unwrap().total_bytes;
+                let transfer_size = human_bytes::human_bytes(total_bytes as f64);
 
-                                imp.progress_box.set_visible(false);
-                                imp.caption_label.set_visible(true);
-                                imp.consent_box.set_visible(false);
-                                imp.header_bar.set_show_end_title_buttons(true);
+                if let Some(files) = msg.get_filenames() {
+                    let file_count = files.len();
 
-                                imp.caption_label.set_label(&gettext("Failed"));
+                    let files_label = gtk::Label::builder()
+                        .label(
+                            formatx!(
+                                ngettext("{} file ({})", "{} files ({})", file_count as u32,),
+                                file_count,
+                                transfer_size
+                            )
+                            .unwrap(),
+                        )
+                        .halign(gtk::Align::Center)
+                        .css_classes(["dimmed", "heading"])
+                        .build();
+                    info_box.append(&files_label);
+                } else {
+                    let text_data = msg.get_text_data().unwrap();
+                    let text_info_label = gtk::Label::builder()
+                        .ellipsize(gtk::pango::EllipsizeMode::End)
+                        .max_width_chars(36)
+                        .label(
+                            formatx!(
+                                gettext("Preview ({})"),
+                                text_data
+                                    .description
+                                    .trim()
+                                    .trim_matches('"')
+                                    .trim()
+                                    .lines()
+                                    .next()
+                                    .unwrap_or_default()
+                                    .trim()
+                            )
+                            .unwrap_or_default(),
+                        )
+                        .halign(gtk::Align::Center)
+                        .css_classes(["dimmed"])
+                        .build();
+                    info_box.append(&text_info_label);
+                }
 
-                                break;
-                            }
-                            State::Finished => {
-                                imp.obj().set_can_close(true);
-                                imp.obj().set_transfer_state(TransferState::Done);
-                                imp.progress_box.set_visible(false);
-                                imp.caption_label.set_visible(true);
-                                imp.consent_box.set_visible(false);
-                                imp.header_bar.set_show_end_title_buttons(true);
+                let pincode_label = gtk::Label::builder()
+                    .label(
+                        formatx!(
+                            gettext("Code: {}"),
+                            msg.meta
+                                .as_ref()
+                                .unwrap()
+                                .pin_code
+                                .clone()
+                                .unwrap_or_default()
+                        )
+                        .unwrap(),
+                    )
+                    .halign(gtk::Align::Center)
+                    .css_classes(["dimmed", "monospace"])
+                    .build();
+                info_box.append(&pincode_label);
 
-                                imp.heading_label.set_visible(false);
-                                imp.obj().set_title(&gettext("Done"));
-                                imp.toolbar_view.set_extend_content_to_top_edge(false);
-                                imp.root_box.set_margin_top(0);
-
-                                {
-                                    if let Some(files) = msg.get_filenames() {
-                                        let text = formatx!(
-                                            ngettext(
-                                                "Received {} file",
-                                                "Received {} files",
-                                                files.len() as u32
+                dialog.connect_response(
+                    None,
+                    clone!(
+                        #[weak]
+                        win,
+                        #[weak]
+                        receive_state,
+                        #[weak]
+                        progress_dialog,
+                        move |_, response_id| {
+                            match response_id {
+                                "accept" => {
+                                    win.imp()
+                                        .rqs
+                                        .blocking_lock()
+                                        .as_mut()
+                                        .unwrap()
+                                        .message_sender
+                                        .send(rqs_lib::channel::ChannelMessage {
+                                            id: receive_state.event().id.to_string(),
+                                            action: Some(
+                                                rqs_lib::channel::ChannelAction::AcceptTransfer,
                                             ),
-                                            files.len()
-                                        )
-                                        .unwrap_or_default();
+                                            ..Default::default()
+                                        })
+                                        .unwrap();
 
-                                        imp.caption_label.set_label(&text);
-                                    } else {
-                                        imp.caption_label.set_visible(false);
-                                        imp.copy_text_button.set_visible(true);
-                                        imp.root_box.set_valign(gtk::Align::Fill);
-                                        // FIXME: Can't handle WiFi shares yet
-                                        // TextPayloadInfo not exposed by the library
-                                        let text_type = msg.get_text_data().unwrap().kind.unwrap();
+                                    // Spawn progress dialog
+                                    progress_dialog.present(Some(&win));
+                                }
+                                "decline" => {
+                                    win.imp()
+                                        .rqs
+                                        .blocking_lock()
+                                        .as_mut()
+                                        .unwrap()
+                                        .message_sender
+                                        .send(rqs_lib::channel::ChannelMessage {
+                                            id: receive_state.event().id.to_string(),
+                                            action: Some(
+                                                rqs_lib::channel::ChannelAction::RejectTransfer,
+                                            ),
+                                            ..Default::default()
+                                        })
+                                        .unwrap();
+                                }
+                                _ => {
+                                    unreachable!()
+                                }
+                            };
+                        }
+                    ),
+                );
 
-                                        if text_type.clone() as u32 == TextPayloadType::Url as u32 {
-                                            imp.open_uri_button.set_visible(true);
-                                        } else {
-                                            imp.open_uri_button.set_visible(false);
-                                        }
+                dialog.present(Some(&win));
 
-                                        // FIXME: add a "save as" button to save text view content
-                                        // as a file
+                // TODO: show a progress dialog for both but with a delay?
 
-                                        let _text = msg.get_text_data().unwrap().text;
-                                        let text = if text_type.clone() as u32
-                                            == TextPayloadType::Text as u32
-                                        {
-                                            imp.save_text_button.set_visible(true);
-                                            let text = _text.trim();
-                                            &text[1..text.len() - 1] // Remove quotes put in there by the lib :(
-                                        } else {
-                                            &_text
-                                        };
+                // Create Progress bar dialog
+                let total_bytes = msg.meta.as_ref().unwrap().total_bytes;
+                receive_state
+                    .imp()
+                    .eta
+                    .borrow_mut()
+                    .prepare_for_new_transfer(Some(total_bytes as usize));
+                if msg.get_text_data().is_some() {
+                    progress_stack.set_visible_child_name("progress_text");
+                }
+            }
+            State::ReceivingFiles => {
+                if msg.get_text_data().is_none() {
+                    let eta_text = {
+                        if let Some(meta) = &msg.meta {
+                            receive_state
+                                .imp()
+                                .eta
+                                .borrow_mut()
+                                .step_with(meta.ack_bytes as usize);
 
-                                        let text_type_str = match text_type {
-                                            TextPayloadType::Url => gettext("Link"),
-                                            TextPayloadType::Text => gettext("Text"),
-                                            TextPayloadType::Wifi => gettext("Wi-Fi"),
-                                        };
-                                        imp.obj().set_title(&text_type_str);
-                                        imp.text_view_frame.set_visible(true);
-                                        imp.text_view.set_buffer(Some(
-                                            &gtk::TextBuffer::builder().text(text).build(),
-                                        ));
-
-                                        if text_type.clone() as u32 == TextPayloadType::Wifi as u32
-                                        {
-                                            imp.caption_label.set_visible(true);
-                                            imp.caption_label
-                                                .set_label(&gettext("Not implemented yet :("));
-                                        }
-                                    }
-                                };
-
-                                break;
+                            if meta.total_bytes > 0 {
+                                progress_bar
+                                    .set_fraction(meta.ack_bytes as f64 / meta.total_bytes as f64);
                             }
                         }
-                    }
+
+                        formatx!(
+                            gettext("About {} left"),
+                            receive_state.imp().eta.borrow().get_estimate_string()
+                        )
+                        .unwrap()
+                    };
+                    eta_label.set_label(&eta_text);
                 }
             }
-        ));
+            State::SendingFiles => {}
+            State::Disconnected => {
+                // FIXME: Show toast for failure states
+                if msg.id == init_id {
+                    progress_dialog.set_can_close(true);
+                    progress_dialog.close();
+                    // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
+                    // reject request and show this error, it's usually because the sender
+                    // disconnected from the network
+                }
+            }
+            State::Rejected => {
+                progress_dialog.set_can_close(true);
+                progress_dialog.close();
+            }
+            State::Cancelled => {
+                progress_dialog.set_can_close(true);
+                progress_dialog.close();
+            }
+            State::Finished => {
+                progress_dialog.set_can_close(true);
+                progress_dialog.close();
 
-        win.imp()
-            .looping_async_tasks
-            .borrow_mut()
-            .push(LoopingTaskHandle::Glib(handle));
-    }
+                // FIXME: show toast for received files (with button to open downloads folder)
+
+                if let Some(text_data) = msg.get_text_data() {
+                    let text_type = text_data.kind.unwrap();
+
+                    let dialog = adw::Dialog::builder()
+                        .content_width(400)
+                        .content_height(200)
+                        .title(display_text_type(&text_type))
+                        .build();
+
+                    let toolbar_view = adw::ToolbarView::builder()
+                        .top_bar_style(adw::ToolbarStyle::Flat)
+                        .build();
+                    dialog.set_child(Some(&toolbar_view));
+
+                    let header_bar = adw::HeaderBar::builder().build();
+                    toolbar_view.add_top_bar(&header_bar);
+
+                    let copy_text_button = gtk::Button::builder()
+                        .valign(gtk::Align::Center)
+                        .hexpand(true)
+                        .icon_name("edit-copy-symbolic")
+                        .tooltip_text(&gettext("Copy to clipboard"))
+                        .css_classes(["circular", "flat"])
+                        .build();
+                    let save_text_button = gtk::Button::builder()
+                        .visible(false)
+                        .valign(gtk::Align::Center)
+                        .hexpand(true)
+                        .icon_name("document-save-symbolic")
+                        .tooltip_text(&gettext("Save text as file"))
+                        .css_classes(["circular", "flat"])
+                        .build();
+                    header_bar.pack_start(&copy_text_button);
+                    header_bar.pack_start(&save_text_button);
+
+                    let clamp = adw::Clamp::builder()
+                        .maximum_size(550)
+                        .hexpand(true)
+                        .vexpand(true)
+                        .build();
+                    toolbar_view.set_content(Some(&clamp));
+
+                    let root_box = gtk::Box::builder()
+                        .orientation(gtk::Orientation::Vertical)
+                        .hexpand(true)
+                        .margin_top(6)
+                        .margin_bottom(18)
+                        .margin_start(18)
+                        .margin_end(18)
+                        .spacing(18)
+                        .build();
+                    clamp.set_child(Some(&root_box));
+
+                    let caption_label = gtk::Label::builder()
+                        .use_markup(true)
+                        .wrap(true)
+                        .visible(false)
+                        .build();
+                    root_box.append(&caption_label);
+
+                    let text_view = gtk::TextView::builder()
+                        .top_margin(12)
+                        .bottom_margin(12)
+                        .left_margin(12)
+                        .right_margin(12)
+                        .editable(false)
+                        .cursor_visible(false)
+                        .monospace(true)
+                        .wrap_mode(gtk::WrapMode::Word)
+                        .build();
+
+                    let text_view_frame = gtk::Frame::builder()
+                        .vexpand(true)
+                        .child(
+                            &gtk::ScrolledWindow::builder()
+                                .vexpand(true)
+                                .child(&text_view)
+                                .build(),
+                        )
+                        .build();
+                    root_box.append(&text_view_frame);
+
+                    let open_uri_button = gtk::Button::builder()
+                        .halign(gtk::Align::Center)
+                        .valign(gtk::Align::Center)
+                        .height_request(50)
+                        .label(&gettext("Open"))
+                        .css_classes(["pill", "suggested-action"])
+                        .build();
+                    root_box.append(&open_uri_button);
+                    if text_type.clone() as u32 == TextPayloadType::Url as u32 {
+                        open_uri_button.set_visible(true);
+                    } else {
+                        open_uri_button.set_visible(false);
+                    }
+
+                    let clipboard = win.clipboard();
+                    copy_text_button.connect_clicked(clone!(
+                        #[weak]
+                        text_view,
+                        #[strong]
+                        clipboard,
+                        move |_| {
+                            let text = text_view.buffer().text(
+                                &text_view.buffer().start_iter(),
+                                &text_view.buffer().end_iter(),
+                                false,
+                            );
+                            clipboard.set_text(&text);
+                        }
+                    ));
+
+                    open_uri_button.connect_clicked(clone!(
+                        #[weak]
+                        win,
+                        #[weak]
+                        text_view,
+                        move |_| {
+                            let url = text_view.buffer().text(
+                                &text_view.buffer().start_iter(),
+                                &text_view.buffer().end_iter(),
+                                false,
+                            );
+
+                            gtk::UriLauncher::new(&url).launch(
+                                win.root().and_downcast_ref::<adw::ApplicationWindow>(),
+                                None::<gio::Cancellable>.as_ref(),
+                                |_err| {},
+                            );
+                        }
+                    ));
+
+                    // FIXME: Can't handle WiFi shares yet
+                    // TextPayloadInfo not exposed by the library
+                    let text_type = msg.get_text_data().unwrap().kind.unwrap();
+
+                    let _text = msg.get_text_data().unwrap().text;
+                    let text = if text_type.clone() as u32 == TextPayloadType::Text as u32 {
+                        save_text_button.set_visible(true);
+                        let text = _text.trim();
+                        &text[1..text.len() - 1] // Remove quotes put in there by the lib :(
+                    } else {
+                        &_text
+                    };
+                    text_view.set_buffer(Some(&gtk::TextBuffer::builder().text(text).build()));
+
+                    if text_type.clone() as u32 == TextPayloadType::Wifi as u32 {
+                        caption_label.set_visible(true);
+                        caption_label.set_label(&gettext("Unimplemented"));
+                    }
+
+                    dialog.present(Some(&win));
+                }
+            }
+        }
+    });
+    receive_state.notify_event();
 }
