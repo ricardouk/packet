@@ -1,7 +1,4 @@
-use std::{
-    cell::{Cell, RefCell},
-    rc::Rc,
-};
+use std::{cell::Cell, rc::Rc};
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
@@ -342,7 +339,6 @@ pub fn present_share_request_ui(
             }
             State::SendingFiles => {}
             State::Disconnected => {
-                // FIXME: Show toast for failure states
                 if msg.id == init_id {
                     progress_dialog.set_can_close(true);
                     if is_request_accepted.get() {
@@ -350,6 +346,14 @@ pub fn present_share_request_ui(
                     } else {
                         consent_dialog.close();
                     }
+
+                    win.imp().toast_overlay.add_toast(
+                        adw::Toast::builder()
+                            .title(gettext("Unexpected dissconnection"))
+                            .priority(adw::ToastPriority::High)
+                            .build(),
+                    );
+
                     // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
                     // reject request and show this error, it's usually because the sender
                     // disconnected from the network
@@ -363,6 +367,13 @@ pub fn present_share_request_ui(
                 } else {
                     consent_dialog.close();
                 }
+
+                win.imp().toast_overlay.add_toast(
+                    adw::Toast::builder()
+                        .title(gettext("Transfer cancelled by sender"))
+                        .priority(adw::ToastPriority::High)
+                        .build(),
+                );
             }
             State::Finished => {
                 progress_dialog.set_can_close(true);
