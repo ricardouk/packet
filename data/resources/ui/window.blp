@@ -89,16 +89,12 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
                                             hexpand: true;
                                             icon-name: "network-transmit-receive-symbolic";
                                             title: _("Packet");
-                                            description: _("Drag, add, or paste a file to begin");
+                                            description: _("Add, or drop a file to send");
 
                                             child: Button main_add_files_button {
+                                                label: _("Add Files");
                                                 margin-top: 24;
                                                 halign: center;
-
-                                                Adw.ButtonContent {
-                                                    label: _("Add Files");
-                                                    icon-name: "list-add-symbolic";
-                                                }
 
                                                 styles [
                                                     "pill",
