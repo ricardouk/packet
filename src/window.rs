@@ -22,7 +22,12 @@ pub enum LoopingTaskHandle {
 // FIXME: Bundle all icons used in the app except the Adwaita mime-type icons for consistency on different platforms
 
 mod imp {
-    use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
+    use std::{
+        cell::{Cell, RefCell},
+        collections::HashMap,
+        rc::Rc,
+        sync::Arc,
+    };
 
     use tokio::sync::Mutex;
 
@@ -99,7 +104,7 @@ mod imp {
         pub ble_receiver: Arc<Mutex<Option<tokio::sync::broadcast::Receiver<()>>>>,
         pub mdns_discovery_broadcast_tx:
             Arc<Mutex<Option<tokio::sync::broadcast::Sender<rqs_lib::EndpointInfo>>>>,
-        pub is_mdns_discovery_on: Rc<RefCell<bool>>,
+        pub is_mdns_discovery_on: Rc<Cell<bool>>,
 
         pub looping_async_tasks: RefCell<Vec<LoopingTaskHandle>>,
     }
@@ -655,7 +660,7 @@ impl QuickShareApplicationWindow {
     fn start_mdns_discovery(&self, force: Option<()>) {
         let imp = self.imp();
 
-        if !*imp.is_mdns_discovery_on.borrow() || force.is_some() {
+        if !imp.is_mdns_discovery_on.get() || force.is_some() {
             tokio_runtime().spawn(clone!(
                 #[weak(rename_to = mdns_discovery_broadcast_tx)]
                 imp.mdns_discovery_broadcast_tx,
@@ -679,14 +684,14 @@ impl QuickShareApplicationWindow {
                 }
             ));
 
-            *imp.is_mdns_discovery_on.borrow_mut() = true;
+            imp.is_mdns_discovery_on.replace(true);
         }
     }
 
     fn stop_mdns_discovery(&self) {
         let imp = self.imp();
 
-        if *imp.is_mdns_discovery_on.borrow() {
+        if imp.is_mdns_discovery_on.get() {
             tokio_runtime().spawn(clone!(
                 #[weak(rename_to = rqs)]
                 imp.rqs,
@@ -695,7 +700,7 @@ impl QuickShareApplicationWindow {
                 }
             ));
 
-            *imp.is_mdns_discovery_on.borrow_mut() = false;
+            imp.is_mdns_discovery_on.replace(false);
         }
     }
 
@@ -769,7 +774,7 @@ impl QuickShareApplicationWindow {
 
                     // Restart mDNS discovery if it was on before the RQS service restart
                     imp.obj()
-                        .start_mdns_discovery(imp.is_mdns_discovery_on.borrow().then_some(()));
+                        .start_mdns_discovery(imp.is_mdns_discovery_on.get().then_some(()));
 
                     tracing::debug!("RQS service has been reset");
 
