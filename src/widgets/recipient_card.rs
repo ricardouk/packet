@@ -7,7 +7,7 @@ use crate::{
         TransferState,
     },
     tokio_runtime,
-    window::QuickShareApplicationWindow,
+    window::PacketApplicationWindow,
 };
 
 use adw::prelude::*;
@@ -58,7 +58,7 @@ where
 }
 
 pub fn handle_recipient_card_clicked(
-    win: &QuickShareApplicationWindow,
+    win: &PacketApplicationWindow,
     list_box: &gtk::ListBox,
     row: &gtk::ListBoxRow,
 ) {
@@ -74,7 +74,7 @@ pub fn handle_recipient_card_clicked(
     row.set_activatable(false);
 }
 
-fn emit_send_files(win: &QuickShareApplicationWindow, model_item: &DataTransferObject) {
+fn emit_send_files(win: &PacketApplicationWindow, model_item: &DataTransferObject) {
     let imp = win.imp();
 
     let endpoint_info = model_item.endpoint_info();
@@ -124,7 +124,7 @@ fn emit_send_files(win: &QuickShareApplicationWindow, model_item: &DataTransferO
 }
 
 pub fn create_recipient_card(
-    win: &QuickShareApplicationWindow,
+    win: &PacketApplicationWindow,
     _model: &gio::ListStore,
     model_item: &DataTransferObject,
     init_model_state: Option<()>,

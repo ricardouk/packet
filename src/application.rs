@@ -6,7 +6,7 @@ use adw::subclass::prelude::*;
 use gtk::{gdk, gio, glib};
 
 use crate::config::{APP_ID, PKGDATADIR, PROFILE, VERSION};
-use crate::window::QuickShareApplicationWindow;
+use crate::window::PacketApplicationWindow;
 
 mod imp {
     use super::*;
@@ -14,22 +14,22 @@ mod imp {
     use std::cell::OnceCell;
 
     #[derive(Debug, Default)]
-    pub struct QuickShareApplication {
-        pub window: OnceCell<WeakRef<QuickShareApplicationWindow>>,
+    pub struct PacketApplication {
+        pub window: OnceCell<WeakRef<PacketApplicationWindow>>,
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for QuickShareApplication {
-        const NAME: &'static str = "QuickShareApplication";
-        type Type = super::QuickShareApplication;
+    impl ObjectSubclass for PacketApplication {
+        const NAME: &'static str = "PacketApplication";
+        type Type = super::PacketApplication;
         type ParentType = adw::Application;
     }
 
-    impl ObjectImpl for QuickShareApplication {}
+    impl ObjectImpl for PacketApplication {}
 
-    impl ApplicationImpl for QuickShareApplication {
+    impl ApplicationImpl for PacketApplication {
         fn activate(&self) {
-            debug!("GtkApplication<QuickShareApplication>::activate");
+            debug!("GtkApplication<PacketApplication>::activate");
             self.parent_activate();
             let app = self.obj();
 
@@ -39,7 +39,7 @@ mod imp {
                 return;
             }
 
-            let window = QuickShareApplicationWindow::new(&app);
+            let window = PacketApplicationWindow::new(&app);
             self.window
                 .set(window.downgrade())
                 .expect("Window already set.");
@@ -48,7 +48,7 @@ mod imp {
         }
 
         fn startup(&self) {
-            debug!("GtkApplication<QuickShareApplication>::startup");
+            debug!("GtkApplication<PacketApplication>::startup");
             self.parent_startup();
             let app = self.obj();
 
@@ -61,18 +61,18 @@ mod imp {
         }
     }
 
-    impl GtkApplicationImpl for QuickShareApplication {}
-    impl AdwApplicationImpl for QuickShareApplication {}
+    impl GtkApplicationImpl for PacketApplication {}
+    impl AdwApplicationImpl for PacketApplication {}
 }
 
 glib::wrapper! {
-    pub struct QuickShareApplication(ObjectSubclass<imp::QuickShareApplication>)
+    pub struct PacketApplication(ObjectSubclass<imp::PacketApplication>)
         @extends gio::Application, gtk::Application, adw::Application,
         @implements gio::ActionMap, gio::ActionGroup;
 }
 
-impl QuickShareApplication {
-    fn main_window(&self) -> QuickShareApplicationWindow {
+impl PacketApplication {
+    fn main_window(&self) -> PacketApplicationWindow {
         self.imp().window.get().unwrap().upgrade().unwrap()
     }
 
@@ -104,7 +104,7 @@ impl QuickShareApplication {
 
     fn setup_css(&self) {
         let provider = gtk::CssProvider::new();
-        provider.load_from_resource("/io/github/nozwock/QuickShare/style.css");
+        provider.load_from_resource("/io/github/nozwock/Packet/style.css");
         if let Some(display) = gdk::Display::default() {
             gtk::style_context_add_provider_for_display(
                 &display,
@@ -133,8 +133,8 @@ impl QuickShareApplication {
             .developers(["nozwock https://github.com/nozwock"])
             .designers(["Dominik Baran https://gitlab.gnome.org/wallaby"])
             .license_type(gtk::License::Gpl30)
-            .issue_url("https://github.com/nozwock/quickshare-gtk/issues")
-            .website("https://github.com/nozwock/quickshare-gtk")
+            .issue_url("https://github.com/nozwock/packet/issues")
+            .website("https://github.com/nozwock/packet")
             .translator_credits(gettext("translator-credits"))
             .build();
 
@@ -153,11 +153,11 @@ impl QuickShareApplication {
     }
 }
 
-impl Default for QuickShareApplication {
+impl Default for PacketApplication {
     fn default() -> Self {
         glib::Object::builder()
             .property("application-id", APP_ID)
-            .property("resource-base-path", "/io/github/nozwock/QuickShare/")
+            .property("resource-base-path", "/io/github/nozwock/Packet/")
             .build()
     }
 }

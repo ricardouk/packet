@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/io/github/nozwock/QuickShare/">
+  <gresource prefix="/io/github/nozwock/Packet/">
     <!-- see https://gtk-rs.org/gtk4-rs/git/docs/gtk4/struct.Application.html#automatic-resources -->
     <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">ui/shortcuts.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/window.ui</file>
     <file compressed="true">style.css</file>
   </gresource>
 
-  <gresource prefix="/io/github/nozwock/QuickShare/icons/scalable/actions/">
+  <gresource prefix="/io/github/nozwock/Packet/icons/scalable/actions/">
     <file preprocess="xml-stripblanks" alias="vertical-arrows-long-down-symbolic.svg">../icons/actions/vertical-arrows-long-down-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="vertical-arrows-long-up-symbolic.svg">../icons/actions/vertical-arrows-long-up-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="cross-large-symbolic.svg">../icons/actions/cross-large-symbolic.svg</file>

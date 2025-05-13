@@ -7,7 +7,7 @@ use gettextrs::{gettext, ngettext};
 use gtk::glib::clone;
 use gtk::{gdk, gio, glib};
 
-use crate::application::QuickShareApplication;
+use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
 use crate::objects::data_transfer::{self, DataTransferObject, TransferKind};
 use crate::objects::{self, TransferState};
@@ -34,8 +34,8 @@ mod imp {
     use super::*;
 
     #[derive(Debug, gtk::CompositeTemplate, better_default::Default)]
-    #[template(resource = "/io/github/nozwock/QuickShare/ui/window.ui")]
-    pub struct QuickShareApplicationWindow {
+    #[template(resource = "/io/github/nozwock/Packet/ui/window.ui")]
+    pub struct PacketApplicationWindow {
         #[default(gio::Settings::new(APP_ID))]
         pub settings: gio::Settings,
 
@@ -108,9 +108,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for QuickShareApplicationWindow {
-        const NAME: &'static str = "QuickShareApplicationWindow";
-        type Type = super::QuickShareApplicationWindow;
+    impl ObjectSubclass for PacketApplicationWindow {
+        const NAME: &'static str = "PacketApplicationWindow";
+        type Type = super::PacketApplicationWindow;
         type ParentType = adw::ApplicationWindow;
 
         fn class_init(klass: &mut Self::Class) {
@@ -123,7 +123,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for QuickShareApplicationWindow {
+    impl ObjectImpl for PacketApplicationWindow {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
@@ -143,8 +143,8 @@ mod imp {
         }
     }
 
-    impl WidgetImpl for QuickShareApplicationWindow {}
-    impl WindowImpl for QuickShareApplicationWindow {
+    impl WidgetImpl for PacketApplicationWindow {}
+    impl WindowImpl for PacketApplicationWindow {
         // Save window state on delete event
         fn close_request(&self) -> glib::Propagation {
             if let Err(err) = self.obj().save_window_size() {
@@ -189,18 +189,18 @@ mod imp {
         }
     }
 
-    impl ApplicationWindowImpl for QuickShareApplicationWindow {}
-    impl AdwApplicationWindowImpl for QuickShareApplicationWindow {}
+    impl ApplicationWindowImpl for PacketApplicationWindow {}
+    impl AdwApplicationWindowImpl for PacketApplicationWindow {}
 }
 
 glib::wrapper! {
-    pub struct QuickShareApplicationWindow(ObjectSubclass<imp::QuickShareApplicationWindow>)
+    pub struct PacketApplicationWindow(ObjectSubclass<imp::PacketApplicationWindow>)
         @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, adw::ApplicationWindow,
         @implements gio::ActionMap, gio::ActionGroup, gtk::Root;
 }
 
-impl QuickShareApplicationWindow {
-    pub fn new(app: &QuickShareApplication) -> Self {
+impl PacketApplicationWindow {
+    pub fn new(app: &PacketApplication) -> Self {
         glib::Object::builder().property("application", app).build()
     }
 
@@ -530,10 +530,7 @@ impl QuickShareApplicationWindow {
             }
         ));
 
-        fn visibility_toggle_ui_update(
-            obj: &adw::SwitchRow,
-            imp: &imp::QuickShareApplicationWindow,
-        ) {
+        fn visibility_toggle_ui_update(obj: &adw::SwitchRow, imp: &imp::PacketApplicationWindow) {
             if obj.is_active() {
                 imp.bottom_bar_title.set_label(&gettext("Ready"));
                 imp.bottom_bar_title.add_css_class("accent");
@@ -579,7 +576,7 @@ impl QuickShareApplicationWindow {
         ));
     }
 
-    fn handle_added_files_to_send(imp: &imp::QuickShareApplicationWindow, files: Vec<gio::File>) {
+    fn handle_added_files_to_send(imp: &imp::PacketApplicationWindow, files: Vec<gio::File>) {
         if files.len() == 0 {
             // FIXME: Show toast about not being able to access files
         } else {
@@ -622,9 +619,9 @@ impl QuickShareApplicationWindow {
                             files_vec.push(file);
                         }
 
-                        QuickShareApplicationWindow::handle_added_files_to_send(
+                        PacketApplicationWindow::handle_added_files_to_send(
                             &imp,
-                            QuickShareApplicationWindow::filter_added_files(
+                            PacketApplicationWindow::filter_added_files(
                                 &imp.manage_files_model,
                                 files_vec,
                             ),
@@ -847,7 +844,7 @@ impl QuickShareApplicationWindow {
             }
         ));
 
-        fn spawn_rqs_receiver_tasks(imp: &imp::QuickShareApplicationWindow) {
+        fn spawn_rqs_receiver_tasks(imp: &imp::PacketApplicationWindow) {
             let (tx, rx) = async_channel::bounded(1);
             let handle = tokio_runtime().spawn(clone!(
                 #[weak(rename_to = rqs)]
@@ -951,7 +948,7 @@ impl QuickShareApplicationWindow {
                                         // leaving the card in Sending Files state
                                         // Take a look at what the hell is happening with rqs_lib
                                         // rqs_lib::manager: TcpServer: error while handling client:
-                                        // quickshare_gtk::window: Received on UI thread, Disconnected message
+                                        // packet::window: Received on UI thread, Disconnected message
                                         // with None rtype (to differentiate Outbound/Inbound)
 
                                         // As a bandit fix, assume this message is both

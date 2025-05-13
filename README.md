@@ -1,4 +1,4 @@
-# <img src="data/icons/io.github.nozwock.QuickShare.svg" width="64" /> Packet
+# <img src="data/icons/io.github.nozwock.Packet.svg" width="64" /> Packet
 
 A reimplementation of the proprietary Google Quick Share protocol to send and receive files to Android devices or another instance of Packet.
 
@@ -12,12 +12,12 @@ Packet is available as a flatpak.
 <!-- FIXME Uncomment once published at Flathub -->
 <!-- #### Flathub -->
 <!-- Packet is available on Flathub! -->
-<!-- <a href="https://flathub.org/apps/details/io.github.nozwock.QuickShare"> -->
+<!-- <a href="https://flathub.org/apps/details/io.github.nozwock.Packet"> -->
 <!-- <img src="https://flathub.org/api/badge?svg&locale=en&light" width="190px" /> -->
 <!-- </a> -->
 
 #### Nightly
-Nightly flatpak builds are available from [here](https://nightly.link/nozwock/quickshare-gtk/workflows/ci/main?preview).
+Nightly flatpak builds are available from [here](https://nightly.link/nozwock/packet/workflows/ci/main?preview).
 
 <!-- FIXME Uncomment once pot/po files are in-place and tested -->
 <!-- ## Translations -->

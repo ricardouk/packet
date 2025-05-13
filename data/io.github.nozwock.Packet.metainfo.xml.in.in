@@ -11,15 +11,15 @@
   </description>
   <screenshots>
     <screenshot type="default">
-      <image>https://github.com/nozwock/quickshare-gtk/blob/main/data/resources/screenshots/receive-page.png?raw=true</image>
+      <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/receive-page.png?raw=true</image>
       <caption>Main window</caption>
     </screenshot>
   </screenshots>
-  <url type="homepage">https://github.com/nozwock/quickshare-gtk</url>
-  <url type="bugtracker">https://github.com/nozwock/quickshare-gtk/issues</url>
-  <url type="vcs-browser">https://github.com/nozwock/quickshare-gtk</url>
+  <url type="homepage">https://github.com/nozwock/packet</url>
+  <url type="bugtracker">https://github.com/nozwock/packet/issues</url>
+  <url type="vcs-browser">https://github.com/nozwock/packet</url>
   <!-- Translation repository -->
-  <url type="translate">https://github.com/nozwock/quickshare-gtk/tree/main/po</url>
+  <url type="translate">https://github.com/nozwock/packet/tree/main/po</url>
   <!-- Open Age Ratings Service:
        https://hughsie.github.io/oars/generate.html
   -->

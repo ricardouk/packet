@@ -5,13 +5,13 @@
          xmlns:gnome="http://api.gnome.org/doap-extensions#"
          xmlns="http://usefulinc.com/ns/doap#">
 
-  <name xml:lang="en">QuickShare</name>
+  <name xml:lang="en">Packet</name>
   <!-- FIXME Set the project summary -->
   <shortdesc xml:lang="en">
     Write a GTK + Rust application
   </shortdesc>
   <!-- FIXME Set the project git url -->
-  <bug-database rdf:resource="https://gitlab.gnome.org/bilelmoussaoui/quickshare-gtk/" />
+  <bug-database rdf:resource="https://gitlab.gnome.org/bilelmoussaoui/packet/" />
 
   <category rdf:resource="http://api.gnome.org/doap-extensions#apps" />
   <programming-language>Rust</programming-language>

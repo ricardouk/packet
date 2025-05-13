@@ -4,7 +4,7 @@ use formatx::formatx;
 use gettextrs::{gettext, ngettext};
 use gtk::{gio, glib, glib::clone};
 
-use crate::window::QuickShareApplicationWindow;
+use crate::window::PacketApplicationWindow;
 
 // Are we supposed to use them like this? Questionable...
 pub const ADWAITA_MIMETYPE_ICON_NAMES: [&str; 27] = [
@@ -71,7 +71,7 @@ pub fn get_mimetype_icon_name(file: &gio::File, symbolic: bool) -> Option<String
 }
 
 pub fn create_file_card(
-    win: &QuickShareApplicationWindow,
+    win: &PacketApplicationWindow,
     model: &gio::ListStore,
     model_item: &gio::File,
 ) -> adw::Bin {

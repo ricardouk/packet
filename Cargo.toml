@@ -1,5 +1,5 @@
 [package]
-name = "quickshare-gtk"
+name = "packet"
 authors = ["nozwock"]
 edition = "2021"
 

@@ -6,5 +6,5 @@ option(
     'development'
   ],
   value: 'default',
-  description: 'The build profile for Drop. One of "default" or "development".',
+  description: 'The build profile for Packet. One of "default" or "development".',
 )

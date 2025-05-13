@@ -1675,6 +1675,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "packet"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "async-channel",
+ "better_default",
+ "directories",
+ "formatx",
+ "fs-err",
+ "gettext-rs",
+ "gtk4",
+ "human_bytes",
+ "libadwaita",
+ "rqs_lib",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "whoami",
+]
+
+[[package]]
 name = "pango"
 version = "0.20.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1896,27 +1917,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "52c2c1bf36ddb1a1c396b3601a3cec27c2462e45f07c386894ec3ccf5332bd16"
 dependencies = [
  "prost",
-]
-
-[[package]]
-name = "quickshare-gtk"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "async-channel",
- "better_default",
- "directories",
- "formatx",
- "fs-err",
- "gettext-rs",
- "gtk4",
- "human_bytes",
- "libadwaita",
- "rqs_lib",
- "tokio",
- "tracing",
- "tracing-subscriber",
- "whoami",
 ]
 
 [[package]]

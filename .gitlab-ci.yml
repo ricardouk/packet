@@ -11,14 +11,14 @@ include:
   - component: "gitlab.gnome.org/GNOME/citemplates/basic-release@25.1"
 
 variables:
-  BUNDLE: "quickshare-gtk-nightly.flatpak"
-  MANIFEST_PATH: "build-aux/io.github.nozwock.QuickShare.Devel.json"
-  FLATPAK_MODULE: "quickshare-gtk"
-  APP_ID: "io.github.nozwock.QuickShare.Devel"
+  BUNDLE: "packet-nightly.flatpak"
+  MANIFEST_PATH: "build-aux/io.github.nozwock.Packet.Devel.json"
+  FLATPAK_MODULE: "packet"
+  APP_ID: "io.github.nozwock.Packet.Devel"
   RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
 
 flatpak:
-  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-47'
+  image: "quay.io/gnome_infrastructure/gnome-runtime-images:gnome-47"
   extends: ".flatpak@x86_64"
 
 # Configure and run rustfmt
@@ -36,7 +36,7 @@ rustfmt:
     - cargo fmt --all -- --color=always --check
 
 .flatpak-command: &flatpak-command
-  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-47'
+  image: "quay.io/gnome_infrastructure/gnome-runtime-images:gnome-47"
   tags:
     - flatpak
   script:
