@@ -1,3 +1,8 @@
+use std::{
+    cell::{Cell, RefCell},
+    rc::Rc,
+};
+
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use formatx::formatx;
@@ -130,6 +135,12 @@ pub fn present_share_request_ui(
         device_name_box
     }
 
+    let consent_dialog = adw::AlertDialog::builder()
+        .heading(&gettext("Incoming Transfer"))
+        .width_request(200)
+        .build();
+
+    let is_request_accepted = Rc::new(Cell::new(false));
     receive_state.connect_event_notify(move |receive_state| {
         use rqs_lib::State;
 
@@ -148,26 +159,24 @@ pub fn present_share_request_ui(
             State::SentIntroduction => {}
             State::ReceivedPairedKeyResult => {}
             State::WaitingForUserConsent => {
-                let dialog = adw::AlertDialog::builder()
-                    .heading(&gettext("Incoming Transfer"))
-                    .width_request(200)
-                    .build();
-                dialog.add_responses(&[
+                consent_dialog.add_responses(&[
                     ("decline", &gettext("Decline")),
                     ("accept", &gettext("Accept")),
                 ]);
-                dialog.set_response_appearance("decline", adw::ResponseAppearance::Destructive);
-                dialog.set_response_appearance("accept", adw::ResponseAppearance::Suggested);
+                consent_dialog
+                    .set_response_appearance("decline", adw::ResponseAppearance::Destructive);
+                consent_dialog
+                    .set_response_appearance("accept", adw::ResponseAppearance::Suggested);
 
-                dialog.set_default_response(Some("decline"));
-                dialog.set_close_response("decline");
+                consent_dialog.set_default_response(Some("decline"));
+                consent_dialog.set_close_response("decline");
 
                 let info_box = gtk::Box::builder()
                     .orientation(gtk::Orientation::Vertical)
                     .halign(gtk::Align::Center)
                     .spacing(8)
                     .build();
-                dialog.set_extra_child(Some(&info_box));
+                consent_dialog.set_extra_child(Some(&info_box));
 
                 let device_name = msg.get_device_name();
 
@@ -237,7 +246,7 @@ pub fn present_share_request_ui(
                     .build();
                 info_box.append(&pincode_label);
 
-                dialog.connect_response(
+                consent_dialog.connect_response(
                     None,
                     clone!(
                         #[weak]
@@ -246,6 +255,8 @@ pub fn present_share_request_ui(
                         receive_state,
                         #[weak]
                         progress_dialog,
+                        #[weak]
+                        is_request_accepted,
                         move |_, response_id| {
                             match response_id {
                                 "accept" => {
@@ -266,6 +277,7 @@ pub fn present_share_request_ui(
 
                                     // Spawn progress dialog
                                     progress_dialog.present(Some(&win));
+                                    is_request_accepted.replace(true);
                                 }
                                 "decline" => {
                                     win.imp()
@@ -291,7 +303,7 @@ pub fn present_share_request_ui(
                     ),
                 );
 
-                dialog.present(Some(&win));
+                consent_dialog.present(Some(&win));
 
                 // TODO: show a progress dialog for both but with a delay?
 
@@ -336,23 +348,32 @@ pub fn present_share_request_ui(
                 // FIXME: Show toast for failure states
                 if msg.id == init_id {
                     progress_dialog.set_can_close(true);
-                    progress_dialog.close();
+                    if is_request_accepted.get() {
+                        progress_dialog.close();
+                    } else {
+                        consent_dialog.close();
+                    }
                     // FIXME: If ReceivingFiles is not received within 5~10 seconds of an Accept,
                     // reject request and show this error, it's usually because the sender
                     // disconnected from the network
                 }
             }
-            State::Rejected => {
-                progress_dialog.set_can_close(true);
-                progress_dialog.close();
-            }
+            State::Rejected => {}
             State::Cancelled => {
                 progress_dialog.set_can_close(true);
-                progress_dialog.close();
+                if is_request_accepted.get() {
+                    progress_dialog.close();
+                } else {
+                    consent_dialog.close();
+                }
             }
             State::Finished => {
                 progress_dialog.set_can_close(true);
-                progress_dialog.close();
+                if is_request_accepted.get() {
+                    progress_dialog.close();
+                } else {
+                    consent_dialog.close();
+                }
 
                 // FIXME: show toast for received files (with button to open downloads folder)
 
