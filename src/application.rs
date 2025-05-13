@@ -114,6 +114,7 @@ impl QuickShareApplication {
         }
     }
 
+    #[allow(dead_code)]
     fn authors() -> Vec<&'static str> {
         // Authors are defined in Cargo.toml
         env!("CARGO_PKG_AUTHORS").split(":").collect()
@@ -129,7 +130,8 @@ impl QuickShareApplication {
             .version(VERSION)
             .developer_name("nozwock")
             // format: "Name https://example.com" or "Name <email@example.com>"
-            .developers(Self::authors())
+            .developers(["nozwock https://github.com/nozwock"])
+            .designers(["Dominik Baran https://gitlab.gnome.org/wallaby"])
             .license_type(gtk::License::Gpl30)
             .issue_url("https://github.com/nozwock/quickshare-gtk/issues")
             .website("https://github.com/nozwock/quickshare-gtk")
