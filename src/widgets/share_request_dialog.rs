@@ -372,8 +372,6 @@ pub fn present_share_request_ui(
                     consent_dialog.close();
                 }
 
-                // FIXME: show toast for received files (with button to open downloads folder)
-
                 if let Some(text_data) = msg.get_text_data() {
                     let text_type = text_data.kind.unwrap();
 
@@ -526,6 +524,26 @@ pub fn present_share_request_ui(
                     }
 
                     dialog.present(Some(&win));
+                } else {
+                    // Received Files
+                    let file_count = msg.get_filenames().unwrap().len();
+                    let toast = adw::Toast::builder()
+                        .title(
+                            &formatx!(
+                                ngettext(
+                                    "{} file received",
+                                    "{} files received",
+                                    file_count as u32
+                                ),
+                                file_count
+                            )
+                            .unwrap(),
+                        )
+                        .button_label(&gettext("Open"))
+                        .action_name("win.received-files")
+                        .priority(adw::ToastPriority::High)
+                        .build();
+                    win.imp().toast_overlay.add_toast(toast);
                 }
             }
         }

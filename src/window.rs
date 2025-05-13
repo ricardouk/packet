@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use formatx::formatx;
@@ -35,7 +37,9 @@ mod imp {
         #[template_child]
         pub root_stack: TemplateChild<gtk::Stack>,
 
-        // ---
+        #[template_child]
+        pub toast_overlay: TemplateChild<adw::ToastOverlay>,
+
         #[template_child]
         pub main_nav_view: TemplateChild<adw::NavigationView>,
 
@@ -235,9 +239,40 @@ impl QuickShareApplicationWindow {
         Ok(())
     }
 
-    fn load_app_state(&self) {}
+    fn load_app_state(&self) {
+        let imp = self.imp();
+        if imp.settings.string("download-folder").is_empty() {
+            imp.settings
+                .set_string(
+                    "download-folder",
+                    directories::UserDirs::new()
+                        .unwrap()
+                        .download_dir()
+                        .unwrap()
+                        .to_str()
+                        .unwrap(),
+                )
+                .unwrap();
+        }
+    }
 
-    fn setup_gactions(&self) {}
+    fn setup_gactions(&self) {
+        let received_files = gio::ActionEntry::builder("received-files")
+            .activate(move |win: &Self, _, _| {
+                // Open current download folder
+                gtk::FileLauncher::new(Some(&gio::File::for_path(
+                    win.imp().settings.string("download-folder"),
+                )))
+                .launch(
+                    win.root().and_downcast::<adw::ApplicationWindow>().as_ref(),
+                    None::<&gio::Cancellable>,
+                    move |_| {},
+                )
+            })
+            .build();
+
+        self.add_action_entries([received_files]);
+    }
 
     fn get_device_name_state(&self) -> glib::GString {
         self.imp().settings.string("device-name")
@@ -760,13 +795,12 @@ impl QuickShareApplicationWindow {
 
         let is_device_visible = imp.settings.boolean("device-visibility");
         let device_name = self.get_device_name_state();
+        let download_path = imp
+            .settings
+            .string("download-folder")
+            .parse::<PathBuf>()
+            .unwrap();
         tokio_runtime().spawn(async move {
-            let download_path = directories::UserDirs::new()
-                .unwrap()
-                .download_dir()
-                .unwrap()
-                .to_path_buf();
-
             tracing::info!(?download_path, "Starting RQS service");
 
             // FIXME: Allow setting a const port number in app preferences and, download_path

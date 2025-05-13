@@ -21,5 +21,9 @@
       <default>true</default>
       <summary>Device visibility</summary>
     </key>
+    <key name="download-folder" type="s">
+      <default>""</default>
+      <summary>Download folder</summary>
+    </key>
   </schema>
 </schemalist>

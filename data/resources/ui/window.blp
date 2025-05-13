@@ -58,213 +58,221 @@ template $QuickShareApplicationWindow: Adw.ApplicationWindow {
             child: Adw.ToolbarView {
                 extend-content-to-top-edge: true;
 
-                Box main_box {
-                    orientation: vertical;
-                    hexpand: true;
-                    vexpand: true;
+                Adw.ToastOverlay toast_overlay {
+                    Box {
+                        orientation: vertical;
+                        hexpand: true;
+                        vexpand: true;
 
-                    Adw.NavigationView main_nav_view {
-                        Adw.NavigationPage {
-                            tag: "main_nav_page";
+                        Box main_box {
+                            orientation: vertical;
+                            hexpand: true;
+                            vexpand: true;
 
-                            child: Adw.ToolbarView {
-                                [top]
-                                Adw.HeaderBar {
-                                    [end]
-                                    MenuButton {
-                                        icon-name: "open-menu-symbolic";
-                                        menu-model: primary_menu;
-                                        primary: true;
-                                    }
-                                }
+                            Adw.NavigationView main_nav_view {
+                                Adw.NavigationPage {
+                                    tag: "main_nav_page";
 
-                                Adw.StatusPage main_nav_content {
-                                    vexpand: true;
-                                    hexpand: true;
-                                    icon-name: "network-transmit-receive-symbolic";
-                                    title: _("Packet");
-                                    description: _("Drag, add, or paste a file to begin");
-
-                                    child: Button main_add_files_button {
-                                        margin-top: 24;
-                                        halign: center;
-
-                                        Adw.ButtonContent {
-                                            label: _("Add Files");
-                                            icon-name: "list-add-symbolic";
-                                        }
-
-                                        styles [
-                                            "pill",
-                                            "suggested-action",
-                                            "accent",
-                                        ]
-                                    };
-                                }
-                            };
-                        }
-
-                        Adw.NavigationPage {
-                            tag: "manage_files_nav_page";
-
-                            child: Adw.ToolbarView {
-                                [top]
-                                Adw.HeaderBar {
-                                    [end]
-                                    MenuButton {
-                                        icon-name: "open-menu-symbolic";
-                                        menu-model: primary_menu;
-                                        primary: true;
-                                    }
-                                }
-
-                                Box manage_files_nav_content {
-                                    orientation: vertical;
-                                    hexpand: true;
-                                    vexpand: true;
-
-                                    ScrolledWindow {
-                                        hscrollbar-policy: never;
-                                        vexpand: true;
-                                        hexpand: true;
-
-                                        Adw.Clamp {
-                                            maximum-size: 550;
-
-                                            Box {
-                                                orientation: vertical;
-                                                spacing: 12;
-                                                margin-top: 24;
-                                                margin-bottom: 24;
-                                                margin-start: 24;
-                                                margin-end: 24;
-
-                                                Box {
-                                                    // Header bar
-                                                    orientation: horizontal;
-
-                                                    styles [
-                                                        "title-4",
-                                                    ]
-
-                                                    Label manage_files_count_label {
-                                                        // Internal
-                                                        label: "3 Files";
-                                                    }
-
-                                                    Adw.Bin {
-                                                        hexpand: true;
-                                                    }
-
-                                                    Button manage_files_add_files_button {
-                                                        Adw.ButtonContent {
-                                                            label: _("Add File");
-                                                            icon-name: "plus-symbolic";
-                                                        }
-
-                                                        styles [
-                                                            "flat",
-                                                        ]
-                                                    }
-                                                }
-
-                                                ListBox manage_files_listbox {
-                                                    selection-mode: none;
-
-                                                    styles [
-                                                        "boxed-list",
-                                                    ]
-                                                }
+                                    child: Adw.ToolbarView {
+                                        [top]
+                                        Adw.HeaderBar {
+                                            [end]
+                                            MenuButton {
+                                                icon-name: "open-menu-symbolic";
+                                                menu-model: primary_menu;
+                                                primary: true;
                                             }
                                         }
-                                    }
 
-                                    Button manage_files_send_button {
-                                        label: _("Send");
-                                        margin-top: 18;
-                                        margin-bottom: 6;
-                                        margin-start: 12;
-                                        margin-end: 12;
-                                        halign: center;
-                                        valign: center;
+                                        Adw.StatusPage main_nav_content {
+                                            vexpand: true;
+                                            hexpand: true;
+                                            icon-name: "network-transmit-receive-symbolic";
+                                            title: _("Packet");
+                                            description: _("Drag, add, or paste a file to begin");
 
-                                        styles [
-                                            "pill",
-                                            "suggested-action",
-                                        ]
-                                    }
+                                            child: Button main_add_files_button {
+                                                margin-top: 24;
+                                                halign: center;
+
+                                                Adw.ButtonContent {
+                                                    label: _("Add Files");
+                                                    icon-name: "list-add-symbolic";
+                                                }
+
+                                                styles [
+                                                    "pill",
+                                                    "suggested-action",
+                                                    "accent",
+                                                ]
+                                            };
+                                        }
+                                    };
                                 }
-                            };
+
+                                Adw.NavigationPage {
+                                    tag: "manage_files_nav_page";
+
+                                    child: Adw.ToolbarView {
+                                        [top]
+                                        Adw.HeaderBar {
+                                            [end]
+                                            MenuButton {
+                                                icon-name: "open-menu-symbolic";
+                                                menu-model: primary_menu;
+                                                primary: true;
+                                            }
+                                        }
+
+                                        Box manage_files_nav_content {
+                                            orientation: vertical;
+                                            hexpand: true;
+                                            vexpand: true;
+
+                                            ScrolledWindow {
+                                                hscrollbar-policy: never;
+                                                vexpand: true;
+                                                hexpand: true;
+
+                                                Adw.Clamp {
+                                                    maximum-size: 550;
+
+                                                    Box {
+                                                        orientation: vertical;
+                                                        spacing: 12;
+                                                        margin-top: 24;
+                                                        margin-bottom: 24;
+                                                        margin-start: 24;
+                                                        margin-end: 24;
+
+                                                        Box {
+                                                            // Header bar
+                                                            orientation: horizontal;
+
+                                                            styles [
+                                                                "title-4",
+                                                            ]
+
+                                                            Label manage_files_count_label {
+                                                                // Internal
+                                                                label: "3 Files";
+                                                            }
+
+                                                            Adw.Bin {
+                                                                hexpand: true;
+                                                            }
+
+                                                            Button manage_files_add_files_button {
+                                                                Adw.ButtonContent {
+                                                                    label: _("Add File");
+                                                                    icon-name: "plus-symbolic";
+                                                                }
+
+                                                                styles [
+                                                                    "flat",
+                                                                ]
+                                                            }
+                                                        }
+
+                                                        ListBox manage_files_listbox {
+                                                            selection-mode: none;
+
+                                                            styles [
+                                                                "boxed-list",
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            Button manage_files_send_button {
+                                                label: _("Send");
+                                                margin-top: 18;
+                                                margin-bottom: 6;
+                                                margin-start: 12;
+                                                margin-end: 12;
+                                                halign: center;
+                                                valign: center;
+
+                                                styles [
+                                                    "pill",
+                                                    "suggested-action",
+                                                ]
+                                            }
+                                        }
+                                    };
+                                }
+                            }
                         }
-                    }
 
-                    Adw.Clamp {
-                        maximum-size: 550;
+                        Adw.Clamp {
+                            maximum-size: 550;
 
-                        Box bottom_bar {
-                            orientation: vertical;
-                            valign: end;
-                            halign: fill;
-
-                            Box {
-                                margin-bottom: 12;
-                                margin-top: 12;
-                                margin-end: 12;
-                                margin-start: 12;
-                                hexpand: true;
+                            Box bottom_bar {
+                                orientation: vertical;
+                                valign: end;
+                                halign: fill;
 
                                 Box {
+                                    margin-bottom: 12;
+                                    margin-top: 12;
+                                    margin-end: 12;
+                                    margin-start: 12;
                                     hexpand: true;
 
-                                    Image bottom_bar_image {
-                                        // internal
-                                        icon-name: "sonar-symbolic";
-                                        margin-end: 8;
-                                        icon-size: large;
-
-                                        styles [
-                                            "accent",
-                                        ]
-                                    }
-
                                     Box {
-                                        orientation: vertical;
+                                        hexpand: true;
 
-                                        Label bottom_bar_title {
+                                        Image bottom_bar_image {
                                             // internal
-                                            label: "Ready to receive";
-                                            halign: start;
+                                            icon-name: "sonar-symbolic";
+                                            margin-end: 8;
+                                            icon-size: large;
 
                                             styles [
-                                                "title-4",
                                                 "accent",
                                             ]
                                         }
 
-                                        Label bottom_bar_caption {
-                                            // internal
-                                            label: "Visible as \"{}\"";
-                                            margin-top: 2;
-                                            ellipsize: end;
-                                            halign: start;
+                                        Box {
+                                            orientation: vertical;
 
-                                            styles [
-                                                "dimmed",
-                                            ]
+                                            Label bottom_bar_title {
+                                                // internal
+                                                label: "Ready to receive";
+                                                halign: start;
+
+                                                styles [
+                                                    "title-4",
+                                                    "accent",
+                                                ]
+                                            }
+
+                                            Label bottom_bar_caption {
+                                                // internal
+                                                label: "Visible as \"{}\"";
+                                                margin-top: 2;
+                                                ellipsize: end;
+                                                halign: start;
+
+                                                styles [
+                                                    "dimmed",
+                                                ]
+                                            }
                                         }
                                     }
-                                }
 
-                                [end]
-                                Box {
-                                    valign: center;
+                                    [end]
+                                    Box {
+                                        valign: center;
 
-                                    Button transfer_settings_button {
-                                        icon-name: "sliders-horizontal-symbolic";
+                                        Button transfer_settings_button {
+                                            icon-name: "sliders-horizontal-symbolic";
 
-                                        styles [
-                                            "circular",
-                                        ]
+                                            styles [
+                                                "circular",
+                                            ]
+                                        }
                                     }
                                 }
                             }
