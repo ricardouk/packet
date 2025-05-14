@@ -1,5 +1,5 @@
+mod receive_transfer;
 pub mod send_transfer;
-mod share_request;
 
+pub use receive_transfer::*;
 pub use send_transfer::*;
-pub use share_request::*;

@@ -1,7 +1,7 @@
 mod file_card;
+mod receive_transfer;
 mod recipient_card;
-mod share_request;
 
 pub use file_card::*;
+pub use receive_transfer::*;
 pub use recipient_card::*;
-pub use share_request::*;
