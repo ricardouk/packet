@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use crate::{
-    objects::{self, data_transfer::SendRequestState, TransferState},
+    objects::{self, send_transfer::SendRequestState, TransferState},
     tokio_runtime,
     window::PacketApplicationWindow,
 };

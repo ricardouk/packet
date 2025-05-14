@@ -9,8 +9,8 @@ use gtk::{gdk, gio, glib};
 
 use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
-use crate::objects::data_transfer::{self, SendRequestState, TransferKind};
-use crate::objects::{self, TransferState};
+use crate::objects::TransferState;
+use crate::objects::{self, SendRequestState};
 use crate::{tokio_runtime, widgets};
 
 #[derive(Debug)]
@@ -937,7 +937,7 @@ impl PacketApplicationWindow {
                                             imp.send_transfers_id_cache.lock().await;
 
                                         if let Some(model_item) = send_transfers_id_cache.get(id) {
-                                            model_item.set_event(data_transfer::ChannelMessage(
+                                            model_item.set_event(objects::ChannelMessage(
                                                 channel_message,
                                             ));
                                         }
@@ -961,11 +961,9 @@ impl PacketApplicationWindow {
                                                 if let Some(model_item) =
                                                     send_transfers_id_cache.get(id)
                                                 {
-                                                    model_item.set_event(
-                                                        data_transfer::ChannelMessage(
-                                                            channel_message.clone(),
-                                                        ),
-                                                    );
+                                                    model_item.set_event(objects::ChannelMessage(
+                                                        channel_message.clone(),
+                                                    ));
                                                 }
                                             }
 
@@ -1035,13 +1033,13 @@ impl PacketApplicationWindow {
                                 // Update endpoint
                                 tracing::info!(?endpoint_info, "Updated endpoint info");
                                 data_transfer
-                                    .set_endpoint_info(data_transfer::EndpointInfo(endpoint_info));
+                                    .set_endpoint_info(objects::EndpointInfo(endpoint_info));
                             } else {
                                 // Set new endpoint
                                 tracing::info!(?endpoint_info, "Connected endpoint");
                                 let obj = SendRequestState::new();
                                 let id = endpoint_info.id.clone();
-                                obj.set_endpoint_info(data_transfer::EndpointInfo(endpoint_info));
+                                obj.set_endpoint_info(objects::EndpointInfo(endpoint_info));
                                 imp.recipient_model.insert(0, &obj);
                                 // Hack to make the recipient dialog's height grow according to
                                 // the list's content size.
