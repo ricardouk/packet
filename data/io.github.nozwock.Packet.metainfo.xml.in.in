@@ -39,8 +39,8 @@
     https://docs.flathub.org/docs/for-app-authors/metainfo-guidelines/#brand-color
   -->
   <branding>
-    <color type="primary" scheme_preference="light">#af7faf</color>
-    <color type="primary" scheme_preference="dark">#a599a5</color>
+    <color type="primary" scheme_preference="light">#8ff0a4</color>
+    <color type="primary" scheme_preference="dark">#26a269</color>
   </branding>
   <translation type="gettext">@gettext-package@</translation>
   <launchable type="desktop-id">@app-id@.desktop</launchable>
