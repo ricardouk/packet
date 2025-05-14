@@ -7,6 +7,10 @@
     <file compressed="true">style.css</file>
   </gresource>
 
+  <gresource prefix="/io/github/nozwock/Packet/icons/scalable/status/">
+    <file preprocess="xml-stripblanks" alias="io.github.nozwock.Packet.svg">../icons/io.github.nozwock.Packet.svg</file>
+  </gresource>
+
   <gresource prefix="/io/github/nozwock/Packet/icons/scalable/actions/">
     <file preprocess="xml-stripblanks" alias="vertical-arrows-long-down-symbolic.svg">../icons/actions/vertical-arrows-long-down-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="vertical-arrows-long-up-symbolic.svg">../icons/actions/vertical-arrows-long-up-symbolic.svg</file>
