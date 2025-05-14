@@ -25,9 +25,9 @@ pub fn display_text_type(value: &TextPayloadType) -> String {
 
 // Rewriting receive UI for the 4rd time ;(
 // Using a chain of AlertDialog this time
-pub fn present_share_request_ui(
+pub fn present_receive_transfer_ui(
     win: &PacketApplicationWindow,
-    receive_state: &objects::ShareRequestState,
+    receive_state: &objects::ReceiveTransferState,
 ) {
     let init_id = receive_state.event().id.clone();
     let win = win.clone();

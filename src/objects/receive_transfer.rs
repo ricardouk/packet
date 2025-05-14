@@ -12,34 +12,34 @@ pub mod imp {
     use super::*;
 
     #[derive(Debug, Default, Properties)]
-    #[properties(wrapper_type = super::ShareRequestState)]
-    pub struct ShareRequestState {
+    #[properties(wrapper_type = super::ReceiveTransferState)]
+    pub struct ReceiveTransferState {
         pub eta: Rc<RefCell<utils::DataTransferEta>>,
         #[property(get, set)]
         event: RefCell<objects::ChannelMessage>,
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for ShareRequestState {
-        const NAME: &'static str = "ShareRequestState";
-        type Type = super::ShareRequestState;
+    impl ObjectSubclass for ReceiveTransferState {
+        const NAME: &'static str = "PacketReceiveTransferState";
+        type Type = super::ReceiveTransferState;
     }
 
     #[glib::derived_properties]
-    impl ObjectImpl for ShareRequestState {}
+    impl ObjectImpl for ReceiveTransferState {}
 }
 
 glib::wrapper! {
-    pub struct ShareRequestState(ObjectSubclass<imp::ShareRequestState>);
+    pub struct ReceiveTransferState(ObjectSubclass<imp::ReceiveTransferState>);
 }
 
-impl Default for ShareRequestState {
+impl Default for ReceiveTransferState {
     fn default() -> Self {
         glib::Object::builder().build()
     }
 }
 
-impl ShareRequestState {
+impl ReceiveTransferState {
     pub fn new(msg: &objects::ChannelMessage) -> Self {
         let obj: Self = Default::default();
         obj.set_event(msg);

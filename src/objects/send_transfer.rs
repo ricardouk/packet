@@ -110,7 +110,7 @@ pub mod imp {
 
     #[glib::object_subclass]
     impl ObjectSubclass for SendTransferState {
-        const NAME: &'static str = "DataTransferObject";
+        const NAME: &'static str = "PacketSendTransferState";
         type Type = super::SendRequestState;
     }
 

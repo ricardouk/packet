@@ -881,7 +881,7 @@ impl PacketApplicationWindow {
                 #[weak]
                 imp,
                 async move {
-                    let mut share_request_state: Option<objects::ShareRequestState> = None;
+                    let mut share_request_state: Option<objects::ReceiveTransferState> = None;
                     loop {
                         let channel_message = rx.recv().await.unwrap();
 
@@ -906,10 +906,10 @@ impl PacketApplicationWindow {
                             State::WaitingForUserConsent => {
                                 // Receive data transfer requests
                                 {
-                                    let state = objects::ShareRequestState::new(
+                                    let state = objects::ReceiveTransferState::new(
                                         &objects::ChannelMessage(channel_message),
                                     );
-                                    widgets::present_share_request_ui(&imp.obj(), &state);
+                                    widgets::present_receive_transfer_ui(&imp.obj(), &state);
                                     share_request_state = Some(state);
                                 }
                             }
