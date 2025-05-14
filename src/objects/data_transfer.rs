@@ -91,58 +91,54 @@ pub mod imp {
     use super::*;
 
     #[derive(Debug, Default, Properties)]
-    #[properties(wrapper_type = super::DataTransferObject)]
-    pub struct DataTransferObject {
-        pub eta_estimator: Rc<RefCell<utils::DataTransferEta>>,
-        pub files_to_send: Rc<RefCell<Vec<String>>>,
-        // For modifying widget by listening for events
-        #[property(get, set)]
-        endpoint_info: RefCell<EndpointInfo>,
-        #[property(get, set)]
-        channel_message: RefCell<ChannelMessage>,
-        // For easier bindings
-        #[property(get, set)]
-        transfer_kind: RefCell<TransferKind>,
+    #[properties(wrapper_type = super::SendRequestState)]
+    pub struct SendTransferState {
+        pub eta: Rc<RefCell<utils::DataTransferEta>>,
+        pub files: Rc<RefCell<Vec<String>>>,
+
         #[property(get, set)]
         transfer_state: RefCell<TransferState>,
         #[property(get, set)]
         device_name: RefCell<String>,
+
+        // For modifying widget by listening for events
+        #[property(get, set)]
+        endpoint_info: RefCell<EndpointInfo>,
+        #[property(get, set)]
+        event: RefCell<ChannelMessage>,
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for DataTransferObject {
+    impl ObjectSubclass for SendTransferState {
         const NAME: &'static str = "DataTransferObject";
-        type Type = super::DataTransferObject;
+        type Type = super::SendRequestState;
     }
 
     #[glib::derived_properties]
-    impl ObjectImpl for DataTransferObject {}
+    impl ObjectImpl for SendTransferState {}
 }
 
 glib::wrapper! {
-    pub struct DataTransferObject(ObjectSubclass<imp::DataTransferObject>);
+    pub struct SendRequestState(ObjectSubclass<imp::SendTransferState>);
 }
 
-impl DataTransferObject {
-    pub fn new(kind: TransferKind) -> Self {
-        let obj: Self = glib::Object::builder().build();
-        obj.set_transfer_kind(kind);
-
-        obj
+impl SendRequestState {
+    pub fn new() -> Self {
+        Default::default()
     }
     pub fn copy(&self) -> Self {
-        let obj = Self::new(self.transfer_kind());
+        let obj = Self::new();
         obj.set_endpoint_info(self.endpoint_info());
-        obj.set_channel_message(self.channel_message());
+        obj.set_event(self.event());
         obj.set_device_name(self.device_name());
-        *obj.imp().eta_estimator.borrow_mut() = self.imp().eta_estimator.borrow().clone();
-        *obj.imp().files_to_send.borrow_mut() = self.imp().files_to_send.borrow().clone();
+        *obj.imp().eta.borrow_mut() = self.imp().eta.borrow().clone();
+        *obj.imp().files.borrow_mut() = self.imp().files.borrow().clone();
 
         obj
     }
 }
 
-impl Default for DataTransferObject {
+impl Default for SendRequestState {
     fn default() -> Self {
         glib::Object::builder().build()
     }

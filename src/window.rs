@@ -9,7 +9,7 @@ use gtk::{gdk, gio, glib};
 
 use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
-use crate::objects::data_transfer::{self, DataTransferObject, TransferKind};
+use crate::objects::data_transfer::{self, SendRequestState, TransferKind};
 use crate::objects::{self, TransferState};
 use crate::{tokio_runtime, widgets};
 
@@ -91,10 +91,10 @@ mod imp {
         pub recipient_listbox: TemplateChild<gtk::ListBox>,
         #[template_child]
         pub loading_recipients_box: TemplateChild<gtk::Box>,
-        #[default(gio::ListStore::new::<DataTransferObject>())]
+        #[default(gio::ListStore::new::<SendRequestState>())]
         pub recipient_model: gio::ListStore,
 
-        pub send_transfers_id_cache: Arc<Mutex<HashMap<String, DataTransferObject>>>,
+        pub send_transfers_id_cache: Arc<Mutex<HashMap<String, SendRequestState>>>,
 
         // RQS State
         pub rqs: Arc<Mutex<Option<rqs_lib::RQS>>>,
@@ -450,7 +450,7 @@ impl PacketApplicationWindow {
                 #[upgrade_or]
                 adw::Bin::new().into(),
                 move |obj| {
-                    let model_item = obj.downcast_ref::<DataTransferObject>().unwrap();
+                    let model_item = obj.downcast_ref::<SendRequestState>().unwrap();
                     widgets::create_recipient_card(
                         &imp.obj(),
                         &imp.recipient_model,
@@ -492,7 +492,7 @@ impl PacketApplicationWindow {
                     let mut guard = imp.send_transfers_id_cache.blocking_lock();
                     for (pos, obj) in imp
                         .recipient_model
-                        .iter::<DataTransferObject>()
+                        .iter::<SendRequestState>()
                         .enumerate()
                         .filter_map(|(pos, it)| it.ok().and_then(|it| Some((pos, it))))
                         .filter(|(_, it)| match it.transfer_state() {
@@ -705,12 +705,12 @@ impl PacketApplicationWindow {
 
         for model_item in imp
             .recipient_model
-            .iter::<DataTransferObject>()
+            .iter::<SendRequestState>()
             .filter_map(|it| it.ok())
         {
             use rqs_lib::State;
             match model_item
-                .channel_message()
+                .event()
                 .state
                 .as_ref()
                 .unwrap_or(&rqs_lib::State::Initial)
@@ -937,9 +937,9 @@ impl PacketApplicationWindow {
                                             imp.send_transfers_id_cache.lock().await;
 
                                         if let Some(model_item) = send_transfers_id_cache.get(id) {
-                                            model_item.set_channel_message(
-                                                data_transfer::ChannelMessage(channel_message),
-                                            );
+                                            model_item.set_event(data_transfer::ChannelMessage(
+                                                channel_message,
+                                            ));
                                         }
                                     }
                                     _ => {
@@ -961,7 +961,7 @@ impl PacketApplicationWindow {
                                                 if let Some(model_item) =
                                                     send_transfers_id_cache.get(id)
                                                 {
-                                                    model_item.set_channel_message(
+                                                    model_item.set_event(
                                                         data_transfer::ChannelMessage(
                                                             channel_message.clone(),
                                                         ),
@@ -1039,7 +1039,7 @@ impl PacketApplicationWindow {
                             } else {
                                 // Set new endpoint
                                 tracing::info!(?endpoint_info, "Connected endpoint");
-                                let obj = DataTransferObject::new(TransferKind::Send);
+                                let obj = SendRequestState::new();
                                 let id = endpoint_info.id.clone();
                                 obj.set_endpoint_info(data_transfer::EndpointInfo(endpoint_info));
                                 imp.recipient_model.insert(0, &obj);

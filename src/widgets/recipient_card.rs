@@ -1,11 +1,7 @@
 use std::cell::RefCell;
 
 use crate::{
-    objects::{
-        self,
-        data_transfer::{DataTransferObject, TransferKind},
-        TransferState,
-    },
+    objects::{self, data_transfer::SendRequestState, TransferState},
     tokio_runtime,
     window::PacketApplicationWindow,
 };
@@ -65,7 +61,7 @@ pub fn handle_recipient_card_clicked(
     let imp = win.imp();
 
     let model_item =
-        get_model_item_from_listbox::<DataTransferObject>(&imp.recipient_model, list_box, row)
+        get_model_item_from_listbox::<SendRequestState>(&imp.recipient_model, list_box, row)
             .unwrap();
 
     emit_send_files(win, &model_item);
@@ -74,17 +70,17 @@ pub fn handle_recipient_card_clicked(
     row.set_activatable(false);
 }
 
-fn emit_send_files(win: &PacketApplicationWindow, model_item: &DataTransferObject) {
+fn emit_send_files(win: &PacketApplicationWindow, model_item: &SendRequestState) {
     let imp = win.imp();
 
     let endpoint_info = model_item.endpoint_info();
-    let files_to_send = model_item.imp().files_to_send.borrow().clone();
+    let files_to_send = model_item.imp().files.borrow().clone();
 
     // Only one transfer at a time is supported by the protocol
     // Whether it be receiving or sending
     let will_be_queued = imp
         .recipient_model
-        .iter::<DataTransferObject>()
+        .iter::<SendRequestState>()
         .filter_map(|it| it.ok())
         .find(|it| match it.transfer_state() {
             TransferState::RequestedForConsent | TransferState::OngoingTransfer => true,
@@ -126,12 +122,9 @@ fn emit_send_files(win: &PacketApplicationWindow, model_item: &DataTransferObjec
 pub fn create_recipient_card(
     win: &PacketApplicationWindow,
     _model: &gio::ListStore,
-    model_item: &DataTransferObject,
+    model_item: &SendRequestState,
     init_model_state: Option<()>,
 ) -> adw::Bin {
-    // Send Only!
-    assert_eq!(model_item.transfer_kind(), TransferKind::Send);
-
     let imp = win.imp();
 
     if init_model_state.is_some() {
@@ -144,7 +137,7 @@ pub fn create_recipient_card(
             .filter_map(|it| it.path())
             .map(|it| it.to_string_lossy().to_string())
             .collect::<Vec<_>>();
-        *model_item.imp().files_to_send.borrow_mut() = files_to_send;
+        *model_item.imp().files.borrow_mut() = files_to_send;
 
         if model_item.endpoint_info().present.is_some() {
             let title = model_item
@@ -155,7 +148,7 @@ pub fn create_recipient_card(
             model_item.set_device_name(title.clone());
         }
 
-        let eta_estimator = &model_item.imp().eta_estimator;
+        let eta_estimator = &model_item.imp().eta;
         if eta_estimator.borrow().total_len == 0 {
             let total_size = imp
                 .manage_files_model
@@ -254,7 +247,7 @@ pub fn create_recipient_card(
             // are settled
             let is_transfer_active = imp
                 .recipient_model
-                .iter::<DataTransferObject>()
+                .iter::<SendRequestState>()
                 .filter_map(|it| it.ok())
                 .find(|it| match it.transfer_state() {
                     TransferState::Queued
@@ -284,10 +277,7 @@ pub fn create_recipient_card(
         .build();
     main_box.append(&eta_label);
 
-    let id = match model_item.transfer_kind() {
-        TransferKind::Receive => model_item.channel_message().id.clone(),
-        TransferKind::Send => model_item.endpoint_info().id.clone(),
-    };
+    let id = model_item.endpoint_info().id.clone();
 
     root_box.append(&adw::Bin::builder().hexpand(true).build());
 
@@ -359,7 +349,7 @@ pub fn create_recipient_card(
     }
 
     fn set_row_activatable(
-        model_item: &DataTransferObject,
+        model_item: &SendRequestState,
         row: Option<&gtk::ListBoxRow>,
         activatable: bool,
     ) {
@@ -385,7 +375,7 @@ pub fn create_recipient_card(
             let is_idle_card = model_item.transfer_state() == TransferState::AwaitingConsentOrIdle;
 
             if is_idle_card {
-                if let Some(row) = get_listbox_row_from_model_item::<DataTransferObject>(
+                if let Some(row) = get_listbox_row_from_model_item::<SendRequestState>(
                     &imp.recipient_model,
                     &imp.recipient_listbox,
                     model_item,
@@ -403,22 +393,22 @@ pub fn create_recipient_card(
             }
         }
     ));
-    model_item.connect_channel_message_notify(clone!(
+    model_item.connect_event_notify(clone!(
         #[weak]
         imp,
         move |model_item| {
             use rqs_lib::State;
 
-            let channel_message = model_item.channel_message();
+            let channel_message = model_item.event();
             if listbox_row.borrow().is_none() {
-                *listbox_row.borrow_mut() = get_listbox_row_from_model_item::<DataTransferObject>(
+                *listbox_row.borrow_mut() = get_listbox_row_from_model_item::<SendRequestState>(
                     &imp.recipient_model,
                     &imp.recipient_listbox,
                     model_item,
                 );
             }
             let listbox_row_ref = listbox_row.borrow();
-            let eta_estimator = model_item.imp().eta_estimator.as_ref();
+            let eta_estimator = model_item.imp().eta.as_ref();
 
             if let Some(ref state) = channel_message.0.state {
                 match state {
@@ -520,7 +510,7 @@ pub fn create_recipient_card(
                         unavailibility_label
                             .set_visible(model_item.endpoint_info().present.is_none());
 
-                        model_item.set_channel_message(objects::ChannelMessage::default());
+                        model_item.set_event(objects::ChannelMessage::default());
                     }
                     State::Finished => {
                         model_item.set_transfer_state(TransferState::Done);
@@ -534,7 +524,7 @@ pub fn create_recipient_card(
                         unavailibility_label.set_visible(false);
 
                         let finished_text = {
-                            let file_count = model_item.imp().files_to_send.borrow().len();
+                            let file_count = model_item.imp().files.borrow().len();
                             formatx!(
                                 ngettext("Sent {} file", "Sent {} files", file_count as u32),
                                 file_count
@@ -553,7 +543,7 @@ pub fn create_recipient_card(
 
     // Set initial widget state based on model's state
     model_item.notify_endpoint_info();
-    model_item.notify_channel_message();
+    model_item.notify_event();
 
     root_bin
 }
