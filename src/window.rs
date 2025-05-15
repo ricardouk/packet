@@ -581,7 +581,11 @@ impl PacketApplicationWindow {
 
     fn handle_added_files_to_send(imp: &imp::PacketApplicationWindow, files: Vec<gio::File>) {
         if files.len() == 0 {
-            // FIXME: Show toast about not being able to access files
+            imp.toast_overlay.add_toast(
+                adw::Toast::builder()
+                    .title(&gettext("Couldn't open files"))
+                    .build(),
+            );
         } else {
             let file_count = files.len() + imp.manage_files_model.n_items() as usize;
             imp.manage_files_count_label.set_label(
@@ -780,6 +784,10 @@ impl PacketApplicationWindow {
                 }
             ));
         } else {
+            // Although this should no longer be possible with the current design,
+            // since the dialog locks out the user during an ongoing transfer and
+            // the userc can't open preferences whatsoever in that state
+
             imp.device_name_entry.set_show_apply_button(false);
             imp.device_name_entry
                 .set_text(&self.get_device_name_state());
@@ -787,8 +795,11 @@ impl PacketApplicationWindow {
 
             tracing::debug!("Active transfers found, can't rename device name");
 
-            // FIXME: Show a dialog/toast conveying that name change is not allowed while
-            // files are being send to other devices
+            imp.toast_overlay.add_toast(
+                adw::Toast::builder()
+                    .title(&gettext("Can't rename device during an active transfer"))
+                    .build(),
+            );
         }
     }
 
