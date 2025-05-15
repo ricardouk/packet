@@ -280,6 +280,11 @@ Adw.Dialog select_recipients_dialog {
     // Going back to this as setting content height doesn't
     // seem to be working in some places
     follows-content-size: true;
+    // Unfortunately have to hard-code it for now since I don't
+    // want the width to be messed with
+    // Unless I want do content-height -1 in every place that'd
+    // change the state of the dialog :(
+    width-request: 360;
 
     Adw.ToolbarView {
         top-bar-style: flat;
@@ -314,7 +319,7 @@ Adw.Dialog select_recipients_dialog {
 
                     Box {
                         orientation: vertical;
-                        margin-top: 24;
+                        margin-top: 12;
                         margin-bottom: 24;
                         margin-start: 24;
                         margin-end: 24;
@@ -325,10 +330,8 @@ Adw.Dialog select_recipients_dialog {
                             orientation: vertical;
                             vexpand: true;
                             valign: center;
-                            spacing: 12;
 
                             Adw.Spinner {
-                                margin-top: 12;
                                 height-request: 48;
                             }
                         }
@@ -341,24 +344,6 @@ Adw.Dialog select_recipients_dialog {
                             ]
                         }
                     }
-                }
-            }
-
-            Adw.Clamp {
-                maximum-size: 550;
-                tightening-threshold: 550;
-
-                Label select_recipient_troubleshoot_label {
-                    // FIXME: check whether wifi/bluetooth is enabled or not
-                    // if not, change the text to ask the user to turn them on
-                    label: _("If you can't see the recipient, make sure their device is visible.");
-                    margin-top: 12;
-                    margin-bottom: 12;
-                    margin-start: 12;
-                    margin-end: 12;
-                    wrap: true;
-
-                    styles []
                 }
             }
         }
