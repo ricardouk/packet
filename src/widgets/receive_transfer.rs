@@ -33,6 +33,7 @@ pub fn present_receive_transfer_ui(
     let win = win.clone();
 
     // Progress dialog
+    let is_user_cancelled = Rc::new(Cell::new(false));
     let progress_dialog = adw::AlertDialog::builder()
         .heading(&gettext("Receiving"))
         .width_request(200)
@@ -46,10 +47,13 @@ pub fn present_receive_transfer_ui(
             win,
             #[weak]
             receive_state,
+            #[weak]
+            is_user_cancelled,
             move |dialog, response_id| {
                 match response_id {
                     "cancel" => {
                         // FIXME: Show a toast notifying that the transfer was cancelled?
+                        is_user_cancelled.replace(true);
                         dialog.set_response_enabled("cancel", false);
                         win.imp()
                             .rqs
@@ -368,12 +372,15 @@ pub fn present_receive_transfer_ui(
                     consent_dialog.close();
                 }
 
-                win.imp().toast_overlay.add_toast(
-                    adw::Toast::builder()
-                        .title(gettext("Transfer cancelled by sender"))
-                        .priority(adw::ToastPriority::High)
-                        .build(),
-                );
+                // Since Cancelled also triggers on cancellation from the user
+                if !is_user_cancelled.get() {
+                    win.imp().toast_overlay.add_toast(
+                        adw::Toast::builder()
+                            .title(gettext("Transfer cancelled by sender"))
+                            .priority(adw::ToastPriority::High)
+                            .build(),
+                    );
+                }
             }
             State::Finished => {
                 progress_dialog.set_can_close(true);
