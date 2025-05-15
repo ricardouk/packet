@@ -185,12 +185,6 @@ pub fn create_recipient_card(
         .build();
     let root_bin = adw::Bin::builder().child(&root_box).build();
 
-    // FIXME: UI for request transfer pin code
-    // `object-select-symbolic` for success status icon
-
-    // FIXME: Use file icons based on mimetype
-    // These are the icons that Files/nautilus uses
-    // https://gitlab.gnome.org/GNOME/adwaita-icon-theme/-/tree/master/Adwaita/scalable?ref_type=heads
     let device_avatar = adw::Avatar::builder()
         .text(&title)
         .show_initials(true)

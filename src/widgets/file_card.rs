@@ -37,6 +37,8 @@ pub const ADWAITA_MIMETYPE_ICON_NAMES: [&str; 27] = [
     "x-package-repository",
 ];
 
+// These are the icons that Files/nautilus uses
+// https://gitlab.gnome.org/GNOME/adwaita-icon-theme/-/tree/master/Adwaita/scalable?ref_type=heads
 pub fn get_mimetype_icon_name(file: &gio::File, symbolic: bool) -> Option<String> {
     let guessed_content_type = gio::content_type_guess(
         file.path().as_ref(),

@@ -19,8 +19,6 @@ pub enum LoopingTaskHandle {
     Glib(glib::JoinHandle<()>),
 }
 
-// FIXME: Bundle all icons used in the app except the Adwaita mime-type icons for consistency on different platforms
-
 mod imp {
     use std::{
         cell::{Cell, RefCell},
@@ -170,7 +168,7 @@ mod imp {
                     {
                         let mut rqs_guard = rqs.lock().await;
                         if let Some(rqs) = rqs_guard.as_mut() {
-                            // FIXME: put a timeout here
+                            // FIXME: Put a timeout here on closing RQS.
                             // Only wait for a few seconds
                             // Seems to take a long time in VM for some reason
                             rqs.stop().await;

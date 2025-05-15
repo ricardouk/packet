@@ -49,7 +49,7 @@ pub fn present_receive_transfer_ui(
             move |dialog, response_id| {
                 match response_id {
                     "cancel" => {
-                        // FIXME: show a toast notifying that the transfer was cancelled?
+                        // FIXME: Show a toast notifying that the transfer was cancelled?
                         dialog.set_response_enabled("cancel", false);
                         win.imp()
                             .rqs
