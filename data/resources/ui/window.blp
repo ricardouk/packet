@@ -266,12 +266,16 @@ template $PacketApplicationWindow: Adw.ApplicationWindow {
 
 Adw.Dialog select_recipients_dialog {
     title: _("Select Recipients");
-    content-height: -1;
+    // content-height: -1;
     // This will work but affects both the height and width
     // but we don't width to get messed up, so set Dialog's
     // content-height to -1 any time adding a item to the
     // list box. That'll force it to recalculate size.
-    // follows-content-size: true;
+    //
+    // Going back to this as setting content height doesn't
+    // seem to be working in some places
+    follows-content-size: true;
+
     Adw.ToolbarView {
         top-bar-style: flat;
 
@@ -291,53 +295,48 @@ Adw.Dialog select_recipients_dialog {
 
         Box select_recipient_box {
             orientation: vertical;
-            hexpand: true;
-            vexpand: true;
 
-            ScrolledWindow {
-                propagate-natural-height: true;
-                propagate-natural-width: true;
-                hscrollbar-policy: never;
-                hexpand: true;
-                vexpand: true;
+            Adw.ClampScrollable {
+                // Not setting them to the same value doesn't make
+                // follow-content-size work as it should, empty space
+                // on the sides is left in that case.
+                maximum-size: 550;
+                tightening-threshold: 550;
 
-                Adw.Clamp {
-                    maximum-size: 550;
+                Box {
+                    orientation: vertical;
+                    margin-top: 24;
+                    margin-bottom: 24;
+                    margin-start: 24;
+                    margin-end: 24;
+                    spacing: 12;
 
-                    Box {
+                    Box loading_recipients_box {
+                        // `visibility` is set when ListBox is empty
                         orientation: vertical;
-                        margin-top: 24;
-                        margin-bottom: 24;
-                        margin-start: 24;
-                        margin-end: 24;
+                        vexpand: true;
+                        valign: center;
                         spacing: 12;
 
-                        Box loading_recipients_box {
-                            // `visibility` is set when ListBox is empty
-                            orientation: vertical;
-                            vexpand: true;
-                            valign: center;
-                            spacing: 12;
-
-                            Adw.Spinner {
-                                margin-top: 12;
-                                height-request: 48;
-                            }
+                        Adw.Spinner {
+                            margin-top: 12;
+                            height-request: 48;
                         }
+                    }
 
-                        ListBox recipient_listbox {
-                            selection-mode: none;
+                    ListBox recipient_listbox {
+                        selection-mode: none;
 
-                            styles [
-                                "boxed-list",
-                            ]
-                        }
+                        styles [
+                            "boxed-list",
+                        ]
                     }
                 }
             }
 
             Adw.Clamp {
                 maximum-size: 550;
+                tightening-threshold: 550;
 
                 Label select_recipient_troubleshoot_label {
                     // FIXME: check whether wifi/bluetooth is enabled or not

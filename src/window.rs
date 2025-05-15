@@ -481,8 +481,6 @@ impl PacketApplicationWindow {
                     imp.loading_recipients_box.set_visible(false);
                     imp.recipient_listbox.set_visible(true);
                 }
-                // Force dialog to recalculate height here as well
-                imp.select_recipients_dialog.set_content_height(-1);
             }
         ));
 
@@ -1068,9 +1066,6 @@ impl PacketApplicationWindow {
                                 let id = endpoint_info.id.clone();
                                 obj.set_endpoint_info(objects::EndpointInfo(endpoint_info));
                                 imp.recipient_model.insert(0, &obj);
-                                // Hack to make the recipient dialog's height grow according to
-                                // the list's content size.
-                                imp.select_recipients_dialog.set_content_height(-1);
                                 send_transfers_id_cache_guard.insert(id, obj);
                             }
                         }
