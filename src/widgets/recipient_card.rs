@@ -454,7 +454,7 @@ pub fn create_recipient_card(
 
                             formatx!(
                                 gettext("About {} left"),
-                                eta_estimator.borrow().get_estimate_string()
+                                eta_estimator.borrow().get_estimate_string().trim()
                             )
                             .unwrap()
                         };

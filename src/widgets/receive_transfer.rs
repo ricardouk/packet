@@ -334,7 +334,13 @@ pub fn present_receive_transfer_ui(
 
                         formatx!(
                             gettext("About {} left"),
-                            receive_state.imp().eta.borrow().get_estimate_string()
+                            receive_state
+                                .imp()
+                                .eta
+                                .borrow()
+                                .get_estimate_string()
+                                // Why does the estimate string has a random whitespace in the front
+                                .trim()
                         )
                         .unwrap()
                     };
