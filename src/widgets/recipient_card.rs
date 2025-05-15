@@ -222,9 +222,16 @@ pub fn create_recipient_card(
         .visible(false)
         .css_classes(["caption", "dim-label"])
         .build();
+    let pincode_label = gtk::Label::builder()
+        .halign(gtk::Align::Start)
+        .wrap(true)
+        .visible(false)
+        .css_classes(["dimmed", "monospace"])
+        .build();
     main_box.append(&title_label);
     main_box.append(&result_label);
     main_box.append(&unavailibility_label);
+    main_box.append(&pincode_label);
 
     model_item.connect_transfer_state_notify(clone!(
         #[weak]
@@ -433,6 +440,21 @@ pub fn create_recipient_card(
                         result_label.set_label(&gettext("Requested"));
                         result_label.set_css_classes(&["caption", "accent"]);
 
+                        pincode_label.set_visible(true);
+                        pincode_label.set_label(
+                            &formatx!(
+                                gettext("Code: {}"),
+                                channel_message
+                                    .meta
+                                    .as_ref()
+                                    .unwrap()
+                                    .pin_code
+                                    .clone()
+                                    .unwrap()
+                            )
+                            .unwrap(),
+                        );
+
                         eta_estimator.borrow_mut().prepare_for_new_transfer(None);
                     }
                     State::SendingFiles => {
@@ -443,6 +465,7 @@ pub fn create_recipient_card(
                         cancel_transfer_button.set_visible(false);
                         result_label.set_visible(false);
                         unavailibility_label.set_visible(false);
+                        pincode_label.set_visible(false);
                         retry_button.set_visible(false);
 
                         let eta_text = {
@@ -475,6 +498,7 @@ pub fn create_recipient_card(
                         cancel_transfer_button.set_visible(false);
                         eta_label.set_visible(false);
                         unavailibility_label.set_visible(false);
+                        pincode_label.set_visible(false);
 
                         retry_button.set_visible(true);
 
@@ -497,6 +521,7 @@ pub fn create_recipient_card(
                         eta_label.set_visible(false);
                         result_label.set_visible(false);
                         retry_button.set_visible(false);
+                        pincode_label.set_visible(false);
 
                         unavailibility_label
                             .set_visible(model_item.endpoint_info().present.is_none());
@@ -513,6 +538,7 @@ pub fn create_recipient_card(
                         eta_label.set_visible(false);
                         retry_button.set_visible(false);
                         unavailibility_label.set_visible(false);
+                        pincode_label.set_visible(false);
 
                         let finished_text = {
                             let file_count = model_item.imp().files.borrow().len();
