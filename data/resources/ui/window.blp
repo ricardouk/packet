@@ -144,41 +144,24 @@ template $PacketApplicationWindow: Adw.ApplicationWindow {
                                                 Adw.Clamp {
                                                     maximum-size: 550;
 
-                                                    Box {
-                                                        orientation: vertical;
-                                                        spacing: 12;
+                                                    Adw.PreferencesGroup manage_files_header {
+                                                        // Internal
+                                                        title: "1 File";
                                                         margin-top: 24;
                                                         margin-bottom: 24;
                                                         margin-start: 24;
                                                         margin-end: 24;
 
-                                                        Box {
-                                                            // Header bar
-                                                            orientation: horizontal;
+                                                        [header-suffix]
+                                                        Button manage_files_add_files_button {
+                                                            Adw.ButtonContent {
+                                                                label: _("Add File");
+                                                                icon-name: "list-add-symbolic";
+                                                            }
 
                                                             styles [
-                                                                "heading",
+                                                                "flat",
                                                             ]
-
-                                                            Label manage_files_count_label {
-                                                                // Internal
-                                                                label: "3 Files";
-                                                            }
-
-                                                            Adw.Bin {
-                                                                hexpand: true;
-                                                            }
-
-                                                            Button manage_files_add_files_button {
-                                                                Adw.ButtonContent {
-                                                                    label: _("Add File");
-                                                                    icon-name: "plus-symbolic";
-                                                                }
-
-                                                                styles [
-                                                                    "flat",
-                                                                ]
-                                                            }
                                                         }
 
                                                         ListBox manage_files_listbox {

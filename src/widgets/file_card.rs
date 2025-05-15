@@ -128,7 +128,7 @@ pub fn create_file_card(
                 model.remove(pos);
             }
 
-            imp.manage_files_count_label.set_label(
+            imp.manage_files_header.set_title(
                 &formatx!(
                     ngettext("{} File", "{} Files", model.n_items()),
                     model.n_items() as usize

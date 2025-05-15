@@ -75,7 +75,7 @@ mod imp {
         #[template_child]
         pub manage_files_nav_content: TemplateChild<gtk::Box>,
         #[template_child]
-        pub manage_files_count_label: TemplateChild<gtk::Label>,
+        pub manage_files_header: TemplateChild<adw::PreferencesGroup>,
         #[template_child]
         pub manage_files_add_files_button: TemplateChild<gtk::Button>,
         #[template_child]
@@ -601,7 +601,7 @@ impl PacketApplicationWindow {
             tracing::debug!(files_added = ?files.iter().map(|it| it.path()).collect::<Vec<_>>());
 
             let file_count = files.len() + imp.manage_files_model.n_items() as usize;
-            imp.manage_files_count_label.set_label(
+            imp.manage_files_header.set_title(
                 &formatx!(
                     ngettext("{} File", "{} Files", file_count as u32),
                     file_count
