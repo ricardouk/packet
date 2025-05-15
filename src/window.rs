@@ -567,11 +567,14 @@ impl PacketApplicationWindow {
                     rqs_lib::Visibility::Invisible
                 };
 
-                imp.rqs
-                    .blocking_lock()
-                    .as_mut()
-                    .unwrap()
-                    .change_visibility(visibility);
+                glib::spawn_future_local(async move {
+                    imp.rqs
+                        .lock()
+                        .await
+                        .as_mut()
+                        .unwrap()
+                        .change_visibility(visibility);
+                });
             }
         ));
     }
@@ -739,12 +742,7 @@ impl PacketApplicationWindow {
 
             self.set_device_name_state(name).unwrap();
 
-            imp.rqs
-                .blocking_lock()
-                .as_mut()
-                .expect("State must be set")
-                .set_device_name(name.to_string());
-
+            let name = name.to_string();
             let (tx, rx) = async_channel::bounded(1);
             tokio_runtime().spawn(clone!(
                 #[weak(rename_to = rqs)]
@@ -752,7 +750,9 @@ impl PacketApplicationWindow {
                 async move {
                     let (file_sender, ble_receiver) = {
                         let mut guard = rqs.lock().await;
-                        let rqs = guard.as_mut().unwrap();
+                        let rqs = guard.as_mut().expect("State must be set");
+
+                        rqs.set_device_name(name);
 
                         rqs.stop().await;
                         rqs.run().await.unwrap()
