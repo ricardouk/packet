@@ -279,7 +279,7 @@ pub fn create_recipient_card(
         .valign(gtk::Align::Center)
         .halign(gtk::Align::Center)
         .icon_name("view-refresh-symbolic")
-        .css_classes(["circular"])
+        .css_classes(["circular", "flat"])
         .tooltip_text(&gettext("Retry"))
         .visible(false)
         .build();
@@ -298,7 +298,7 @@ pub fn create_recipient_card(
         .valign(gtk::Align::Center)
         .halign(gtk::Align::Center)
         .icon_name("cross-large-symbolic")
-        .css_classes(["circular"])
+        .css_classes(["circular", "flat"])
         .tooltip_text(&gettext("Cancel"))
         .visible(false)
         .build();
