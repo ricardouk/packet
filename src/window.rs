@@ -42,6 +42,9 @@ mod imp {
         pub preferences_dialog: TemplateChild<adw::PreferencesDialog>,
 
         #[template_child]
+        pub help_dialog: TemplateChild<adw::Dialog>,
+
+        #[template_child]
         pub root_stack: TemplateChild<gtk::Stack>,
 
         #[template_child]
@@ -258,7 +261,7 @@ impl PacketApplicationWindow {
     }
 
     fn setup_gactions(&self) {
-        let preferences = gio::ActionEntry::builder("preferences")
+        let preferences_dialog = gio::ActionEntry::builder("preferences")
             .activate(move |win: &Self, _, _| {
                 win.imp()
                     .preferences_dialog
@@ -280,7 +283,15 @@ impl PacketApplicationWindow {
             })
             .build();
 
-        self.add_action_entries([preferences, received_files]);
+        let help_dialog = gio::ActionEntry::builder("help")
+            .activate(move |win: &Self, _, _| {
+                win.imp()
+                    .help_dialog
+                    .present(win.root().and_downcast_ref::<adw::ApplicationWindow>());
+            })
+            .build();
+
+        self.add_action_entries([preferences_dialog, received_files, help_dialog]);
     }
 
     fn get_device_name_state(&self) -> glib::GString {

@@ -9,6 +9,11 @@ menu primary_menu {
         }
 
         item {
+            label: _("Help");
+            action: "win.help";
+        }
+
+        item {
             label: _("_Keyboard Shortcuts");
             action: "win.show-help-overlay";
         }
@@ -376,6 +381,62 @@ Adw.PreferencesDialog preferences_dialog {
             Adw.SwitchRow device_visibility_switch {
                 title: _("Visibility");
                 subtitle: _("Whether others can see this device");
+            }
+        }
+    }
+}
+
+Adw.Dialog help_dialog {
+    title: _("Help");
+    follows-content-size: true;
+
+    Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {}
+
+        ScrolledWindow {
+            propagate-natural-height: true;
+            propagate-natural-width: true;
+
+            Adw.Clamp {
+                maximum-size: 550;
+                tightening-threshold: 550;
+
+                Box {
+                    orientation: vertical;
+                    margin-top: 24;
+                    margin-bottom: 24;
+                    margin-start: 24;
+                    margin-end: 24;
+                    spacing: 12;
+                    halign: center;
+                    valign: center;
+
+                    Box {
+                        orientation: vertical;
+                        spacing: 4;
+
+                        Label {
+                            // Don't use h/v-align on Labels, use x/y-align instead
+                            label: _("I don't see the other device");
+                            xalign: 0;
+                            justify: left;
+                            wrap: true;
+
+                            styles [
+                                "heading",
+                            ]
+                        }
+
+                        Label {
+                            label: _("Make sure the other device is visible and connected to the same network as this device.\n\nIf it's an Android device and you still don't see it despite setting visibility to \"Everyone\", try opening the <b>Quick Share</b> page from the <b>Google Files</b> app and leave it open.\n\nAlso, ensure Bluetooth is enabled on both devices, as it's often required for device discovery even over Wi-Fi.");
+                            xalign: 0;
+                            justify: left;
+                            wrap: true;
+                            use-markup: true;
+                        }
+                    }
+                }
             }
         }
     }
