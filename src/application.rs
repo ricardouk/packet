@@ -138,8 +138,13 @@ impl PacketApplication {
             .translator_credits(gettext("translator-credits"))
             .build();
 
-        // FIXME: Add acknowledgements
-        // dialog.add_acknowledgement_section(name, people);
+        dialog.add_acknowledgement_section(
+            Some(&gettext("Similar Projects")),
+            &[
+                "NearDrop https://github.com/grishka/NearDrop/",
+                "rquickshare https://github.com/Martichou/rquickshare/",
+            ],
+        );
 
         dialog.present(Some(&self.main_window()));
     }
