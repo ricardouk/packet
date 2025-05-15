@@ -213,14 +213,13 @@ pub fn create_recipient_card(
         .halign(gtk::Align::Start)
         .wrap(true)
         .visible(false)
-        .css_classes(["caption"])
         .build();
     let unavailibility_label = gtk::Label::builder()
         .halign(gtk::Align::Start)
         .wrap(true)
         .label(&gettext("Unavailable"))
         .visible(false)
-        .css_classes(["caption", "dim-label"])
+        .css_classes(["dimmed"])
         .build();
     let pincode_label = gtk::Label::builder()
         .halign(gtk::Align::Start)
@@ -438,7 +437,7 @@ pub fn create_recipient_card(
 
                         result_label.set_visible(true);
                         result_label.set_label(&gettext("Requested"));
-                        result_label.set_css_classes(&["caption", "accent"]);
+                        result_label.set_css_classes(&["accent"]);
 
                         pincode_label.set_visible(true);
                         pincode_label.set_label(
@@ -504,7 +503,7 @@ pub fn create_recipient_card(
 
                         result_label.set_visible(true);
                         result_label.set_label(&gettext("Failed"));
-                        result_label.set_css_classes(&["caption", "error"]);
+                        result_label.set_css_classes(&["error"]);
                     }
                     State::Rejected => {
                         model_item.set_transfer_state(TransferState::Failed);
@@ -551,7 +550,7 @@ pub fn create_recipient_card(
 
                         result_label.set_visible(true);
                         result_label.set_label(&finished_text);
-                        result_label.set_css_classes(&["caption", "accent"]);
+                        result_label.set_css_classes(&["accent"]);
                     }
                 };
             }
