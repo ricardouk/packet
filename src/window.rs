@@ -355,7 +355,10 @@ impl PacketApplicationWindow {
             move |_, value, _, _| {
                 imp.manage_files_model.remove_all();
                 if let Ok(file_list) = value.get::<gdk::FileList>() {
-                    Self::handle_added_files_to_send(&imp, file_list.files());
+                    Self::handle_added_files_to_send(
+                        &imp,
+                        Self::filter_added_files(&imp.manage_files_model, file_list.files()),
+                    );
                 }
 
                 false
@@ -585,6 +588,8 @@ impl PacketApplicationWindow {
                     .build(),
             );
         } else {
+            tracing::debug!(files_added = ?files.iter().map(|it| it.path()).collect::<Vec<_>>());
+
             let file_count = files.len() + imp.manage_files_model.n_items() as usize;
             imp.manage_files_count_label.set_label(
                 &formatx!(
@@ -624,12 +629,9 @@ impl PacketApplicationWindow {
                             files_vec.push(file);
                         }
 
-                        PacketApplicationWindow::handle_added_files_to_send(
+                        Self::handle_added_files_to_send(
                             &imp,
-                            PacketApplicationWindow::filter_added_files(
-                                &imp.manage_files_model,
-                                files_vec,
-                            ),
+                            Self::filter_added_files(&imp.manage_files_model, files_vec),
                         );
                     };
                 }
