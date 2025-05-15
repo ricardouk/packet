@@ -199,7 +199,7 @@ pub fn create_recipient_card(
         .orientation(gtk::Orientation::Vertical)
         .valign(gtk::Align::Center)
         .hexpand(true)
-        .spacing(6)
+        .spacing(4)
         .build();
     right_box.append(&main_box);
 
