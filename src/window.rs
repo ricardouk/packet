@@ -4,6 +4,7 @@ use adw::prelude::*;
 use adw::subclass::prelude::*;
 use formatx::formatx;
 use gettextrs::{gettext, ngettext};
+use gtk::gio::FILE_ATTRIBUTE_STANDARD_SIZE;
 use gtk::glib::clone;
 use gtk::{gdk, gio, glib};
 
@@ -647,6 +648,21 @@ impl PacketApplicationWindow {
                     gio::FileQueryInfoFlags::NOFOLLOW_SYMLINKS,
                     gio::Cancellable::NONE,
                 ) == gio::FileType::Regular
+            })
+            .filter(|it| {
+                // Don't send 0 byte files
+                // Because the rqs_lib expect files
+
+                let file_size = it
+                    .query_info(
+                        FILE_ATTRIBUTE_STANDARD_SIZE,
+                        gio::FileQueryInfoFlags::NONE,
+                        gio::Cancellable::NONE,
+                    )
+                    .map(|it| it.size())
+                    .unwrap_or_default();
+
+                file_size != 0
             })
             .filter(|file| {
                 for existing_file in model.iter::<gio::File>().filter_map(|it| it.ok()) {
