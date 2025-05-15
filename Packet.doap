@@ -6,12 +6,11 @@
          xmlns="http://usefulinc.com/ns/doap#">
 
   <name xml:lang="en">Packet</name>
-  <!-- FIXME Set the project summary -->
   <shortdesc xml:lang="en">
-    Write a GTK + Rust application
+    Share files easily
   </shortdesc>
-  <!-- FIXME Set the project git url -->
-  <bug-database rdf:resource="https://gitlab.gnome.org/bilelmoussaoui/packet/" />
+
+  <bug-database rdf:resource="https://github.com/nozwock/packet" />
 
   <category rdf:resource="http://api.gnome.org/doap-extensions#apps" />
   <programming-language>Rust</programming-language>
@@ -20,13 +19,12 @@
     <foaf:Person>
       <foaf:name>nozwock</foaf:name>
       <foaf:mbox rdf:resource="mailto:" />
-      <!-- FIXME Set your gnome user id here -->
+      <!-- Set your gnome user id here -->
       <!-- <gnome:userid>gnome_user_id</gnome:userid> -->
       <foaf:account>
         <foaf:OnlineAccount>
-          <!-- FIXME Set your gitlab handle here, rdf:resource also accepts github.com or gitlab.com -->
-          <!-- <foaf:accountServiceHomepage rdf:resource="https://gitlab.gnome.org" /> -->
-          <!-- <foaf:accountName>gitlab_user_handle</foaf:accountName> -->
+          <foaf:accountServiceHomepage rdf:resource="https://github.com" />
+          <foaf:accountName>nozwock</foaf:accountName>
         </foaf:OnlineAccount>
       </foaf:account>
     </foaf:Person>
