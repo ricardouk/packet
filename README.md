@@ -1,4 +1,4 @@
-# <img src="data/icons/io.github.nozwock.Packet.svg" width="64" /> Packet
+# <img src="data/icons/io.github.nozwock.Packet.svg" /> Packet
 
 A reimplementation of the proprietary Google Quick Share protocol to send and receive files to Android devices or another instance of Packet.
 
