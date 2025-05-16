@@ -174,21 +174,6 @@ template $PacketApplicationWindow: Adw.ApplicationWindow {
                                                     }
                                                 }
                                             }
-
-                                            Button manage_files_send_button {
-                                                label: _("Send");
-                                                margin-top: 18;
-                                                margin-bottom: 12;
-                                                margin-start: 12;
-                                                margin-end: 12;
-                                                halign: center;
-                                                valign: center;
-
-                                                styles [
-                                                    "pill",
-                                                    "suggested-action",
-                                                ]
-                                            }
                                         }
                                     };
                                 }
@@ -203,47 +188,72 @@ template $PacketApplicationWindow: Adw.ApplicationWindow {
                                 valign: end;
 
                                 Box {
-                                    orientation: vertical;
-                                    margin-top: 12;
+                                    margin-top: 18;
                                     margin-bottom: 18;
-                                    margin-start: 12;
-                                    margin-end: 12;
-                                    halign: center;
+                                    margin-start: 24;
+                                    margin-end: 24;
                                     hexpand: true;
-                                    spacing: 4;
 
-                                    Box {
+                                    Box bottom_bar_status {
+                                        // internal
+                                        orientation: vertical;
                                         halign: center;
-                                        spacing: 8;
+                                        hexpand: true;
+                                        spacing: 4;
 
-                                        Image bottom_bar_image {
+                                        Box bottom_bar_status_top {
                                             // internal
-                                            icon-name: "sonar-symbolic";
-                                            pixel-size: 24;
+                                            halign: center;
+                                            spacing: 8;
 
-                                            styles [
-                                                "accent",
-                                            ]
+                                            Image bottom_bar_image {
+                                                // internal
+                                                icon-name: "sonar-symbolic";
+                                                pixel-size: 24;
+
+                                                styles [
+                                                    "accent",
+                                                ]
+                                            }
+
+                                            Label bottom_bar_title {
+                                                // internal
+                                                label: "Ready";
+
+                                                styles [
+                                                    "title-4",
+                                                    "accent",
+                                                ]
+                                            }
                                         }
 
-                                        Label bottom_bar_title {
+                                        Label bottom_bar_caption {
                                             // internal
-                                            label: "Ready";
+                                            label: "Visible as \"{}\"";
+                                            ellipsize: end;
 
                                             styles [
-                                                "title-4",
-                                                "accent",
+                                                "dimmed",
                                             ]
                                         }
                                     }
 
-                                    Label bottom_bar_caption {
-                                        // internal
-                                        label: "Visible as \"{}\"";
-                                        ellipsize: end;
+                                    Adw.Bin bottom_bar_spacer {
+                                        visible: false;
+                                        hexpand: true;
+                                    }
+
+                                    Button manage_files_send_button {
+                                        label: _("Send");
+                                        visible: false;
+                                        halign: center;
+                                        valign: center;
+                                        margin-start: 8;
+                                        height-request: 42;
 
                                         styles [
-                                            "dimmed",
+                                            "suggested-action",
+                                            "pill",
                                         ]
                                     }
                                 }

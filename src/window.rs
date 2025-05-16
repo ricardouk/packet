@@ -59,6 +59,12 @@ mod imp {
         pub bottom_bar_title: TemplateChild<gtk::Label>,
         #[template_child]
         pub bottom_bar_caption: TemplateChild<gtk::Label>,
+        #[template_child]
+        pub bottom_bar_spacer: TemplateChild<adw::Bin>,
+        #[template_child]
+        pub bottom_bar_status: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub bottom_bar_status_top: TemplateChild<gtk::Box>,
 
         #[template_child]
         pub device_name_entry: TemplateChild<adw::EntryRow>,
@@ -529,6 +535,30 @@ impl PacketApplicationWindow {
 
     fn setup_bottom_bar(&self) {
         let imp = self.imp();
+
+        // Switch bottom bar layout b/w "Selected Files" page and other pages
+        imp.main_nav_view.connect_visible_page_notify(clone!(
+            #[weak]
+            imp,
+            move |obj| {
+                if let Some(tag) = obj.visible_page_tag() {
+                    match tag.as_str() {
+                        "manage_files_nav_page" => {
+                            imp.bottom_bar_status.set_halign(gtk::Align::Start);
+                            imp.bottom_bar_status_top.set_halign(gtk::Align::Start);
+                            imp.bottom_bar_spacer.set_visible(true);
+                            imp.manage_files_send_button.set_visible(true);
+                        }
+                        _ => {
+                            imp.bottom_bar_status.set_halign(gtk::Align::Center);
+                            imp.bottom_bar_status_top.set_halign(gtk::Align::Center);
+                            imp.bottom_bar_spacer.set_visible(false);
+                            imp.manage_files_send_button.set_visible(false);
+                        }
+                    }
+                }
+            }
+        ));
 
         imp.device_name_entry.connect_apply(clone!(
             #[weak(rename_to = this)]
@@ -1061,6 +1091,8 @@ impl PacketApplicationWindow {
                         {
                             let endpoint_info = rx.recv().await.unwrap();
 
+                            // FIXME: Fix duplicate recipient cards being active
+                            // when only one should've been
                             let mut send_transfers_id_cache_guard =
                                 imp.send_transfers_id_cache.lock().await;
                             if let Some(data_transfer) =
