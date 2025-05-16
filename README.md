@@ -19,6 +19,9 @@ Packet is available on Flathub!
 #### Nightly
 Nightly flatpak builds are available from [here](https://nightly.link/nozwock/packet/workflows/ci/main?preview).
 
+## Requirement
+Packet requires Bluetooth to be enabled and the devices to be connected to a Wi-Fi network with mDNS.
+
 <!-- FIXME Uncomment once pot/po files are in-place and tested -->
 <!-- ## Translations -->
 <!-- Helping to translate Packet or add support to a new language is very -->
