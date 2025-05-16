@@ -3,7 +3,7 @@
 A reimplementation of the proprietary Google Quick Share protocol to send and receive files to Android devices or another instance of Packet.
 
 <div align="center">
-    <img src="data/resources/screenshots/receive-request.png" alt="screenshot" />
+    <img src="data/resources/screenshots/packet-receive.png" alt="screenshot" />
 </div>
 
 ## Installation
