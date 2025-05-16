@@ -9,12 +9,12 @@ An implementation of the Google Quick Share protocol to send and receive files t
 ## Installation
 Packet is available as a flatpak.
 
-<!-- FIXME Uncomment once published at Flathub -->
-<!-- #### Flathub -->
-<!-- Packet is available on Flathub! -->
-<!-- <a href="https://flathub.org/apps/details/io.github.nozwock.Packet"> -->
-<!-- <img src="https://flathub.org/api/badge?svg&locale=en&light" width="190px" /> -->
-<!-- </a> -->
+#### Flathub
+Packet is available on Flathub!
+
+<a href="https://flathub.org/apps/details/io.github.nozwock.Packet">
+<img src="https://flathub.org/api/badge?svg&locale=en&dark" width="190px" />
+</a>
 
 #### Nightly
 Nightly flatpak builds are available from [here](https://nightly.link/nozwock/packet/workflows/ci/main?preview).
