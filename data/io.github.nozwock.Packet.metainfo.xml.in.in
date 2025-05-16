@@ -7,6 +7,7 @@
   <summary>Share files easily</summary>
   <description>
     <p>Send and receive files wirelessly with Android devices using Quick Share or another device with Packet installed.</p>
+    <p>Packet requires Bluetooth to be enabled and the devices to be connected to a Wi-Fi network with mDNS.</p>
   </description>
 
   <screenshots>
