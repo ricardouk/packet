@@ -5,9 +5,9 @@
   <metadata_license>CC0</metadata_license>
   <project_license>GPL-3.0+</project_license>
   <name>Packet</name>
-  <summary>Android's NearbyShare/QuickShare for Linux</summary>
+  <summary>Share files easily</summary>
   <description>
-    <p>An implementation of Android's NearbyShare/QuickShare for Linux with a GTK4 interface.</p>
+    <p>Send and receive files wirelessly with Android devices using Quick Share or another device with Packet installed.</p>
   </description>
   <screenshots>
     <screenshot type="default">

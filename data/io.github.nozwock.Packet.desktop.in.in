@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Packet
-Comment=Android's NearbyShare/QuickShare for Linux
+Comment=Share files easily
 Type=Application
 Exec=packet
 Terminal=false
