@@ -11,7 +11,7 @@
   </description>
 
   <screenshots>
-    <screenshot type="default">
+    <screenshot>
       <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/packet-main.png?raw=true</image>
       <caption>Home Page</caption>
     </screenshot>
@@ -19,7 +19,7 @@
       <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/packet-receive.png?raw=true</image>
       <caption>Received Share Request</caption>
     </screenshot>
-    <screenshot>
+    <screenshot type="default">
       <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/packet-send.png?raw=true</image>
       <caption>Sent Share Request</caption>
     </screenshot>
