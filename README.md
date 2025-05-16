@@ -26,3 +26,7 @@ Packet requires Bluetooth to be enabled and the devices to be connected to a Wi-
 <!-- ## Translations -->
 <!-- Helping to translate Packet or add support to a new language is very -->
 <!-- welcome. You can find everything you need at: -->
+
+## Credits
+- [NearDrop](https://github.com/grishka/NearDrop/)
+- [rquickshare](https://github.com/Martichou/rquickshare/)
