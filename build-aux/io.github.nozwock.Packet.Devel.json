@@ -21,6 +21,7 @@
         "--env=G_MESSAGES_DEBUG=none",
         "--env=RUST_BACKTRACE=1"
     ],
+    "separate-locales": false,
     "build-options": {
         "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm18/bin",
         "build-args": [
