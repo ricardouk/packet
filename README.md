@@ -7,19 +7,15 @@ An implementation of the Google Quick Share protocol to send and receive files t
 </div>
 
 ## Installation
-Packet is available as a flatpak.
-
-#### Flathub
-Packet is available on Flathub!
 
 <a href="https://flathub.org/apps/details/io.github.nozwock.Packet">
 <img src="https://flathub.org/api/badge?svg&locale=en&dark" width="190px" />
 </a>
 
 #### Nightly
-Nightly flatpak builds are available from [here](https://nightly.link/nozwock/packet/workflows/ci/main?preview).
+Nightly Flatpak builds are available from [here](https://nightly.link/nozwock/packet/workflows/ci/main?preview).
 
-## Requirement
+## Requirements
 Packet requires Bluetooth to be enabled and the devices to be connected to a Wi-Fi network with mDNS.
 
 <!-- FIXME Uncomment once pot/po files are in-place and tested -->
