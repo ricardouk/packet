@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-20 03:55+0530\n"
+"POT-Creation-Date: 2025-05-20 03:56+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,80 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-
-#. Translators: The name should remain untranslated
-#: data/io.github.nozwock.Packet.desktop.in.in:3
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
-#: data/resources/ui/window.blp:37 data/resources/ui/window.blp:99
-#: src/application.rs:131 src/main.rs:33
-msgid "Packet"
-msgstr ""
-
-#: data/io.github.nozwock.Packet.desktop.in.in:4
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
-msgid "Share files easily"
-msgstr ""
-
-#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/io.github.nozwock.Packet.desktop.in.in:10
-msgid "Gnome;GTK;Quick;Nearby;Share;"
-msgstr ""
-
-#. Trasnlators: The gschema strings won't be used in the app directly and aren't a priority
-#: data/io.github.nozwock.Packet.gschema.xml.in:7
-msgid "Window width"
-msgstr ""
-
-#: data/io.github.nozwock.Packet.gschema.xml.in:11
-msgid "Window height"
-msgstr ""
-
-#: data/io.github.nozwock.Packet.gschema.xml.in:15
-msgid "Window maximized state"
-msgstr ""
-
-#: data/io.github.nozwock.Packet.gschema.xml.in:19
-msgid "Device name"
-msgstr ""
-
-#: data/io.github.nozwock.Packet.gschema.xml.in:23
-msgid "Device visibility"
-msgstr ""
-
-#: data/io.github.nozwock.Packet.gschema.xml.in:27
-msgid "Download folder"
-msgstr ""
-
-#. Trasnlators: The metainfo strings are for Flathub and aren't a priority
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
-msgid ""
-"Send and receive files wirelessly with Android devices using Quick Share or "
-"another device with Packet installed."
-msgstr ""
-
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:11
-msgid ""
-"Packet requires Bluetooth to be enabled and the devices to be connected to a "
-"Wi-Fi network with mDNS."
-msgstr ""
-
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:17
-msgid "Home Page"
-msgstr ""
-
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:21
-msgid "Received Share Request"
-msgstr ""
-
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:25
-msgid "Sent Share Request"
-msgstr ""
-
-#. Translators: These are release notes, don't waste your time translating these.
-#. Sorry, these shouldn't have been included in the translations but the tooling around this is very poor currently.
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:42
-msgid "Added Dutch translation"
-msgstr ""
 
 #: data/resources/ui/window.blp:7
 msgid "_Preferences"
@@ -106,6 +32,14 @@ msgstr ""
 
 #: data/resources/ui/window.blp:22
 msgid "_About Packet"
+msgstr ""
+
+#. Translators: The name should remain untranslated
+#: data/resources/ui/window.blp:37 data/resources/ui/window.blp:99
+#: src/application.rs:131 src/main.rs:33
+#: data/io.github.nozwock.Packet.desktop.in.in:3
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
+msgid "Packet"
 msgstr ""
 
 #: data/resources/ui/window.blp:51
@@ -345,4 +279,70 @@ msgstr ""
 
 #: src/window.rs:860
 msgid "Can't rename device during an active transfer"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.desktop.in.in:4
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
+msgid "Share files easily"
+msgstr ""
+
+#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+#: data/io.github.nozwock.Packet.desktop.in.in:10
+msgid "Gnome;GTK;Quick;Nearby;Share;"
+msgstr ""
+
+#. Trasnlators: The gschema strings won't be used in the app directly and aren't a priority
+#: data/io.github.nozwock.Packet.gschema.xml.in:7
+msgid "Window width"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.gschema.xml.in:11
+msgid "Window height"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.gschema.xml.in:15
+msgid "Window maximized state"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.gschema.xml.in:19
+msgid "Device name"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.gschema.xml.in:23
+msgid "Device visibility"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.gschema.xml.in:27
+msgid "Download folder"
+msgstr ""
+
+#. Trasnlators: The metainfo strings are for Flathub and aren't a priority
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
+msgid ""
+"Send and receive files wirelessly with Android devices using Quick Share or "
+"another device with Packet installed."
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:11
+msgid ""
+"Packet requires Bluetooth to be enabled and the devices to be connected to a "
+"Wi-Fi network with mDNS."
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:17
+msgid "Home Page"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:21
+msgid "Received Share Request"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:25
+msgid "Sent Share Request"
+msgstr ""
+
+#. Translators: These are release notes, don't waste your time translating these.
+#. Sorry, these shouldn't have been included in the translations but the tooling around this is very poor currently.
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:42
+msgid "Added Dutch translation"
 msgstr ""

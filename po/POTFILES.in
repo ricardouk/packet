@@ -1,6 +1,3 @@
-data/io.github.nozwock.Packet.desktop.in.in
-data/io.github.nozwock.Packet.gschema.xml.in
-data/io.github.nozwock.Packet.metainfo.xml.in.in
 data/resources/ui/shortcuts.blp
 data/resources/ui/window.blp
 src/application.rs
@@ -14,3 +11,7 @@ src/widgets/mod.rs
 src/widgets/receive_transfer.rs
 src/widgets/recipient_card.rs
 src/window.rs
+
+data/io.github.nozwock.Packet.desktop.in.in
+data/io.github.nozwock.Packet.gschema.xml.in
+data/io.github.nozwock.Packet.metainfo.xml.in.in
