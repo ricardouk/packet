@@ -8,14 +8,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-18 13:20+0530\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-05-19 20:18+0000\n"
+"Last-Translator: Priit Jõerüüt <hwlate@joeruut.com>\n"
+"Language-Team: Estonian <https://hosted.weblate.org/projects/packet/main/et/>"
+"\n"
 "Language: et\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: data/io.github.nozwock.Packet.desktop.in.in:2
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6 src/application.rs:129
@@ -26,35 +28,36 @@ msgstr ""
 #: data/io.github.nozwock.Packet.desktop.in.in:3
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
 msgid "Share files easily"
-msgstr ""
+msgstr "Failide mugav ja lihtne jagamine"
 
 #: data/io.github.nozwock.Packet.desktop.in.in:9
 msgid "Gnome;GTK;Quick;Nearby;Share;"
 msgstr ""
+"Gnome;GTK;Quick;Nearby;Share;jaga;jagamine;failid;võrk;lähedal;läheduses;"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:6
 msgid "Window width"
-msgstr ""
+msgstr "Akna laius"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:10
 msgid "Window height"
-msgstr ""
+msgstr "Akna kõrgus"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:14
 msgid "Window maximized state"
-msgstr ""
+msgstr "Akna maksimaalne vaade"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:18
 msgid "Device name"
-msgstr ""
+msgstr "Seadme nimi"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:22
 msgid "Device visibility"
-msgstr ""
+msgstr "Seadme nähtavus"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:26
 msgid "Download folder"
-msgstr ""
+msgstr "Allalaadimiste kaust"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:9
 msgid ""
@@ -124,15 +127,15 @@ msgstr[1] ""
 
 #: src/widgets/receive_transfer.rs:20
 msgid "Link"
-msgstr ""
+msgstr "Link"
 
 #: src/widgets/receive_transfer.rs:21
 msgid "Text"
-msgstr ""
+msgstr "Tekst"
 
 #: src/widgets/receive_transfer.rs:22
 msgid "Wi-Fi"
-msgstr ""
+msgstr "WiFi"
 
 #: src/widgets/receive_transfer.rs:38
 msgid "Receiving"
@@ -186,38 +189,38 @@ msgstr ""
 
 #: src/widgets/receive_transfer.rs:420
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Kopeeri lõikelauale"
 
 #: src/widgets/receive_transfer.rs:428
 msgid "Save text as file"
-msgstr ""
+msgstr "Salvesta tekst failina"
 
 #: src/widgets/receive_transfer.rs:485 src/widgets/receive_transfer.rs:601
 msgid "Open"
-msgstr ""
+msgstr "Ava"
 
 #: src/widgets/receive_transfer.rs:582
 msgid "Unimplemented"
-msgstr ""
+msgstr "Pole implementeeritud"
 
 #: src/widgets/receive_transfer.rs:593
 #, rust-format
 msgid "{} file received"
 msgid_plural "{} files received"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} fail on vastu võetud"
+msgstr[1] "{} faili on vastu võetud"
 
 #: src/widgets/recipient_card.rs:220
 msgid "Unavailable"
-msgstr ""
+msgstr "Pole saadaval"
 
 #: src/widgets/recipient_card.rs:243
 msgid "Queued"
-msgstr ""
+msgstr "Lisatud järjekorda"
 
 #: src/widgets/recipient_card.rs:289
 msgid "Retry"
-msgstr ""
+msgstr "Proovi uuesti"
 
 #: src/widgets/recipient_card.rs:439
 msgid "Requested"
