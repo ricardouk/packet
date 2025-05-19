@@ -6,6 +6,7 @@
   <name>Packet</name>
   <summary>Share files easily</summary>
   <description>
+    <!-- Trasnlators: The metainfo strings are for Flathub and aren't a priority -->
     <p>Send and receive files wirelessly with Android devices using Quick Share or another device with Packet installed.</p>
     <p>Packet requires Bluetooth to be enabled and the devices to be connected to a Wi-Fi network with mDNS.</p>
   </description>
@@ -36,6 +37,8 @@
   <releases>
     <release version="0.1.2" date="2025-05-18">
       <description translatable="no">
+        <!-- Translators: These are release notes, don't waste your time translating these. -->
+        <!-- Sorry, these shouldn't have been included in the translations but the tooling around this is very poor currently. -->
         <p>Added Dutch translation</p>
       </description>
     </release>

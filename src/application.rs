@@ -126,7 +126,10 @@ impl PacketApplication {
         // https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1.7/class.AboutDialog.html
         // https://github.com/youpie/Iconic/blob/main/src/application.rs
         let dialog = adw::AboutDialog::builder()
-            .application_name(gettext("Packet"))
+            .application_name(gettext(
+                // Translators: The name should remain untranslated
+                "Packet",
+            ))
             .application_icon(APP_ID)
             .version(VERSION)
             .developer_name("nozwock")
@@ -136,7 +139,10 @@ impl PacketApplication {
             .license_type(gtk::License::Gpl30)
             .issue_url("https://github.com/nozwock/packet/issues")
             .website("https://github.com/nozwock/packet")
-            .translator_credits(gettext("translator-credits"))
+            .translator_credits(gettext(
+                // Translators: Replace "translator-credits" with your names, one name per line
+                "translator-credits",
+            ))
             .build();
 
         dialog.add_acknowledgement_section(

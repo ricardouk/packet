@@ -1,91 +1,181 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the packet package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-18 13:20+0530\n"
+"POT-Creation-Date: 2025-05-20 03:55+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: data/io.github.nozwock.Packet.desktop.in.in:2
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:6 src/application.rs:129
-#: src/main.rs:33
+#. Translators: The name should remain untranslated
+#: data/io.github.nozwock.Packet.desktop.in.in:3
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
+#: data/resources/ui/window.blp:37 data/resources/ui/window.blp:99
+#: src/application.rs:131 src/main.rs:33
 msgid "Packet"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.desktop.in.in:3
+#: data/io.github.nozwock.Packet.desktop.in.in:4
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
 msgid "Share files easily"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.desktop.in.in:9
+#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+#: data/io.github.nozwock.Packet.desktop.in.in:10
 msgid "Gnome;GTK;Quick;Nearby;Share;"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.gschema.xml.in:6
+#. Trasnlators: The gschema strings won't be used in the app directly and aren't a priority
+#: data/io.github.nozwock.Packet.gschema.xml.in:7
 msgid "Window width"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.gschema.xml.in:10
+#: data/io.github.nozwock.Packet.gschema.xml.in:11
 msgid "Window height"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.gschema.xml.in:14
+#: data/io.github.nozwock.Packet.gschema.xml.in:15
 msgid "Window maximized state"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.gschema.xml.in:18
+#: data/io.github.nozwock.Packet.gschema.xml.in:19
 msgid "Device name"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.gschema.xml.in:22
+#: data/io.github.nozwock.Packet.gschema.xml.in:23
 msgid "Device visibility"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.gschema.xml.in:26
+#: data/io.github.nozwock.Packet.gschema.xml.in:27
 msgid "Download folder"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:9
+#. Trasnlators: The metainfo strings are for Flathub and aren't a priority
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
 msgid ""
 "Send and receive files wirelessly with Android devices using Quick Share or "
 "another device with Packet installed."
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:11
 msgid ""
 "Packet requires Bluetooth to be enabled and the devices to be connected to a "
 "Wi-Fi network with mDNS."
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:16
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:17
 msgid "Home Page"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:20
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:21
 msgid "Received Share Request"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:24
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:25
 msgid "Sent Share Request"
 msgstr ""
 
-#: src/application.rs:139
+#. Translators: These are release notes, don't waste your time translating these.
+#. Sorry, these shouldn't have been included in the translations but the tooling around this is very poor currently.
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:42
+msgid "Added Dutch translation"
+msgstr ""
+
+#: data/resources/ui/window.blp:7
+msgid "_Preferences"
+msgstr ""
+
+#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:372
+msgid "Help"
+msgstr ""
+
+#: data/resources/ui/window.blp:17
+msgid "_Keyboard Shortcuts"
+msgstr ""
+
+#: data/resources/ui/window.blp:22
+msgid "_About Packet"
+msgstr ""
+
+#: data/resources/ui/window.blp:51
+msgid "Setting up Packet..."
+msgstr ""
+
+#: data/resources/ui/window.blp:100
+msgid "Add, or drop a file to send"
+msgstr ""
+
+#: data/resources/ui/window.blp:103
+msgid "Add Files"
+msgstr ""
+
+#: data/resources/ui/window.blp:158
+msgid "Add File"
+msgstr ""
+
+#: data/resources/ui/window.blp:247
+msgid "Send"
+msgstr ""
+
+#: data/resources/ui/window.blp:270
+msgid "Select Recipients"
+msgstr ""
+
+#: data/resources/ui/window.blp:351
+msgid "Preferences"
+msgstr ""
+
+#: data/resources/ui/window.blp:356
+msgid "Network"
+msgstr ""
+
+#: data/resources/ui/window.blp:359
+msgid "Device Name"
+msgstr ""
+
+#: data/resources/ui/window.blp:364
+msgid "Visibility"
+msgstr ""
+
+#: data/resources/ui/window.blp:365
+msgid "Whether others can see this device"
+msgstr ""
+
+#. Translators: This is a heading under the help page
+#: data/resources/ui/window.blp:403
+msgid "I don't see the other device"
+msgstr ""
+
+#: data/resources/ui/window.blp:414
+msgid ""
+"Make sure the other device is visible and connected to the same network as "
+"this device.\n"
+"\n"
+"If it's an Android device and you still don't see it despite setting "
+"visibility to \"Everyone\", try opening the <b>Quick Share</b> page from the "
+"<b>Google Files</b> app and leave it open.\n"
+"\n"
+"Also, ensure Bluetooth is enabled on both devices, as it's often required "
+"for device discovery even over Wi-Fi."
+msgstr ""
+
+#. Translators: Replace "translator-credits" with your names, one name per line
+#: src/application.rs:144
 msgid "translator-credits"
 msgstr ""
 
-#: src/application.rs:143
+#: src/application.rs:149
 msgid "Similar Projects"
 msgstr ""
 
@@ -116,8 +206,8 @@ msgstr[1] ""
 msgid "Remove"
 msgstr ""
 
-#: src/widgets/file_card.rs:133 src/window.rs:636
-#, rust-format
+#. Translators: An e.g. "4 Files"
+#: src/widgets/file_card.rs:133 src/window.rs:638
 msgid "{} File"
 msgid_plural "{} Files"
 msgstr[0] ""
@@ -155,54 +245,53 @@ msgstr ""
 msgid "Accept"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:193
-#, rust-format
+#. Translators: An e.g. "6 Files (42.3MB)"
+#: src/widgets/receive_transfer.rs:195
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/widgets/receive_transfer.rs:210
-#, rust-format
+#: src/widgets/receive_transfer.rs:215
 msgid "Preview ({})"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:232 src/widgets/recipient_card.rs:445
-#, rust-format
+#. Translators: This is the pin-code for the transfer
+#: src/widgets/receive_transfer.rs:239 src/widgets/recipient_card.rs:445
 msgid "Code: {}"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:336 src/widgets/recipient_card.rs:478
-#, rust-format
+#. Translators: {} will be replaced with an estimated remaining time string
+#. e.g. "About 4 minutes 32 seconds left"
+#: src/widgets/receive_transfer.rs:347 src/widgets/recipient_card.rs:478
 msgid "About {} left"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:362
+#: src/widgets/receive_transfer.rs:374
 msgid "Unexpected dissconnection"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:385
+#: src/widgets/receive_transfer.rs:397
 msgid "Transfer cancelled by sender"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:420
+#: src/widgets/receive_transfer.rs:432
 msgid "Copy to clipboard"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:428
+#: src/widgets/receive_transfer.rs:440
 msgid "Save text as file"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:485 src/widgets/receive_transfer.rs:601
+#: src/widgets/receive_transfer.rs:497 src/widgets/receive_transfer.rs:613
 msgid "Open"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:582
+#: src/widgets/receive_transfer.rs:594
 msgid "Unimplemented"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:593
-#, rust-format
+#: src/widgets/receive_transfer.rs:605
 msgid "{} file received"
 msgid_plural "{} files received"
 msgstr[0] ""
@@ -229,7 +318,6 @@ msgid "Failed"
 msgstr ""
 
 #: src/widgets/recipient_card.rs:545
-#, rust-format
 msgid "Sent {} file"
 msgid_plural "Sent {} files"
 msgstr[0] ""
@@ -240,7 +328,6 @@ msgid "Ready"
 msgstr ""
 
 #: src/window.rs:582
-#, rust-format
 msgid "Visible as {:?}"
 msgstr ""
 
@@ -256,6 +343,6 @@ msgstr ""
 msgid "Couldn't open files"
 msgstr ""
 
-#: src/window.rs:855
+#: src/window.rs:860
 msgid "Can't rename device during an active transfer"
 msgstr ""

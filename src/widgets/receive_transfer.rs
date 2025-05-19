@@ -190,7 +190,12 @@ pub fn present_receive_transfer_ui(
                     let files_label = gtk::Label::builder()
                         .label(
                             formatx!(
-                                ngettext("{} file ({})", "{} files ({})", file_count as u32,),
+                                ngettext(
+                                    // Translators: An e.g. "6 Files (42.3MB)"
+                                    "{} file ({})",
+                                    "{} files ({})",
+                                    file_count as u32,
+                                ),
                                 file_count,
                                 transfer_size
                             )
@@ -229,7 +234,10 @@ pub fn present_receive_transfer_ui(
                 let pincode_label = gtk::Label::builder()
                     .label(
                         formatx!(
-                            gettext("Code: {}"),
+                            gettext(
+                                // Translators: This is the pin-code for the transfer
+                                "Code: {}"
+                            ),
                             msg.meta
                                 .as_ref()
                                 .unwrap()
@@ -333,7 +341,11 @@ pub fn present_receive_transfer_ui(
                         }
 
                         formatx!(
-                            gettext("About {} left"),
+                            gettext(
+                                // Translators: {} will be replaced with an estimated remaining time string
+                                // e.g. "About 4 minutes 32 seconds left"
+                                "About {} left"
+                            ),
                             receive_state
                                 .imp()
                                 .eta

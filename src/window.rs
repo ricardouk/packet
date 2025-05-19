@@ -633,7 +633,12 @@ impl PacketApplicationWindow {
             let file_count = files.len() + imp.manage_files_model.n_items() as usize;
             imp.manage_files_header.set_title(
                 &formatx!(
-                    ngettext("{} File", "{} Files", file_count as u32),
+                    ngettext(
+                        // Translators: An e.g. "4 Files"
+                        "{} File",
+                        "{} Files",
+                        file_count as u32
+                    ),
                     file_count
                 )
                 .unwrap(),
