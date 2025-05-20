@@ -8,30 +8,32 @@ msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-20 03:56+0530\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-05-20 09:14+0000\n"
+"Last-Translator: John Peter Sa <johnppetersa@gmail.com>\n"
+"Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
+"packet/main/pt_BR/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: data/resources/ui/window.blp:7
 msgid "_Preferences"
-msgstr ""
+msgstr "_Preferências"
 
 #: data/resources/ui/window.blp:12 data/resources/ui/window.blp:372
 msgid "Help"
-msgstr ""
+msgstr "Ajuda"
 
 #: data/resources/ui/window.blp:17
 msgid "_Keyboard Shortcuts"
-msgstr ""
+msgstr "_Atalhos de teclado"
 
 #: data/resources/ui/window.blp:22
 msgid "_About Packet"
-msgstr ""
+msgstr "_Sobre o Pacote"
 
 #. Translators: The name should remain untranslated
 #: data/resources/ui/window.blp:37 data/resources/ui/window.blp:99
@@ -39,56 +41,56 @@ msgstr ""
 #: data/io.github.nozwock.Packet.desktop.in.in:3
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
 msgid "Packet"
-msgstr ""
+msgstr "Pacote"
 
 #: data/resources/ui/window.blp:51
 msgid "Setting up Packet..."
-msgstr ""
+msgstr "Configurando o pacote..."
 
 #: data/resources/ui/window.blp:100
 msgid "Add, or drop a file to send"
-msgstr ""
+msgstr "Adicione ou solte um arquivo para enviar"
 
 #: data/resources/ui/window.blp:103
 msgid "Add Files"
-msgstr ""
+msgstr "Adicionar arquivos"
 
 #: data/resources/ui/window.blp:158
 msgid "Add File"
-msgstr ""
+msgstr "Adicionar arquivo"
 
 #: data/resources/ui/window.blp:247
 msgid "Send"
-msgstr ""
+msgstr "Enviar"
 
 #: data/resources/ui/window.blp:270
 msgid "Select Recipients"
-msgstr ""
+msgstr "Selecionar destinatários"
 
 #: data/resources/ui/window.blp:351
 msgid "Preferences"
-msgstr ""
+msgstr "Preferências"
 
 #: data/resources/ui/window.blp:356
 msgid "Network"
-msgstr ""
+msgstr "Rede"
 
 #: data/resources/ui/window.blp:359
 msgid "Device Name"
-msgstr ""
+msgstr "Nome do dispositivo"
 
 #: data/resources/ui/window.blp:364
 msgid "Visibility"
-msgstr ""
+msgstr "Visibilidade"
 
 #: data/resources/ui/window.blp:365
 msgid "Whether others can see this device"
-msgstr ""
+msgstr "Se outras pessoas podem ver este dispositivo"
 
 #. Translators: This is a heading under the help page
 #: data/resources/ui/window.blp:403
 msgid "I don't see the other device"
-msgstr ""
+msgstr "Se outras pessoas podem ver este dispositivo"
 
 #: data/resources/ui/window.blp:414
 msgid ""
@@ -102,218 +104,229 @@ msgid ""
 "Also, ensure Bluetooth is enabled on both devices, as it's often required "
 "for device discovery even over Wi-Fi."
 msgstr ""
+"Certifique-se de que o outro dispositivo esteja visível e conectado à mesma "
+"rede que este.\n"
+"\n"
+"Se for um dispositivo Android e você ainda não o vir, mesmo com a "
+"visibilidade definida como \"Todos\", tente abrir a página do "
+"<b>Compartilhamento rápido</b> no aplicativo <b>Arquivos do Google</b> e "
+"deixe-a aberta.\n"
+"\n"
+"Além disso, certifique-se de que o Bluetooth esteja ativado em ambos os "
+"dispositivos, pois ele geralmente é necessário para a descoberta de "
+"dispositivos, mesmo via Wi-Fi."
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/application.rs:144
 msgid "translator-credits"
-msgstr ""
+msgstr "John Peter Sa"
 
 #: src/application.rs:149
 msgid "Similar Projects"
-msgstr ""
+msgstr "Projetos semelhantes"
 
 #: src/objects/send_transfer.rs:38 src/objects/send_transfer.rs:46
 #: src/widgets/recipient_card.rs:108 src/widgets/recipient_card.rs:147
 msgid "Unknown device"
-msgstr ""
+msgstr "Dispositivo desconhecido"
 
 #: src/utils.rs:133
 msgid "hour"
 msgid_plural "hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "hora"
+msgstr[1] "horas"
 
 #: src/utils.rs:135 src/utils.rs:145
 msgid "minute"
 msgid_plural "minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "minuto"
+msgstr[1] "minutos"
 
 #: src/utils.rs:147 src/utils.rs:150
 msgid "second"
 msgid_plural "seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "segundo"
+msgstr[1] "segundos"
 
 #: src/widgets/file_card.rs:115
 msgid "Remove"
-msgstr ""
+msgstr "Remover"
 
 #. Translators: An e.g. "4 Files"
 #: src/widgets/file_card.rs:133 src/window.rs:638
 msgid "{} File"
 msgid_plural "{} Files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} Arquivo"
+msgstr[1] "{} Arquivos"
 
 #: src/widgets/receive_transfer.rs:20
 msgid "Link"
-msgstr ""
+msgstr "Link"
 
 #: src/widgets/receive_transfer.rs:21
 msgid "Text"
-msgstr ""
+msgstr "Texto"
 
 #: src/widgets/receive_transfer.rs:22
 msgid "Wi-Fi"
-msgstr ""
+msgstr "Wi-Fi"
 
 #: src/widgets/receive_transfer.rs:38
 msgid "Receiving"
-msgstr ""
+msgstr "Recebendo"
 
 #: src/widgets/receive_transfer.rs:41 src/widgets/recipient_card.rs:308
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: src/widgets/receive_transfer.rs:139
 msgid "Incoming Transfer"
-msgstr ""
+msgstr "Transferência de entrada"
 
 #: src/widgets/receive_transfer.rs:163
 msgid "Decline"
-msgstr ""
+msgstr "Declínio"
 
 #: src/widgets/receive_transfer.rs:164
 msgid "Accept"
-msgstr ""
+msgstr "Aceitar"
 
 #. Translators: An e.g. "6 Files (42.3MB)"
 #: src/widgets/receive_transfer.rs:195
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} arquivo ({})"
+msgstr[1] "{} arquivos ({})"
 
 #: src/widgets/receive_transfer.rs:215
 msgid "Preview ({})"
-msgstr ""
+msgstr "Visualizar ({})"
 
 #. Translators: This is the pin-code for the transfer
 #: src/widgets/receive_transfer.rs:239 src/widgets/recipient_card.rs:445
 msgid "Code: {}"
-msgstr ""
+msgstr "Código: {}"
 
 #. Translators: {} will be replaced with an estimated remaining time string
 #. e.g. "About 4 minutes 32 seconds left"
 #: src/widgets/receive_transfer.rs:347 src/widgets/recipient_card.rs:478
 msgid "About {} left"
-msgstr ""
+msgstr "Cerca de {} restantes"
 
 #: src/widgets/receive_transfer.rs:374
 msgid "Unexpected dissconnection"
-msgstr ""
+msgstr "Desconexão inesperada"
 
 #: src/widgets/receive_transfer.rs:397
 msgid "Transfer cancelled by sender"
-msgstr ""
+msgstr "Transferência cancelada pelo remetente"
 
 #: src/widgets/receive_transfer.rs:432
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Copiar para a área de transferência"
 
 #: src/widgets/receive_transfer.rs:440
 msgid "Save text as file"
-msgstr ""
+msgstr "Salvar texto como arquivo"
 
 #: src/widgets/receive_transfer.rs:497 src/widgets/receive_transfer.rs:613
 msgid "Open"
-msgstr ""
+msgstr "Abrir"
 
 #: src/widgets/receive_transfer.rs:594
 msgid "Unimplemented"
-msgstr ""
+msgstr "Não implementado"
 
 #: src/widgets/receive_transfer.rs:605
 msgid "{} file received"
 msgid_plural "{} files received"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} arquivo recebido"
+msgstr[1] "{} arquivos recebidos"
 
 #: src/widgets/recipient_card.rs:220
 msgid "Unavailable"
-msgstr ""
+msgstr "Indisponível"
 
 #: src/widgets/recipient_card.rs:243
 msgid "Queued"
-msgstr ""
+msgstr "Na fila"
 
 #: src/widgets/recipient_card.rs:289
 msgid "Retry"
-msgstr ""
+msgstr "Tentar novamente"
 
 #: src/widgets/recipient_card.rs:439
 msgid "Requested"
-msgstr ""
+msgstr "Solicitado"
 
 #: src/widgets/recipient_card.rs:505
 msgid "Failed"
-msgstr ""
+msgstr "Fracassado"
 
 #: src/widgets/recipient_card.rs:545
 msgid "Sent {} file"
 msgid_plural "Sent {} files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Arquivo {} enviado"
+msgstr[1] "Arquivos {} enviados"
 
 #: src/window.rs:576
 msgid "Ready"
-msgstr ""
+msgstr "Preparar"
 
 #: src/window.rs:582
 msgid "Visible as {:?}"
-msgstr ""
+msgstr "Visível como {:?}"
 
 #: src/window.rs:588
 msgid "Invisible"
-msgstr ""
+msgstr "Invisível"
 
 #: src/window.rs:594
 msgid "No new devices can share with you"
-msgstr ""
+msgstr "Nenhum novo dispositivo pode compartilhar com você"
 
 #: src/window.rs:627
 msgid "Couldn't open files"
-msgstr ""
+msgstr "Não foi possível abrir os arquivos"
 
 #: src/window.rs:860
 msgid "Can't rename device during an active transfer"
-msgstr ""
+msgstr "Não é possível renomear o dispositivo durante uma transferência ativa"
 
 #: data/io.github.nozwock.Packet.desktop.in.in:4
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
 msgid "Share files easily"
-msgstr ""
+msgstr "Compartilhe arquivos facilmente"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: data/io.github.nozwock.Packet.desktop.in.in:10
 msgid "Gnome;GTK;Quick;Nearby;Share;"
-msgstr ""
+msgstr "Gnome;GTK;Quick;Nearby;Share;"
 
 #. Trasnlators: The gschema strings won't be used in the app directly and aren't a priority
 #: data/io.github.nozwock.Packet.gschema.xml.in:7
 msgid "Window width"
-msgstr ""
+msgstr "Largura da janela"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:11
 msgid "Window height"
-msgstr ""
+msgstr "Altura da janela"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:15
 msgid "Window maximized state"
-msgstr ""
+msgstr "Estado maximizado da janela"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:19
 msgid "Device name"
-msgstr ""
+msgstr "Nome do dispositivo"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:23
 msgid "Device visibility"
-msgstr ""
+msgstr "Visibilidade do dispositivo"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:27
 msgid "Download folder"
-msgstr ""
+msgstr "Pasta de download"
 
 #. Trasnlators: The metainfo strings are for Flathub and aren't a priority
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
@@ -321,27 +334,31 @@ msgid ""
 "Send and receive files wirelessly with Android devices using Quick Share or "
 "another device with Packet installed."
 msgstr ""
+"Envie e receba arquivos sem fio com dispositivos Android usando o Quick "
+"Share ou outro dispositivo com o Packet instalado."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:11
 msgid ""
 "Packet requires Bluetooth to be enabled and the devices to be connected to a "
 "Wi-Fi network with mDNS."
 msgstr ""
+"O pacote requer que o Bluetooth esteja habilitado e que os dispositivos "
+"estejam conectados a uma rede Wi-Fi com mDNS."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:17
 msgid "Home Page"
-msgstr ""
+msgstr "Página inicial"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:21
 msgid "Received Share Request"
-msgstr ""
+msgstr "Solicitação de compartilhamento recebida"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:25
 msgid "Sent Share Request"
-msgstr ""
+msgstr "Enviado pedido de compartilhamento"
 
 #. Translators: These are release notes, don't waste your time translating these.
 #. Sorry, these shouldn't have been included in the translations but the tooling around this is very poor currently.
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:42
 msgid "Added Dutch translation"
-msgstr ""
+msgstr "Adicionada tradução holandesa"
