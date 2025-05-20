@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-18 13:20+0530\n"
-"PO-Revision-Date: 2025-05-19 20:18+0000\n"
+"PO-Revision-Date: 2025-05-21 07:21+0000\n"
 "Last-Translator: Priit Jõerüüt <hwlate@joeruut.com>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/packet/main/et/>"
 "\n"
@@ -23,7 +23,7 @@ msgstr ""
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6 src/application.rs:129
 #: src/main.rs:33
 msgid "Packet"
-msgstr ""
+msgstr "Packet"
 
 #: data/io.github.nozwock.Packet.desktop.in.in:3
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
@@ -64,16 +64,20 @@ msgid ""
 "Send and receive files wirelessly with Android devices using Quick Share or "
 "another device with Packet installed."
 msgstr ""
+"Saada ja võta vastu faile traadita võrgus Quick Share'i liidestusega "
+"Androidi seadmetes või seadmeis, kus Packet on paigaldatud."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
 msgid ""
 "Packet requires Bluetooth to be enabled and the devices to be connected to a "
 "Wi-Fi network with mDNS."
 msgstr ""
+"Packet eeldab, et Bluetooth on kasutusel ja seade on ühendatud WiFi võrku, "
+"kus mDNS toimib."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:16
 msgid "Home Page"
-msgstr ""
+msgstr "Avaleht"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:20
 msgid "Received Share Request"
