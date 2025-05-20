@@ -19,7 +19,9 @@ Nightly Flatpak builds are available from [here](https://nightly.link/nozwock/pa
 Packet requires Bluetooth to be enabled and the devices to be connected to a Wi-Fi network with mDNS.
 
 ## Translations
-You can help translate Packet into your native language. If you found any typos or think you can improve a translation, you can use the [Weblate](https://hosted.weblate.org/projects/packet/) platform.
+You can help translate Packet into your native language. If you found any typos or think you can improve a translation, you can use the [Weblate](https://hosted.weblate.org/engage/packet/) platform.
+
+[![Translation status](https://hosted.weblate.org/widget/packet/multi-auto.svg)](https://hosted.weblate.org/engage/packet/)
 
 ## Acknowledgments
 - [NearDrop](https://github.com/grishka/NearDrop/)
