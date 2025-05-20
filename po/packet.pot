@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-20 03:56+0530\n"
+"POT-Creation-Date: 2025-05-20 15:03+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -341,8 +341,16 @@ msgstr ""
 msgid "Sent Share Request"
 msgstr ""
 
-#. Translators: These are release notes, don't waste your time translating these.
-#. Sorry, these shouldn't have been included in the translations but the tooling around this is very poor currently.
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:42
+#. Translators: These are release notes, don't waste your time translating these, they won't take effect for now.
+#. Sorry, these shouldn't have been included but the tooling around this is very poor currently.
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:43
+msgid "Added Portuguese (Brazil) translation"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:44
+msgid "Added partial German translation"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:50
 msgid "Added Dutch translation"
 msgstr ""
