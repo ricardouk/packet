@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-18 13:20+0530\n"
-"PO-Revision-Date: 2025-05-19 20:18+0000\n"
+"PO-Revision-Date: 2025-05-21 13:24+0000\n"
 "Last-Translator: Priit Jõerüüt <hwlate@joeruut.com>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/packet/main/et/>"
 "\n"
@@ -23,7 +23,7 @@ msgstr ""
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6 src/application.rs:129
 #: src/main.rs:33
 msgid "Packet"
-msgstr ""
+msgstr "Packet"
 
 #: data/io.github.nozwock.Packet.desktop.in.in:3
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
@@ -64,66 +64,70 @@ msgid ""
 "Send and receive files wirelessly with Android devices using Quick Share or "
 "another device with Packet installed."
 msgstr ""
+"Saada ja võta vastu faile traadita võrgus Quick Share'i liidestusega "
+"Androidi seadmetes või seadmeis, kus Packet on paigaldatud."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
 msgid ""
 "Packet requires Bluetooth to be enabled and the devices to be connected to a "
 "Wi-Fi network with mDNS."
 msgstr ""
+"Packet eeldab, et Bluetooth on kasutusel ja seade on ühendatud WiFi võrku, "
+"kus mDNS toimib."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:16
 msgid "Home Page"
-msgstr ""
+msgstr "Avaleht"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:20
 msgid "Received Share Request"
-msgstr ""
+msgstr "Vastuvõetud jagamispäring"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:24
 msgid "Sent Share Request"
-msgstr ""
+msgstr "Saadetud jagamispäring"
 
 #: src/application.rs:139
 msgid "translator-credits"
-msgstr ""
+msgstr "Priit Jõerüüt 2025"
 
 #: src/application.rs:143
 msgid "Similar Projects"
-msgstr ""
+msgstr "Sarnased projektid"
 
 #: src/objects/send_transfer.rs:38 src/objects/send_transfer.rs:46
 #: src/widgets/recipient_card.rs:108 src/widgets/recipient_card.rs:147
 msgid "Unknown device"
-msgstr ""
+msgstr "Tundmatu seade"
 
 #: src/utils.rs:133
 msgid "hour"
 msgid_plural "hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "tund"
+msgstr[1] "tundi"
 
 #: src/utils.rs:135 src/utils.rs:145
 msgid "minute"
 msgid_plural "minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "minut"
+msgstr[1] "minutit"
 
 #: src/utils.rs:147 src/utils.rs:150
 msgid "second"
 msgid_plural "seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "sekund"
+msgstr[1] "sekundit"
 
 #: src/widgets/file_card.rs:115
 msgid "Remove"
-msgstr ""
+msgstr "Eemalda"
 
 #: src/widgets/file_card.rs:133 src/window.rs:636
 #, rust-format
 msgid "{} File"
 msgid_plural "{} Files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} fail"
+msgstr[1] "{} faili"
 
 #: src/widgets/receive_transfer.rs:20
 msgid "Link"
@@ -139,53 +143,53 @@ msgstr "WiFi"
 
 #: src/widgets/receive_transfer.rs:38
 msgid "Receiving"
-msgstr ""
+msgstr "Võtan vastu"
 
 #: src/widgets/receive_transfer.rs:41 src/widgets/recipient_card.rs:308
 msgid "Cancel"
-msgstr ""
+msgstr "Katkesta"
 
 #: src/widgets/receive_transfer.rs:139
 msgid "Incoming Transfer"
-msgstr ""
+msgstr "Saabuv ülekanne"
 
 #: src/widgets/receive_transfer.rs:163
 msgid "Decline"
-msgstr ""
+msgstr "Keeldu"
 
 #: src/widgets/receive_transfer.rs:164
 msgid "Accept"
-msgstr ""
+msgstr "Nõustu"
 
 #: src/widgets/receive_transfer.rs:193
 #, rust-format
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} fail ({})"
+msgstr[1] "{} faili ({})"
 
 #: src/widgets/receive_transfer.rs:210
 #, rust-format
 msgid "Preview ({})"
-msgstr ""
+msgstr "Eelvaade ({})"
 
 #: src/widgets/receive_transfer.rs:232 src/widgets/recipient_card.rs:445
 #, rust-format
 msgid "Code: {}"
-msgstr ""
+msgstr "Kood: {}"
 
 #: src/widgets/receive_transfer.rs:336 src/widgets/recipient_card.rs:478
 #, rust-format
 msgid "About {} left"
-msgstr ""
+msgstr "Jäänud veel umbes {}"
 
 #: src/widgets/receive_transfer.rs:362
 msgid "Unexpected dissconnection"
-msgstr ""
+msgstr "Ühenduse ootamatu katkemine"
 
 #: src/widgets/receive_transfer.rs:385
 msgid "Transfer cancelled by sender"
-msgstr ""
+msgstr "Saatja on katkestanud ülekande"
 
 #: src/widgets/receive_transfer.rs:420
 msgid "Copy to clipboard"
@@ -224,40 +228,40 @@ msgstr "Proovi uuesti"
 
 #: src/widgets/recipient_card.rs:439
 msgid "Requested"
-msgstr ""
+msgstr "Päring saadetud"
 
 #: src/widgets/recipient_card.rs:505
 msgid "Failed"
-msgstr ""
+msgstr "Ebaõnnestunud"
 
 #: src/widgets/recipient_card.rs:545
 #, rust-format
 msgid "Sent {} file"
 msgid_plural "Sent {} files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Saatsin {} faili"
+msgstr[1] "Saatsin {} faili"
 
 #: src/window.rs:576
 msgid "Ready"
-msgstr ""
+msgstr "Valmis"
 
 #: src/window.rs:582
 #, rust-format
 msgid "Visible as {:?}"
-msgstr ""
+msgstr "Nähtav kui {:?}"
 
 #: src/window.rs:588
 msgid "Invisible"
-msgstr ""
+msgstr "Nähtamatu"
 
 #: src/window.rs:594
 msgid "No new devices can share with you"
-msgstr ""
+msgstr "Ükski uus seade ei saa enam faile jagada"
 
 #: src/window.rs:627
 msgid "Couldn't open files"
-msgstr ""
+msgstr "Faile polnud võimalik avada"
 
 #: src/window.rs:855
 msgid "Can't rename device during an active transfer"
-msgstr ""
+msgstr "Pooleli ülekande ajal polnud võimalik seadme nime muuta"
