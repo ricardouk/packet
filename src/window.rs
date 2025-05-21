@@ -1038,10 +1038,13 @@ impl PacketApplicationWindow {
                                                 }
                                             }
 
+                                            // Received Disconnected for incoming transfer
                                             if let Some(state) = share_request_state.as_mut() {
-                                                state.set_event(objects::ChannelMessage(
-                                                    channel_message,
-                                                ));
+                                                if channel_message.id == state.event().id {
+                                                    state.set_event(objects::ChannelMessage(
+                                                        channel_message,
+                                                    ));
+                                                }
                                             }
                                         }
                                     }
