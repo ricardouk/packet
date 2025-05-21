@@ -8,30 +8,32 @@ msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-20 15:03+0530\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-05-22 04:11+0000\n"
+"Last-Translator: \"Serhat S.\" <sebihotza@protonmail.com>\n"
+"Language-Team: Turkish <https://hosted.weblate.org/projects/packet/main/tr/>"
+"\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: data/resources/ui/window.blp:7
 msgid "_Preferences"
-msgstr ""
+msgstr "_Tercihler"
 
 #: data/resources/ui/window.blp:12 data/resources/ui/window.blp:372
 msgid "Help"
-msgstr ""
+msgstr "Yardım"
 
 #: data/resources/ui/window.blp:17
 msgid "_Keyboard Shortcuts"
-msgstr ""
+msgstr "_Klavye Kısayolları"
 
 #: data/resources/ui/window.blp:22
 msgid "_About Packet"
-msgstr ""
+msgstr "_Packet Hakkında"
 
 #. Translators: The name should remain untranslated
 #: data/resources/ui/window.blp:37 data/resources/ui/window.blp:99
@@ -39,56 +41,56 @@ msgstr ""
 #: data/io.github.nozwock.Packet.desktop.in.in:3
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
 msgid "Packet"
-msgstr ""
+msgstr "Packet"
 
 #: data/resources/ui/window.blp:51
 msgid "Setting up Packet..."
-msgstr ""
+msgstr "Packet yapılandırılıyor..."
 
 #: data/resources/ui/window.blp:100
 msgid "Add, or drop a file to send"
-msgstr ""
+msgstr "Göndermek için bir dosya ekleyin veya bırakın"
 
 #: data/resources/ui/window.blp:103
 msgid "Add Files"
-msgstr ""
+msgstr "Dosya Ekle"
 
 #: data/resources/ui/window.blp:158
 msgid "Add File"
-msgstr ""
+msgstr "Dosya Ekle"
 
 #: data/resources/ui/window.blp:247
 msgid "Send"
-msgstr ""
+msgstr "Gönder"
 
 #: data/resources/ui/window.blp:270
 msgid "Select Recipients"
-msgstr ""
+msgstr "Alıcıları Seçin"
 
 #: data/resources/ui/window.blp:351
 msgid "Preferences"
-msgstr ""
+msgstr "Tercihler"
 
 #: data/resources/ui/window.blp:356
 msgid "Network"
-msgstr ""
+msgstr "Ağ"
 
 #: data/resources/ui/window.blp:359
 msgid "Device Name"
-msgstr ""
+msgstr "Cihaz Adı"
 
 #: data/resources/ui/window.blp:364
 msgid "Visibility"
-msgstr ""
+msgstr "Görünürlük"
 
 #: data/resources/ui/window.blp:365
 msgid "Whether others can see this device"
-msgstr ""
+msgstr "Diğer kişiler bu cihazı görebilir mi"
 
 #. Translators: This is a heading under the help page
 #: data/resources/ui/window.blp:403
 msgid "I don't see the other device"
-msgstr ""
+msgstr "Diğer cihazı göremiyorum"
 
 #: data/resources/ui/window.blp:414
 msgid ""
@@ -102,218 +104,226 @@ msgid ""
 "Also, ensure Bluetooth is enabled on both devices, as it's often required "
 "for device discovery even over Wi-Fi."
 msgstr ""
+"Diğer cihazın görünür ve aynı ağda olduğundan emin olun.\n"
+"\n"
+"Eğer diğer cihaz Android ise ve görünürlüğü \"Herkes\" olarak ayarlamanıza "
+"rağmen cihazı göremiyorsanız <b>Quick Share</b> sayfasını <b>Google Files</"
+"b> uygulamasından açmayı deneyin ve sayfayı açık bırakın.\n"
+"\n"
+"Ayrıca Wi-Fi üzerinde dahi cihaz keşfi için genellikle gerektiğinden dolayı, "
+"Bluetooth'un iki cihazda da etkinleştirilmiş olduğundan emin olun."
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/application.rs:144
 msgid "translator-credits"
-msgstr ""
+msgstr "Serhat Sivrikaya"
 
 #: src/application.rs:149
 msgid "Similar Projects"
-msgstr ""
+msgstr "Benzer Projeler"
 
 #: src/objects/send_transfer.rs:38 src/objects/send_transfer.rs:46
 #: src/widgets/recipient_card.rs:108 src/widgets/recipient_card.rs:147
 msgid "Unknown device"
-msgstr ""
+msgstr "Bilinmeyen cihaz"
 
 #: src/utils.rs:133
 msgid "hour"
 msgid_plural "hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "saat"
+msgstr[1] "saat"
 
 #: src/utils.rs:135 src/utils.rs:145
 msgid "minute"
 msgid_plural "minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "dakika"
+msgstr[1] "dakika"
 
 #: src/utils.rs:147 src/utils.rs:150
 msgid "second"
 msgid_plural "seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "saniye"
+msgstr[1] "saniye"
 
 #: src/widgets/file_card.rs:115
 msgid "Remove"
-msgstr ""
+msgstr "Kaldır"
 
 #. Translators: An e.g. "4 Files"
 #: src/widgets/file_card.rs:133 src/window.rs:638
 msgid "{} File"
 msgid_plural "{} Files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} Dosya"
+msgstr[1] "{} Dosya"
 
 #: src/widgets/receive_transfer.rs:20
 msgid "Link"
-msgstr ""
+msgstr "Bağlantı"
 
 #: src/widgets/receive_transfer.rs:21
 msgid "Text"
-msgstr ""
+msgstr "Metin"
 
 #: src/widgets/receive_transfer.rs:22
 msgid "Wi-Fi"
-msgstr ""
+msgstr "Wi-Fi"
 
 #: src/widgets/receive_transfer.rs:38
 msgid "Receiving"
-msgstr ""
+msgstr "Alınıyor"
 
 #: src/widgets/receive_transfer.rs:41 src/widgets/recipient_card.rs:308
 msgid "Cancel"
-msgstr ""
+msgstr "İptal"
 
 #: src/widgets/receive_transfer.rs:139
 msgid "Incoming Transfer"
-msgstr ""
+msgstr "Gelen Aktarma"
 
 #: src/widgets/receive_transfer.rs:163
 msgid "Decline"
-msgstr ""
+msgstr "Reddet"
 
 #: src/widgets/receive_transfer.rs:164
 msgid "Accept"
-msgstr ""
+msgstr "Kabul Et"
 
 #. Translators: An e.g. "6 Files (42.3MB)"
 #: src/widgets/receive_transfer.rs:195
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} Dosya ({})"
+msgstr[1] "{} Dosya ({})"
 
 #: src/widgets/receive_transfer.rs:215
 msgid "Preview ({})"
-msgstr ""
+msgstr "Ön İzleme ({})"
 
 #. Translators: This is the pin-code for the transfer
 #: src/widgets/receive_transfer.rs:239 src/widgets/recipient_card.rs:445
 msgid "Code: {}"
-msgstr ""
+msgstr "Kod: {}"
 
 #. Translators: {} will be replaced with an estimated remaining time string
 #. e.g. "About 4 minutes 32 seconds left"
 #: src/widgets/receive_transfer.rs:347 src/widgets/recipient_card.rs:478
 msgid "About {} left"
-msgstr ""
+msgstr "Yaklaşık {} kaldı"
 
 #: src/widgets/receive_transfer.rs:374
 msgid "Unexpected dissconnection"
-msgstr ""
+msgstr "Beklenmedik kesinti"
 
 #: src/widgets/receive_transfer.rs:397
 msgid "Transfer cancelled by sender"
-msgstr ""
+msgstr "Aktarma gönderen tarafından iptal edildi"
 
 #: src/widgets/receive_transfer.rs:432
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Panoya kopyala"
 
 #: src/widgets/receive_transfer.rs:440
 msgid "Save text as file"
-msgstr ""
+msgstr "Metni dosyaya kaydet"
 
 #: src/widgets/receive_transfer.rs:497 src/widgets/receive_transfer.rs:613
 msgid "Open"
-msgstr ""
+msgstr "Aç"
 
 #: src/widgets/receive_transfer.rs:594
 msgid "Unimplemented"
-msgstr ""
+msgstr "Henüz desteklenmiyor"
 
 #: src/widgets/receive_transfer.rs:605
 msgid "{} file received"
 msgid_plural "{} files received"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} dosya alındı"
+msgstr[1] "{} dosya alındı"
 
 #: src/widgets/recipient_card.rs:220
 msgid "Unavailable"
-msgstr ""
+msgstr "Mevcut değil"
 
 #: src/widgets/recipient_card.rs:243
 msgid "Queued"
-msgstr ""
+msgstr "Sırada"
 
 #: src/widgets/recipient_card.rs:289
 msgid "Retry"
-msgstr ""
+msgstr "Yeniden Dene"
 
 #: src/widgets/recipient_card.rs:439
 msgid "Requested"
-msgstr ""
+msgstr "İstek gönderildi"
 
 #: src/widgets/recipient_card.rs:505
 msgid "Failed"
-msgstr ""
+msgstr "Başarısız"
 
 #: src/widgets/recipient_card.rs:545
 msgid "Sent {} file"
 msgid_plural "Sent {} files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} dosya gönderildi"
+msgstr[1] "{} dosya gönderildi"
 
 #: src/window.rs:576
 msgid "Ready"
-msgstr ""
+msgstr "Hazır"
 
 #: src/window.rs:582
 msgid "Visible as {:?}"
-msgstr ""
+msgstr "{:?} olarak görünür"
 
 #: src/window.rs:588
 msgid "Invisible"
-msgstr ""
+msgstr "Görünmez"
 
 #: src/window.rs:594
 msgid "No new devices can share with you"
-msgstr ""
+msgstr "Yeni cihazlar sizinle paylaşamaz"
 
 #: src/window.rs:627
 msgid "Couldn't open files"
-msgstr ""
+msgstr "Dosyalar açılamadı"
 
 #: src/window.rs:860
 msgid "Can't rename device during an active transfer"
-msgstr ""
+msgstr "Aktarma devam ederken cihaz yeniden adlandırılamaz"
 
 #: data/io.github.nozwock.Packet.desktop.in.in:4
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
 msgid "Share files easily"
-msgstr ""
+msgstr "Kolayca dosya paylaşın"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: data/io.github.nozwock.Packet.desktop.in.in:10
 msgid "Gnome;GTK;Quick;Nearby;Share;"
-msgstr ""
+msgstr "Gnome;GTK;Quick;Yakındakilerle;Paylaş;Share;"
 
 #. Trasnlators: The gschema strings won't be used in the app directly and aren't a priority
 #: data/io.github.nozwock.Packet.gschema.xml.in:7
 msgid "Window width"
-msgstr ""
+msgstr "Pencere genişliği"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:11
 msgid "Window height"
-msgstr ""
+msgstr "Pencere yüksekliği"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:15
 msgid "Window maximized state"
-msgstr ""
+msgstr "Pencere büyültme durumu"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:19
 msgid "Device name"
-msgstr ""
+msgstr "Cihaz adı"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:23
 msgid "Device visibility"
-msgstr ""
+msgstr "Cihaz görünürlüğü"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:27
 msgid "Download folder"
-msgstr ""
+msgstr "İndirme klasörü"
 
 #. Trasnlators: The metainfo strings are for Flathub and aren't a priority
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
@@ -321,35 +331,39 @@ msgid ""
 "Send and receive files wirelessly with Android devices using Quick Share or "
 "another device with Packet installed."
 msgstr ""
+"Android cihazlarla Quick Share kullanarak veya Packet yüklü diğer cihazlarla "
+"kablosuz şekilde dosya gönderin ve alın."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:11
 msgid ""
 "Packet requires Bluetooth to be enabled and the devices to be connected to a "
 "Wi-Fi network with mDNS."
 msgstr ""
+"Packet, Bluetooth'un etkinleştirilmesini ve cihazların mDNS destekleyen bir "
+"Wi-Fi ağına bağlanmasını gerektirir."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:17
 msgid "Home Page"
-msgstr ""
+msgstr "Ana Sayfa"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:21
 msgid "Received Share Request"
-msgstr ""
+msgstr "Paylaşım İsteği Alındı"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:25
 msgid "Sent Share Request"
-msgstr ""
+msgstr "Paylaşım İsteği Gönderildi"
 
 #. Translators: These are release notes, don't waste your time translating these, they won't take effect for now.
 #. Sorry, these shouldn't have been included but the tooling around this is very poor currently.
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:43
 msgid "Added Portuguese (Brazil) translation"
-msgstr ""
+msgstr "Portekizce (Brezilya) çeviri eklendi"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:44
 msgid "Added partial German translation"
-msgstr ""
+msgstr "Kısmi Almanca çeviri eklendi"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:50
 msgid "Added Dutch translation"
-msgstr ""
+msgstr "Felemenkçe çeviri eklendi"
