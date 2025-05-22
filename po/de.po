@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-18 13:20+0530\n"
 "PO-Revision-Date: 2025-05-22 21:03+0000\n"
-"Last-Translator: Pascal Dietrich <pascal.1.dietrich@hotmail.com>\n"
+"Last-Translator: nozwock <devo.1vw0b@slmail.me>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/packet/main/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -163,7 +163,7 @@ msgstr "Annehmen"
 #, rust-format
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
-msgstr[0] "{} Datei ({])"
+msgstr[0] "{} Datei ({})"
 msgstr[1] "{} Dateien ({})"
 
 #: src/widgets/receive_transfer.rs:210
