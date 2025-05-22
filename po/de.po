@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-18 13:20+0530\n"
-"PO-Revision-Date: 2025-05-19 12:30+0000\n"
-"Last-Translator: Pascal Dietrich <pascal.1.dietrich@hotmail.com>\n"
+"PO-Revision-Date: 2025-05-22 21:08+0000\n"
+"Last-Translator: nozwock <nozwock@users.noreply.hosted.weblate.org>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/packet/main/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr ""
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6 src/application.rs:129
 #: src/main.rs:33
 msgid "Packet"
-msgstr ""
+msgstr "Packet"
 
 #: data/io.github.nozwock.Packet.desktop.in.in:3
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
@@ -31,7 +31,7 @@ msgstr "Dateien einfach teilen"
 
 #: data/io.github.nozwock.Packet.desktop.in.in:9
 msgid "Gnome;GTK;Quick;Nearby;Share;"
-msgstr ""
+msgstr "Gnome;GTK;Quick;Nearby;Share;"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:6
 msgid "Window width"
@@ -55,23 +55,27 @@ msgstr "Gerätesichtbarkeit"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:26
 msgid "Download folder"
-msgstr ""
+msgstr "Download-Ordner"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:9
 msgid ""
 "Send and receive files wirelessly with Android devices using Quick Share or "
 "another device with Packet installed."
 msgstr ""
+"Senden und empfangen Sie drahtlos Dateien mit Android-Geräten via Quick "
+"Share oder jedem anderen Gerät auf dem Packet installiert ist."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
 msgid ""
 "Packet requires Bluetooth to be enabled and the devices to be connected to a "
 "Wi-Fi network with mDNS."
 msgstr ""
+"Packet erfordert die Aktivierung von Bluetooth sowie die Verbindung zu einem "
+"WLAN-Netzwerk mit mDNS."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:16
 msgid "Home Page"
-msgstr ""
+msgstr "Startseite"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:20
 msgid "Received Share Request"
@@ -83,7 +87,7 @@ msgstr ""
 
 #: src/application.rs:139
 msgid "translator-credits"
-msgstr ""
+msgstr "Pascal Dietrich (Cameo007)"
 
 #: src/application.rs:143
 msgid "Similar Projects"
@@ -125,11 +129,11 @@ msgstr[1] "{} Dateien"
 
 #: src/widgets/receive_transfer.rs:20
 msgid "Link"
-msgstr ""
+msgstr "Link"
 
 #: src/widgets/receive_transfer.rs:21
 msgid "Text"
-msgstr ""
+msgstr "Text"
 
 #: src/widgets/receive_transfer.rs:22
 msgid "Wi-Fi"
@@ -144,12 +148,10 @@ msgid "Cancel"
 msgstr "Abbrechen"
 
 #: src/widgets/receive_transfer.rs:139
-#, fuzzy
 msgid "Incoming Transfer"
 msgstr "Eingehende Übertragung"
 
 #: src/widgets/receive_transfer.rs:163
-#, fuzzy
 msgid "Decline"
 msgstr "Ablehnen"
 
@@ -161,7 +163,7 @@ msgstr "Annehmen"
 #, rust-format
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
-msgstr[0] "{} Datei ({])"
+msgstr[0] "{} Datei ({})"
 msgstr[1] "{} Dateien ({})"
 
 #: src/widgets/receive_transfer.rs:210
@@ -177,14 +179,14 @@ msgstr "Code: {}"
 #: src/widgets/receive_transfer.rs:336 src/widgets/recipient_card.rs:478
 #, rust-format
 msgid "About {} left"
-msgstr ""
+msgstr "Ungefähr {} verbleibend"
 
 #: src/widgets/receive_transfer.rs:362
+#, fuzzy
 msgid "Unexpected dissconnection"
-msgstr ""
+msgstr "Unerwarteter Abbruch"
 
 #: src/widgets/receive_transfer.rs:385
-#, fuzzy
 msgid "Transfer cancelled by sender"
 msgstr "Übertragung wurde vom Sender abgebrochen"
 
@@ -217,7 +219,7 @@ msgstr "Nicht verfügbar"
 
 #: src/widgets/recipient_card.rs:243
 msgid "Queued"
-msgstr ""
+msgstr "In der Warteschlange"
 
 #: src/widgets/recipient_card.rs:289
 msgid "Retry"
@@ -253,7 +255,7 @@ msgstr "Unsichtbar"
 
 #: src/window.rs:594
 msgid "No new devices can share with you"
-msgstr ""
+msgstr "Neue Geräte können nichts mit Ihnen teilen"
 
 #: src/window.rs:627
 msgid "Couldn't open files"
