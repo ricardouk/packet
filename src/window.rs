@@ -352,6 +352,30 @@ impl PacketApplicationWindow {
             }
         }
 
+        imp.static_port_expander
+            .connect_enable_expansion_notify(clone!(
+                #[weak]
+                imp,
+                move |obj| {
+                    glib::spawn_future_local(clone!(
+                        #[weak]
+                        obj,
+                        async move {
+                            if obj.enables_expansion()
+                                && Some(imp.settings.int("static-port-number") as u32)
+                                    != imp.rqs.lock().await.as_ref().unwrap().port_number
+                            {
+                                // FIXME: maybe just make the widget insensitive
+                                // for the duration of the service restart instead
+                                imp.preferences_dialog.close();
+
+                                imp.obj().restart_rqs_service();
+                            }
+                        }
+                    ));
+                }
+            ));
+
         let is_prev_entry_valid = Rc::new(Cell::new(None));
         imp.static_port_entry.connect_apply(clone!(
             #[weak]
