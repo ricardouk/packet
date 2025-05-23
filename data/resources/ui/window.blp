@@ -48,7 +48,7 @@ template $PacketApplicationWindow: Adw.ApplicationWindow {
 
                 Adw.StatusPage {
                     vexpand: true;
-                    title: _("Setting up Packet...");
+                    title: _("Setting up Packet…");
 
                     Adw.Spinner {
                         height-request: 64;
@@ -327,9 +327,15 @@ Adw.Dialog select_recipients_dialog {
                             orientation: vertical;
                             vexpand: true;
                             valign: center;
+                            spacing: 8;
 
                             Adw.Spinner {
                                 height-request: 48;
+                            }
+
+                            Label {
+                                halign: center;
+                                label: _("Looking for devices…");
                             }
                         }
 
