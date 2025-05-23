@@ -199,7 +199,7 @@ pub fn present_receive_transfer_ui(
                                 file_count,
                                 transfer_size
                             )
-                            .unwrap(),
+                            .unwrap_or_else(|_| "badly formatted locale string".into()),
                         )
                         .halign(gtk::Align::Center)
                         .css_classes(["dimmed", "heading"])
@@ -223,7 +223,7 @@ pub fn present_receive_transfer_ui(
                                     .unwrap_or_default()
                                     .trim()
                             )
-                            .unwrap_or_default(),
+                            .unwrap_or_else(|_| "badly formatted locale string".into()),
                         )
                         .halign(gtk::Align::Center)
                         .css_classes(["dimmed"])
@@ -245,7 +245,7 @@ pub fn present_receive_transfer_ui(
                                 .clone()
                                 .unwrap_or_default()
                         )
-                        .unwrap(),
+                        .unwrap_or_else(|_| "badly formatted locale string".into()),
                     )
                     .halign(gtk::Align::Center)
                     .css_classes(["dimmed", "monospace"])
@@ -354,7 +354,7 @@ pub fn present_receive_transfer_ui(
                                 // Why does the estimate string has a random whitespace in the front
                                 .trim()
                         )
-                        .unwrap()
+                        .unwrap_or_else(|_| "badly formatted locale string".into())
                     };
                     eta_label.set_label(&eta_text);
                 }
@@ -608,7 +608,7 @@ pub fn present_receive_transfer_ui(
                                 ),
                                 file_count
                             )
-                            .unwrap(),
+                            .unwrap_or_else(|_| "badly formatted locale string".into()),
                         )
                         .button_label(&gettext("Open"))
                         .action_name("win.received-files")

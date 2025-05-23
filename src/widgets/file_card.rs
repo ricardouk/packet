@@ -133,7 +133,7 @@ pub fn create_file_card(
                     ngettext("{} File", "{} Files", model.n_items()),
                     model.n_items() as usize
                 )
-                .unwrap(),
+                .unwrap_or_else(|_| "badly formatted locale string".into()),
             );
 
             if model.n_items() == 0 {

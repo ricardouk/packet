@@ -663,7 +663,7 @@ impl PacketApplicationWindow {
                         gettext("Visible as {:?}"),
                         imp.obj().get_device_name_state().as_str()
                     )
-                    .unwrap(),
+                    .unwrap_or_else(|_| "badly formatted locale string".into()),
                 );
             } else {
                 imp.bottom_bar_title.set_label(&gettext("Invisible"));
@@ -722,7 +722,7 @@ impl PacketApplicationWindow {
                     ),
                     file_count
                 )
-                .unwrap(),
+                .unwrap_or_else(|_| "badly formatted locale string".into()),
             );
 
             if let Some(tag) = imp.main_nav_view.visible_page_tag() {

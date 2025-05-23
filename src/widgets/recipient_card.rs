@@ -451,7 +451,7 @@ pub fn create_recipient_card(
                                     .clone()
                                     .unwrap()
                             )
-                            .unwrap(),
+                            .unwrap_or_else(|_| "badly formatted locale string".into()),
                         );
 
                         eta_estimator.borrow_mut().prepare_for_new_transfer(None);
@@ -478,7 +478,7 @@ pub fn create_recipient_card(
                                 gettext("About {} left"),
                                 eta_estimator.borrow().get_estimate_string().trim()
                             )
-                            .unwrap()
+                            .unwrap_or_else(|_| "badly formatted locale string".into())
                         };
                         eta_label.set_visible(true);
                         eta_label.set_label(&eta_text);
@@ -545,7 +545,7 @@ pub fn create_recipient_card(
                                 ngettext("Sent {} file", "Sent {} files", file_count as u32),
                                 file_count
                             )
-                            .unwrap_or_default()
+                            .unwrap_or_else(|_| "badly formatted locale string".into())
                         };
 
                         result_label.set_visible(true);
