@@ -26,5 +26,11 @@
       <default>""</default>
       <summary>Download folder</summary>
     </key>
+    <key name="enable-static-port" type="b">
+      <default>false</default>
+    </key>
+    <key name="static-port-number" type="i">
+      <default>9300</default>
+    </key>
   </schema>
 </schemalist>

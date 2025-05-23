@@ -1,4 +1,6 @@
+use std::cell::{Cell, RefCell};
 use std::path::PathBuf;
+use std::rc::Rc;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
@@ -70,6 +72,10 @@ mod imp {
         pub device_name_entry: TemplateChild<adw::EntryRow>,
         #[template_child]
         pub device_visibility_switch: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub static_port_expander: TemplateChild<adw::ExpanderRow>,
+        #[template_child]
+        pub static_port_entry: TemplateChild<adw::EntryRow>,
 
         #[template_child]
         pub main_box: TemplateChild<gtk::Box>,
@@ -264,6 +270,16 @@ impl PacketApplicationWindow {
                 )
                 .unwrap();
         }
+
+        imp.settings
+            .bind(
+                "enable-static-port",
+                &imp.static_port_expander.get(),
+                "enable-expansion",
+            )
+            .build();
+        imp.static_port_entry
+            .set_text(&imp.settings.int("static-port-number").to_string());
     }
 
     fn setup_gactions(&self) {
@@ -335,6 +351,71 @@ impl PacketApplicationWindow {
                 device_name_entry.set_text(device_name);
             }
         }
+
+        let is_prev_entry_valid = Rc::new(Cell::new(None));
+        imp.static_port_entry.connect_apply(clone!(
+            #[weak]
+            imp,
+            #[weak]
+            is_prev_entry_valid,
+            move |obj| {
+                obj.remove_css_class("success");
+                is_prev_entry_valid.set(None);
+
+                // FIXME: check if port is available, or...
+                // maybe not, just have an error status page
+                // for when the rqs service fails to start
+                // for whatever reason
+                imp.settings
+                    .set_int(
+                        "static-port-number",
+                        obj.text().as_str().parse::<u16>().unwrap().into(),
+                    )
+                    .unwrap();
+
+                imp.preferences_dialog.close();
+
+                imp.obj().restart_rqs_service();
+            }
+        ));
+
+        let signal_handle = Rc::new(RefCell::new(None));
+        let _handle = imp.static_port_entry.connect_changed(clone!(
+            #[strong]
+            signal_handle,
+            #[strong]
+            is_prev_entry_valid,
+            move |obj| {
+                if obj.text().as_str().parse::<u16>().is_ok() {
+                    if is_prev_entry_valid.get().is_none()
+                        || !is_prev_entry_valid.get().unwrap_or(true)
+                    {
+                        // To emit `changed` only on valid/invalid state change,
+                        // and not when the entry is valid and was valid previously
+                        is_prev_entry_valid.set(Some(true));
+
+                        obj.add_css_class("success");
+                        obj.remove_css_class("error");
+
+                        obj.set_show_apply_button(true);
+                        obj.block_signal(&signal_handle.borrow().as_ref().unwrap());
+                        // `show-apply-button` becomes visible on `::changed` signal on
+                        // the GtkText child of the AdwEntryRow, not the root widget itself.
+                        // Hence, the GtkEditable delegate.
+                        obj.delegate().unwrap().emit_by_name::<()>("changed", &[]);
+                        obj.unblock_signal(&signal_handle.borrow().as_ref().unwrap());
+                    }
+                } else {
+                    is_prev_entry_valid.set(Some(false));
+
+                    obj.remove_css_class("success");
+                    obj.add_css_class("error");
+
+                    obj.set_show_apply_button(false);
+                }
+            }
+        ));
+        *signal_handle.as_ref().borrow_mut() = Some(_handle);
     }
 
     fn setup_ui(&self) {
@@ -863,6 +944,48 @@ impl PacketApplicationWindow {
         }
     }
 
+    fn restart_rqs_service(&self) {
+        glib::spawn_future_local(clone!(
+            #[weak(rename_to = this)]
+            self,
+            async move {
+                this.imp()
+                    .root_stack
+                    .set_visible_child_name("loading_service_page");
+                _ = this.stop_rqs_service().await;
+                this.setup_rqs_service();
+            }
+        ));
+    }
+
+    fn stop_rqs_service(&self) -> tokio::task::JoinHandle<()> {
+        let imp = self.imp();
+
+        // Abort all looping tasks before closing
+        while let Some(join_handle) = imp.looping_async_tasks.borrow_mut().pop() {
+            match join_handle {
+                LoopingTaskHandle::Tokio(join_handle) => join_handle.abort(),
+                LoopingTaskHandle::Glib(join_handle) => join_handle.abort(),
+            }
+        }
+
+        let handle = tokio_runtime().spawn(clone!(
+            #[weak(rename_to = rqs)]
+            imp.rqs,
+            async move {
+                {
+                    let mut rqs_guard = rqs.lock().await;
+                    if let Some(rqs) = rqs_guard.as_mut() {
+                        rqs.stop().await;
+                        tracing::info!("Stopped RQS service");
+                    }
+                }
+            }
+        ));
+
+        handle
+    }
+
     fn setup_rqs_service(&self) {
         let imp = self.imp();
 
@@ -875,17 +998,20 @@ impl PacketApplicationWindow {
             .string("download-folder")
             .parse::<PathBuf>()
             .unwrap();
+        let static_port = imp
+            .settings
+            .boolean("enable-static-port")
+            .then(|| imp.settings.int("static-port-number") as u32);
         tokio_runtime().spawn(async move {
             tracing::info!(?download_path, "Starting RQS service");
 
-            // FIXME: Allow setting a const port number in app preferences and, download_path
             let mut rqs = rqs_lib::RQS::new(
                 if is_device_visible {
                     rqs_lib::Visibility::Visible
                 } else {
                     rqs_lib::Visibility::Invisible
                 },
-                None,
+                static_port,
                 Some(download_path),
                 Some(device_name.to_string()),
             );

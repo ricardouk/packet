@@ -353,7 +353,7 @@ Adw.PreferencesDialog preferences_dialog {
 
     Adw.PreferencesPage {
         Adw.PreferencesGroup {
-            title: _("Network");
+            title: _("General");
 
             Adw.EntryRow device_name_entry {
                 title: _("Device Name");
@@ -363,6 +363,22 @@ Adw.PreferencesDialog preferences_dialog {
             Adw.SwitchRow device_visibility_switch {
                 title: _("Visibility");
                 subtitle: _("Whether others can see this device");
+            }
+        }
+
+        Adw.PreferencesGroup {
+            title: _("Advanced");
+
+            Adw.ExpanderRow static_port_expander {
+                title: _("Enable Static Network Port");
+                subtitle: _("For whitelisting Pocket in a fire-walled environment");
+                show-enable-switch: true;
+                enable-expansion: false;
+
+                Adw.EntryRow static_port_entry {
+                    title: _("Port Number");
+                    show-apply-button: true;
+                }
             }
         }
     }
