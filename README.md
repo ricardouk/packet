@@ -1,6 +1,6 @@
 # <img src="data/icons/io.github.nozwock.Packet.svg" /> Packet
 
-An implementation of the Google Quick Share protocol to send and receive files to Android devices or another instance of Packet.
+An implementation of the Google's Quick Share protocol to send and receive files to Android devices or another instance of Packet.
 
 <div align="center">
     <img src="data/resources/screenshots/packet-receive.png" alt="screenshot" />
@@ -24,5 +24,6 @@ You can help translate Packet into your native language. If you found any typos 
 [![Translation status](https://hosted.weblate.org/widget/packet/multi-auto.svg)](https://hosted.weblate.org/engage/packet/)
 
 ## Acknowledgments
-- [NearDrop](https://github.com/grishka/NearDrop/)
-- [rquickshare](https://github.com/Martichou/rquickshare/)
+- [Dominik Baran](https://gitlab.gnome.org/wallaby) for creating the icon and working on the app's design.
+- [NearDrop](https://github.com/grishka/NearDrop/) for reverse-engineering the closed-source Quick Share implementation in Android's GMS.
+- [rquickshare](https://github.com/Martichou/rquickshare/) for their internal Rust implementation of the Quick Share protocol.
