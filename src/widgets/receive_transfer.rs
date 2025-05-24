@@ -23,6 +23,27 @@ pub fn display_text_type(value: &TextPayloadType) -> String {
     }
 }
 
+// So, Quick Share wraps the string in `""\n` sometimes, it seem to differ based
+// on where you're copying the text from. For e.g. sharing from the Github app doesn't
+// wrap the string in quote, but it does when shared from Chrome.
+// Don't think we can fix this on our side...
+fn clean_text_payload(s: &str) -> &str {
+    if s.starts_with('"') && s.ends_with("\"\n") {
+        &s[1..s.len() - 2]
+    } else {
+        s
+    }
+}
+
+fn clean_preview_text_payload(s: &str) -> &str {
+    clean_text_payload(s)
+        .trim()
+        .lines()
+        .next()
+        .unwrap_or_default()
+        .trim()
+}
+
 // Rewriting receive UI for the 4rd time ;(
 // Using a chain of AlertDialog this time
 pub fn present_receive_transfer_ui(
@@ -212,16 +233,7 @@ pub fn present_receive_transfer_ui(
                         .label(
                             formatx!(
                                 gettext("Preview ({})"),
-                                // FIXME: cleaning of text payload from rqs_lib here as well
-                                text_data
-                                    .description
-                                    .trim()
-                                    .trim_matches('"')
-                                    .trim()
-                                    .lines()
-                                    .next()
-                                    .unwrap_or_default()
-                                    .trim()
+                                clean_preview_text_payload(&text_data.description)
                             )
                             .unwrap_or_else(|_| "badly formatted locale string".into()),
                         )
@@ -579,17 +591,10 @@ pub fn present_receive_transfer_ui(
                     // TextPayloadInfo not exposed by the library
                     let text_type = msg.get_text_data().unwrap().kind.unwrap();
 
-                    // FIXME: rqs_lib wraps the string in `""\n` when the string is large enough,
-                    // and doesn't do it for short strings. Or is the string actually being sent quoted?
-                    // Fix this.
-                    fn clean_rqs_text_payload(s: &str) -> &str {
-                        s.trim().trim_matches('"').trim()
-                    }
-
                     let _text = msg.get_text_data().unwrap().text;
                     let text = if text_type.clone() as u32 == TextPayloadType::Text as u32 {
                         save_text_button.set_visible(true);
-                        clean_rqs_text_payload(&_text)
+                        clean_text_payload(&_text)
                     } else {
                         &_text
                     };
