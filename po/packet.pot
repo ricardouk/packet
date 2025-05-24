@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-24 23:20+0530\n"
+"POT-Creation-Date: 2025-05-25 02:00+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,11 +95,11 @@ msgid "Advanced"
 msgstr ""
 
 #: data/resources/ui/window.blp:379
-msgid "Enable Static Network Port"
+msgid "Static Network Port"
 msgstr ""
 
 #: data/resources/ui/window.blp:380
-msgid "For whitelisting Pocket in a fire-walled environment"
+msgid "Allows whitelisting Packet through a firewall"
 msgstr ""
 
 #: data/resources/ui/window.blp:385
