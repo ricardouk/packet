@@ -52,7 +52,6 @@ pub fn present_receive_transfer_ui(
             move |dialog, response_id| {
                 match response_id {
                     "cancel" => {
-                        // FIXME: Show a toast notifying that the transfer was cancelled?
                         is_user_cancelled.replace(true);
                         dialog.set_response_enabled("cancel", false);
                         win.imp()
@@ -213,6 +212,7 @@ pub fn present_receive_transfer_ui(
                         .label(
                             formatx!(
                                 gettext("Preview ({})"),
+                                // FIXME: cleaning of text payload from rqs_lib here as well
                                 text_data
                                     .description
                                     .trim()
@@ -579,11 +579,17 @@ pub fn present_receive_transfer_ui(
                     // TextPayloadInfo not exposed by the library
                     let text_type = msg.get_text_data().unwrap().kind.unwrap();
 
+                    // FIXME: rqs_lib wraps the string in `""\n` when the string is large enough,
+                    // and doesn't do it for short strings. Or is the string actually being sent quoted?
+                    // Fix this.
+                    fn clean_rqs_text_payload(s: &str) -> &str {
+                        s.trim().trim_matches('"').trim()
+                    }
+
                     let _text = msg.get_text_data().unwrap().text;
                     let text = if text_type.clone() as u32 == TextPayloadType::Text as u32 {
                         save_text_button.set_visible(true);
-                        let text = _text.trim();
-                        &text[1..text.len() - 1] // Remove quotes put in there by the lib :(
+                        clean_rqs_text_payload(&_text)
                     } else {
                         &_text
                     };
