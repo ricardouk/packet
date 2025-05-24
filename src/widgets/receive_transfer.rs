@@ -587,8 +587,6 @@ pub fn present_receive_transfer_ui(
                         }
                     ));
 
-                    // FIXME: Can't handle WiFi shares yet
-                    // TextPayloadInfo not exposed by the library
                     let text_type = msg.get_text_data().unwrap().kind.unwrap();
 
                     let _text = msg.get_text_data().unwrap().text;
@@ -601,6 +599,7 @@ pub fn present_receive_transfer_ui(
                     text_view.set_buffer(Some(&gtk::TextBuffer::builder().text(text).build()));
 
                     // FIXME: Redo the Wi-Fi view when we've more info such as the Wi-Fi security type
+                    // and payload (password) available separately
                     //
                     // Removing "Unimplemented" as the issue about the Wi-Fi payload being empty for WpaPsk
                     // has been fixed in the rqs_lib fork

@@ -145,6 +145,8 @@ impl PacketApplication {
             ))
             .build();
 
+        // TODO: Add a troubleshoot section where the user can get a copy of the logs
+
         dialog.add_acknowledgement_section(
             Some(&gettext("Similar Projects")),
             &[
