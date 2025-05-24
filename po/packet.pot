@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-23 19:43+0530\n"
+"POT-Creation-Date: 2025-05-24 19:29+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -161,7 +161,7 @@ msgid "Remove"
 msgstr ""
 
 #. Translators: An e.g. "4 Files"
-#: src/widgets/file_card.rs:133 src/window.rs:719
+#: src/widgets/file_card.rs:133 src/window.rs:743
 msgid "{} File"
 msgid_plural "{} Files"
 msgstr[0] ""
@@ -179,73 +179,69 @@ msgstr ""
 msgid "Wi-Fi"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:38
+#: src/widgets/receive_transfer.rs:59
 msgid "Receiving"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:41 src/widgets/recipient_card.rs:308
+#: src/widgets/receive_transfer.rs:62 src/widgets/recipient_card.rs:308
 msgid "Cancel"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:139
+#: src/widgets/receive_transfer.rs:159
 msgid "Incoming Transfer"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:163
+#: src/widgets/receive_transfer.rs:183
 msgid "Decline"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:164
+#: src/widgets/receive_transfer.rs:184
 msgid "Accept"
 msgstr ""
 
 #. Translators: An e.g. "6 Files (42.3MB)"
-#: src/widgets/receive_transfer.rs:195
+#: src/widgets/receive_transfer.rs:215
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/widgets/receive_transfer.rs:215
+#: src/widgets/receive_transfer.rs:235
 msgid "Preview ({})"
 msgstr ""
 
 #. Translators: This is the pin-code for the transfer
-#: src/widgets/receive_transfer.rs:239 src/widgets/recipient_card.rs:445
+#: src/widgets/receive_transfer.rs:251 src/widgets/recipient_card.rs:445
 msgid "Code: {}"
 msgstr ""
 
 #. Translators: {} will be replaced with an estimated remaining time string
 #. e.g. "About 4 minutes 32 seconds left"
-#: src/widgets/receive_transfer.rs:347 src/widgets/recipient_card.rs:478
+#: src/widgets/receive_transfer.rs:359 src/widgets/recipient_card.rs:478
 msgid "About {} left"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:374
+#: src/widgets/receive_transfer.rs:386
 msgid "Unexpected dissconnection"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:397
+#: src/widgets/receive_transfer.rs:409
 msgid "Transfer cancelled by sender"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:432
+#: src/widgets/receive_transfer.rs:444
 msgid "Copy to clipboard"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:440
+#: src/widgets/receive_transfer.rs:452
 msgid "Save text as file"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:497 src/widgets/receive_transfer.rs:613
+#: src/widgets/receive_transfer.rs:509 src/widgets/receive_transfer.rs:628
 msgid "Open"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:594
-msgid "Unimplemented"
-msgstr ""
-
-#: src/widgets/receive_transfer.rs:605
+#: src/widgets/receive_transfer.rs:620
 msgid "{} file received"
 msgid_plural "{} files received"
 msgstr[0] ""
@@ -277,27 +273,27 @@ msgid_plural "Sent {} files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/window.rs:657
+#: src/window.rs:681
 msgid "Ready"
 msgstr ""
 
-#: src/window.rs:663
+#: src/window.rs:687
 msgid "Visible as {:?}"
 msgstr ""
 
-#: src/window.rs:669
+#: src/window.rs:693
 msgid "Invisible"
 msgstr ""
 
-#: src/window.rs:675
+#: src/window.rs:699
 msgid "No new devices can share with you"
 msgstr ""
 
-#: src/window.rs:708
+#: src/window.rs:732
 msgid "Couldn't open files"
 msgstr ""
 
-#: src/window.rs:941
+#: src/window.rs:965
 msgid "Can't rename device during an active transfer"
 msgstr ""
 
