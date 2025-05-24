@@ -600,10 +600,14 @@ pub fn present_receive_transfer_ui(
                     };
                     text_view.set_buffer(Some(&gtk::TextBuffer::builder().text(text).build()));
 
-                    if text_type.clone() as u32 == TextPayloadType::Wifi as u32 {
-                        caption_label.set_visible(true);
-                        caption_label.set_label(&gettext("Unimplemented"));
-                    }
+                    // FIXME: Redo the Wi-Fi view when we've more info such as the Wi-Fi security type
+                    //
+                    // Removing "Unimplemented" as the issue about the Wi-Fi payload being empty for WpaPsk
+                    // has been fixed in the rqs_lib fork
+                    // if text_type.clone() as u32 == TextPayloadType::Wifi as u32 {
+                    //     caption_label.set_visible(true);
+                    //     caption_label.set_label(&gettext("Unimplemented"));
+                    // }
 
                     dialog.present(Some(&win));
                 } else {
