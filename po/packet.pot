@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-24 19:29+0530\n"
+"POT-Creation-Date: 2025-05-24 23:20+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -129,7 +129,7 @@ msgstr ""
 msgid "translator-credits"
 msgstr ""
 
-#: src/application.rs:149
+#: src/application.rs:151
 msgid "Similar Projects"
 msgstr ""
 
@@ -211,13 +211,13 @@ msgid "Preview ({})"
 msgstr ""
 
 #. Translators: This is the pin-code for the transfer
-#: src/widgets/receive_transfer.rs:251 src/widgets/recipient_card.rs:445
+#: src/widgets/receive_transfer.rs:251 src/widgets/recipient_card.rs:438
 msgid "Code: {}"
 msgstr ""
 
 #. Translators: {} will be replaced with an estimated remaining time string
 #. e.g. "About 4 minutes 32 seconds left"
-#: src/widgets/receive_transfer.rs:359 src/widgets/recipient_card.rs:478
+#: src/widgets/receive_transfer.rs:359 src/widgets/recipient_card.rs:471
 msgid "About {} left"
 msgstr ""
 
@@ -237,11 +237,11 @@ msgstr ""
 msgid "Save text as file"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:509 src/widgets/receive_transfer.rs:628
+#: src/widgets/receive_transfer.rs:509 src/widgets/receive_transfer.rs:627
 msgid "Open"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:620
+#: src/widgets/receive_transfer.rs:619
 msgid "{} file received"
 msgid_plural "{} files received"
 msgstr[0] ""
@@ -259,15 +259,15 @@ msgstr ""
 msgid "Retry"
 msgstr ""
 
-#: src/widgets/recipient_card.rs:439
+#: src/widgets/recipient_card.rs:432
 msgid "Requested"
 msgstr ""
 
-#: src/widgets/recipient_card.rs:505
+#: src/widgets/recipient_card.rs:498
 msgid "Failed"
 msgstr ""
 
-#: src/widgets/recipient_card.rs:545
+#: src/widgets/recipient_card.rs:538
 msgid "Sent {} file"
 msgid_plural "Sent {} files"
 msgstr[0] ""
