@@ -700,9 +700,10 @@ impl PacketApplicationWindow {
             #[weak]
             imp,
             move |_| {
+                tracing::info!("Refreshing recipients");
+
                 {
-                    let mut guard = imp.send_transfers_id_cache.blocking_lock();
-                    for (pos, obj) in imp
+                    let mut recipients_to_remove = imp
                         .recipient_model
                         .iter::<SendRequestState>()
                         .enumerate()
@@ -715,10 +716,25 @@ impl PacketApplicationWindow {
                             | TransferState::Failed
                             | TransferState::Done => true,
                         })
-                        .collect::<Vec<_>>()
-                    {
-                        imp.recipient_model.remove(pos as u32);
-                        guard.remove(&obj.endpoint_info().id);
+                        .collect::<Vec<_>>();
+                    recipients_to_remove.sort_by_key(|(pos, _)| *pos);
+
+                    let mut items_removed = 0;
+                    let mut guard = imp.send_transfers_id_cache.blocking_lock();
+                    for (pos, obj) in recipients_to_remove {
+                        let actual_pos = pos - items_removed;
+
+                        imp.recipient_model.remove(actual_pos as u32);
+                        let removed_model_item = guard.remove(&obj.endpoint_info().id);
+                        items_removed += 1;
+
+                        tracing::debug!(
+                            endpoint_info = %obj.endpoint_info(),
+                            last_state = ?(obj.transfer_state(), &obj.event().state),
+                            model_item_pos = actual_pos,
+                            was_model_item_cached = removed_model_item.is_some(),
+                            "Removed recipient card"
+                        );
                     }
                 }
 
@@ -1339,8 +1355,6 @@ impl PacketApplicationWindow {
                         {
                             let endpoint_info = rx.recv().await.unwrap();
 
-                            // FIXME: Fix duplicate recipient cards being active
-                            // when only one should've been
                             let mut send_transfers_id_cache_guard =
                                 imp.send_transfers_id_cache.lock().await;
                             if let Some(data_transfer) =
