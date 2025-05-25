@@ -2,13 +2,15 @@ use adw::prelude::*;
 use adw::subclass::prelude::*;
 use formatx::formatx;
 use gettextrs::{gettext, ngettext};
-use gtk::{gio, glib, glib::clone};
+use gtk::{
+    gio::{self, FileQueryInfoFlags},
+    glib::{self, clone},
+};
 
 use crate::window::PacketApplicationWindow;
 
-// Are we supposed to use them like this? Questionable...
-//
-// FIXME: Instead use `gio::File::query_info("standard::*")` and get the icon with `.icon().downcast::<gio::ThemedIcon>?.names()`
+// These are the icons that Files/nautilus uses
+// https://gitlab.gnome.org/GNOME/adwaita-icon-theme/-/tree/master/Adwaita/scalable?ref_type=heads
 pub const ADWAITA_MIMETYPE_ICON_NAMES: [&str; 27] = [
     "application-certificate",
     "application-x-addon",
@@ -39,21 +41,17 @@ pub const ADWAITA_MIMETYPE_ICON_NAMES: [&str; 27] = [
     "x-package-repository",
 ];
 
-// These are the icons that Files/nautilus uses
-// https://gitlab.gnome.org/GNOME/adwaita-icon-theme/-/tree/master/Adwaita/scalable?ref_type=heads
 pub fn get_mimetype_icon_name(file: &gio::File, symbolic: bool) -> Option<String> {
-    let guessed_content_type = gio::content_type_guess(
-        file.path().as_ref(),
-        &file
-            .read(None::<&gio::Cancellable>)
-            .unwrap()
-            .read_bytes(32, None::<&gio::Cancellable>)
-            .unwrap(),
-    );
+    let themed_icon = file
+        .query_info(
+            "standard::icon",
+            FileQueryInfoFlags::NONE,
+            gio::Cancellable::NONE,
+        )
+        .ok()?
+        .icon()
+        .and_downcast::<gio::ThemedIcon>()?;
 
-    let themed_icon = gio::content_type_get_symbolic_icon(guessed_content_type.0.as_str())
-        .downcast::<gio::ThemedIcon>()
-        .ok()?;
     let icon = themed_icon
         .names()
         .into_iter()
