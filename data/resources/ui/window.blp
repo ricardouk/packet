@@ -370,6 +370,21 @@ Adw.PreferencesDialog preferences_dialog {
                 title: _("Visibility");
                 subtitle: _("Whether others can see this device");
             }
+
+            Adw.ActionRow download_folder_row {
+                title: _("Downloads Folder");
+
+                [suffix]
+                Button download_folder_pick_button {
+                    valign: center;
+                    icon-name: "folder-symbolic";
+                    tooltip-text: _("Pick downloads folder");
+
+                    styles [
+                        "flat",
+                    ]
+                }
+            }
         }
 
         Adw.PreferencesGroup {

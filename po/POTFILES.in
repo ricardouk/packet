@@ -2,6 +2,7 @@ data/resources/ui/shortcuts.blp
 data/resources/ui/window.blp
 src/application.rs
 src/main.rs
+src/constants.rs
 src/objects/mod.rs
 src/objects/receive_transfer.rs
 src/objects/send_transfer.rs

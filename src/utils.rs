@@ -1,6 +1,7 @@
 use std::{
     collections::VecDeque,
     fmt,
+    path::{Path, PathBuf},
     time::{self},
 };
 
@@ -23,6 +24,16 @@ macro_rules! impl_deref_for_newtype {
             }
         }
     };
+}
+
+pub fn strip_user_home_prefix<P: AsRef<Path>>(path: P) -> PathBuf {
+    if let Some(dirs) = directories::UserDirs::new() {
+        if path.as_ref().starts_with(dirs.home_dir()) {
+            return PathBuf::from("~").join(path.as_ref().strip_prefix(dirs.home_dir()).unwrap());
+        }
+    }
+
+    path.as_ref().into()
 }
 
 const STEPS_TRACK_COUNT: usize = 5;

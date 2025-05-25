@@ -1,19 +1,21 @@
 use std::cell::{Cell, RefCell};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use formatx::formatx;
 use gettextrs::{gettext, ngettext};
-use gtk::gio::FILE_ATTRIBUTE_STANDARD_SIZE;
+use gtk::gio::{FileQueryInfoFlags, FILE_ATTRIBUTE_STANDARD_SIZE};
 use gtk::glib::clone;
 use gtk::{gdk, gio, glib};
 
 use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
+use crate::constants::XDP_XATTR_HOST_PATH;
 use crate::objects::TransferState;
 use crate::objects::{self, SendRequestState};
+use crate::utils::strip_user_home_prefix;
 use crate::{tokio_runtime, widgets};
 
 #[derive(Debug)]
@@ -76,6 +78,10 @@ mod imp {
         pub static_port_expander: TemplateChild<adw::ExpanderRow>,
         #[template_child]
         pub static_port_entry: TemplateChild<adw::EntryRow>,
+        #[template_child]
+        pub download_folder_row: TemplateChild<adw::ActionRow>,
+        #[template_child]
+        pub download_folder_pick_button: TemplateChild<gtk::Button>,
 
         #[template_child]
         pub main_box: TemplateChild<gtk::Box>,
@@ -440,6 +446,90 @@ impl PacketApplicationWindow {
             }
         ));
         *signal_handle.as_ref().borrow_mut() = Some(_handle);
+
+        // Check if we still have access to set "Downloads Folder"
+        let downloads_folder = imp.settings.string("download-folder");
+        let downloads_folder_exists = std::fs::exists(&downloads_folder).unwrap_or_default();
+
+        if !downloads_folder_exists {
+            tracing::warn!(
+                ?downloads_folder,
+                "Can't access Downloads folder. Resetting to default"
+            );
+
+            imp.toast_overlay
+                .add_toast(adw::Toast::new(&gettext("Can't access Downloads folder")));
+
+            imp.settings
+                .set_string(
+                    "download-folder",
+                    directories::UserDirs::new()
+                        .unwrap()
+                        .download_dir()
+                        .unwrap()
+                        .to_str()
+                        .unwrap(),
+                )
+                .unwrap();
+        }
+
+        imp.download_folder_row
+            .set_subtitle(&strip_user_home_prefix(&downloads_folder).to_string_lossy());
+
+        imp.download_folder_pick_button.connect_clicked(clone!(
+            #[weak]
+            imp,
+            move |_| {
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    imp,
+                    async move {
+                        if let Ok(file) = gtk::FileDialog::new()
+                            .select_folder_future(
+                                imp.obj()
+                                    .root()
+                                    .and_downcast_ref::<PacketApplicationWindow>(),
+                            )
+                            .await
+                        {
+                            let fileinfo = file
+                                .query_info(
+                                    XDP_XATTR_HOST_PATH,
+                                    FileQueryInfoFlags::NONE,
+                                    gio::Cancellable::NONE,
+                                )
+                                .unwrap();
+
+                            let file_path = file.path().unwrap();
+                            let host_file_path =
+                                fileinfo.attribute_as_string(XDP_XATTR_HOST_PATH).unwrap();
+                            let host_path_exists =
+                                std::fs::exists(&host_file_path).unwrap_or_default();
+
+                            let folder_path = if host_path_exists {
+                                &host_file_path
+                            } else {
+                                file_path.to_str().unwrap()
+                            };
+
+                            imp.download_folder_row.set_subtitle(
+                                strip_user_home_prefix(&folder_path).to_str().unwrap(),
+                            );
+
+                            imp.settings
+                                .set_string("download-folder", &folder_path)
+                                .unwrap();
+                            imp.rqs
+                                .lock()
+                                .await
+                                .as_mut()
+                                .unwrap()
+                                .set_download_path(Some(PathBuf::from(&folder_path)));
+                        };
+                    }
+                ));
+            }
+        ));
     }
 
     fn setup_ui(&self) {
