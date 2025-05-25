@@ -67,8 +67,8 @@
   </developer>
 
   <branding>
-    <color type="primary" scheme_preference="light">#8ff0a4</color>
-    <color type="primary" scheme_preference="dark">#26a269</color>
+    <color type="primary" scheme_preference="light">#c3f1c0</color>
+    <color type="primary" scheme_preference="dark">#2f8a60</color>
   </branding>
 
   <recommends>
