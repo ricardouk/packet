@@ -7,6 +7,8 @@ use gtk::{gio, glib, glib::clone};
 use crate::window::PacketApplicationWindow;
 
 // Are we supposed to use them like this? Questionable...
+//
+// FIXME: Instead use `gio::File::query_info("standard::*")` and get the icon with `.icon().downcast::<gio::ThemedIcon>?.names()`
 pub const ADWAITA_MIMETYPE_ICON_NAMES: [&str; 27] = [
     "application-certificate",
     "application-x-addon",
