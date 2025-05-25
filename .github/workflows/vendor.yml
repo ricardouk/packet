@@ -1,7 +1,6 @@
 on:
   workflow_dispatch:
   push:
-    branches: [main]
     tags:
       - "*"
 
@@ -30,18 +29,20 @@ jobs:
         run: xz -z packet-${{ github.ref_name }}.tar
       - name: Generate checksum
         run: sha256sum packet-${{ github.ref_name }}.tar.xz > packet-${{ github.ref_name }}.tar.xz.sha256sum
-      # - name: Install xmllint
-      #   run: sudo apt-get install -y libxml2-utils
-      # - name: Extract release notes
-      #   run: |
-      #     echo 'RELEASE_NOTES<<EOF' >> $GITHUB_ENV
-      #     xmllint --xpath '//release[1]/description' data/io.github.nozwock.Packet.metainfo.xml.in.in | xmllint --format - >> $GITHUB_ENV
-      #     echo 'EOF' >> $GITHUB_ENV
+      - name: Install xmllint
+        run: sudo apt-get install -y libxml2-utils
+      - name: Extract release notes
+        run: |
+          {
+            echo 'RELEASE_NOTES<<EOF'
+            xmllint --xpath '//release[1]/description' data/io.github.nozwock.Packet.metainfo.xml.in.in | xmllint --format -
+            echo EOF
+          } >> "$GITHUB_ENV"
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          # draft: true
-          # body: ${{ env.RELEASE_NOTES }}
+          draft: true
+          body: ${{ env.RELEASE_NOTES }}
           prerelease: ${{ contains(github.ref, 'beta') }}
           files: |
             packet-${{ github.ref_name }}.tar.xz
