@@ -363,6 +363,10 @@ pub fn create_recipient_card(
         retry_button,
         #[weak]
         unavailibility_label,
+        #[weak]
+        device_avatar,
+        #[weak]
+        title_label,
         move |model_item| {
             let imp = win.imp();
             let is_idle_card = model_item.transfer_state() == TransferState::AwaitingConsentOrIdle;
@@ -377,12 +381,22 @@ pub fn create_recipient_card(
                 };
             }
 
-            if model_item.endpoint_info().present.is_none() {
+            let endpoint_info = model_item.endpoint_info();
+            if endpoint_info.present.is_none() {
                 retry_button.set_sensitive(false);
                 unavailibility_label.set_visible(is_idle_card);
             } else {
                 retry_button.set_sensitive(true);
                 unavailibility_label.set_visible(false);
+
+                // Update device name on re-connection
+                let title = endpoint_info
+                    .name
+                    .as_ref()
+                    .map(|s| s.as_str())
+                    .unwrap_or("Unknown Device");
+                device_avatar.set_text(Some(title));
+                title_label.set_label(title);
             }
         }
     ));
