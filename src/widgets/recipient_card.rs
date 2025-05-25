@@ -171,8 +171,6 @@ pub fn create_recipient_card(
         }
     }
 
-    let title = model_item.device_name();
-
     // `card` style will be applied with `boxed-list*` on ListBox
     // v/h-align would prevent the card from expanding when space is available
     let root_box = gtk::Box::builder()
@@ -185,10 +183,10 @@ pub fn create_recipient_card(
         .build();
     let root_bin = adw::Bin::builder().child(&root_box).build();
 
-    let device_avatar = adw::Avatar::builder()
-        .text(&title)
-        .show_initials(true)
-        .size(48)
+    let device_avatar = adw::Avatar::builder().show_initials(true).size(48).build();
+    model_item
+        .bind_property("device-name", &device_avatar, "text")
+        .sync_create()
         .build();
     root_box.append(&device_avatar);
 
@@ -206,8 +204,11 @@ pub fn create_recipient_card(
     let title_label = gtk::Label::builder()
         .halign(gtk::Align::Start)
         .wrap(true)
-        .label(&title)
         .css_classes(["title-4"])
+        .build();
+    model_item
+        .bind_property("device-name", &title_label, "label")
+        .sync_create()
         .build();
     let result_label = gtk::Label::builder()
         .halign(gtk::Align::Start)
@@ -363,10 +364,6 @@ pub fn create_recipient_card(
         retry_button,
         #[weak]
         unavailibility_label,
-        #[weak]
-        device_avatar,
-        #[weak]
-        title_label,
         move |model_item| {
             let imp = win.imp();
             let is_idle_card = model_item.transfer_state() == TransferState::AwaitingConsentOrIdle;
@@ -395,8 +392,7 @@ pub fn create_recipient_card(
                     .as_ref()
                     .map(|s| s.as_str())
                     .unwrap_or("Unknown Device");
-                device_avatar.set_text(Some(title));
-                title_label.set_label(title);
+                model_item.set_device_name(title);
             }
         }
     ));
