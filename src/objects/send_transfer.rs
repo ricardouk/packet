@@ -16,6 +16,18 @@ impl_deref_for_newtype!(State, rqs_lib::State);
 pub struct EndpointInfo(pub rqs_lib::EndpointInfo);
 impl_deref_for_newtype!(EndpointInfo, rqs_lib::EndpointInfo);
 
+impl std::fmt::Display for EndpointInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{{ id={:?} present={:?} name={:?} }}",
+            self.id,
+            self.present.unwrap_or_default(),
+            self.name.as_ref().map(|it| it.as_str()).unwrap_or_default(),
+        )
+    }
+}
+
 #[derive(Debug, Clone, Default, glib::Boxed)]
 #[boxed_type(name = "ChannelMessageBoxed")]
 pub struct ChannelMessage(pub rqs_lib::channel::ChannelMessage);
