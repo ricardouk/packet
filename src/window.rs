@@ -448,33 +448,36 @@ impl PacketApplicationWindow {
         *signal_handle.as_ref().borrow_mut() = Some(_handle);
 
         // Check if we still have access to set "Downloads Folder"
-        let downloads_folder = imp.settings.string("download-folder");
-        let downloads_folder_exists = std::fs::exists(&downloads_folder).unwrap_or_default();
+        {
+            let downloads_folder = imp.settings.string("download-folder");
+            let downloads_folder_exists = std::fs::exists(&downloads_folder).unwrap_or_default();
 
-        if !downloads_folder_exists {
-            tracing::warn!(
-                ?downloads_folder,
-                "Can't access Downloads folder. Resetting to default"
-            );
+            if !downloads_folder_exists {
+                tracing::warn!(
+                    ?downloads_folder,
+                    "Can't access Downloads folder. Resetting to default"
+                );
 
-            imp.toast_overlay
-                .add_toast(adw::Toast::new(&gettext("Can't access Downloads folder")));
+                imp.toast_overlay
+                    .add_toast(adw::Toast::new(&gettext("Can't access Downloads folder")));
 
-            imp.settings
-                .set_string(
-                    "download-folder",
-                    directories::UserDirs::new()
-                        .unwrap()
-                        .download_dir()
-                        .unwrap()
-                        .to_str()
-                        .unwrap(),
-                )
-                .unwrap();
+                imp.settings
+                    .set_string(
+                        "download-folder",
+                        directories::UserDirs::new()
+                            .unwrap()
+                            .download_dir()
+                            .unwrap()
+                            .to_str()
+                            .unwrap(),
+                    )
+                    .unwrap();
+            }
         }
 
-        imp.download_folder_row
-            .set_subtitle(&strip_user_home_prefix(&downloads_folder).to_string_lossy());
+        imp.download_folder_row.set_subtitle(
+            &strip_user_home_prefix(&imp.settings.string("download-folder")).to_string_lossy(),
+        );
 
         imp.download_folder_pick_button.connect_clicked(clone!(
             #[weak]
