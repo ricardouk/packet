@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-26 07:56+0530\n"
+"POT-Creation-Date: 2025-05-26 17:27+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -169,7 +169,7 @@ msgid "Remove"
 msgstr ""
 
 #. Translators: An e.g. "4 Files"
-#: src/widgets/file_card.rs:133 src/window.rs:849
+#: src/widgets/file_card.rs:133 src/window.rs:867
 msgid "{} File"
 msgid_plural "{} Files"
 msgstr[0] ""
@@ -281,31 +281,31 @@ msgid_plural "Sent {} files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/window.rs:461
+#: src/window.rs:462
 msgid "Can't access Downloads folder"
 msgstr ""
 
-#: src/window.rs:787
+#: src/window.rs:805
 msgid "Ready"
 msgstr ""
 
-#: src/window.rs:793
+#: src/window.rs:811
 msgid "Visible as {:?}"
 msgstr ""
 
-#: src/window.rs:799
+#: src/window.rs:817
 msgid "Invisible"
 msgstr ""
 
-#: src/window.rs:805
+#: src/window.rs:823
 msgid "No new devices can share with you"
 msgstr ""
 
-#: src/window.rs:838
+#: src/window.rs:856
 msgid "Couldn't open files"
 msgstr ""
 
-#: src/window.rs:1071
+#: src/window.rs:1089
 msgid "Can't rename device during an active transfer"
 msgstr ""
 
@@ -373,98 +373,120 @@ msgstr ""
 msgid "Sent Share Request (Wide)"
 msgstr ""
 
-#. Translators: These are release notes, don't waste your time translating these, they won't take effect.
+#. Translators: These are release notes, they won't take effect. It's up to you whether you'd still like to spend time translating these or not.
 #. Sorry, only the metainfo summary and description should've been included and not these, but the tooling around this is very poor currently.
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:46
-msgid "Features"
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:66
+msgid "Fixes"
 msgstr ""
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:48
+msgid ""
+"Fixed panic on selecting a custom download folder if the app had host access "
+"to said path"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:49
+msgid ""
+"Fixed old download folder being shown instead of xdg-download in the "
+"preferences when the app couldn't access it on start"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:51
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:77
+msgid "Translations"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:53
+msgid "Added Korean translation"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:54
+msgid "Added Spanish translation"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:60
+msgid "Features"
+msgstr ""
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:62
 msgid ""
 "Added an option to make Packet use a static port, allowing for whitelisting "
 "of the app in firewalls"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:49
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:63
 msgid "Added an option to set a custom \"Downloads folder\""
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:50
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:64
 msgid ""
 "Added back the cancel button to the \"Recipient card\" during files being "
 "sent"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:52
-msgid "Fixes"
-msgstr ""
-
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:54
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:68
 msgid "Prevented the app from crashing on badly formatted locale strings"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:55
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:69
 msgid ""
 "Fixed shared text's starting and ending characters being cut off some times"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:56
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:70
 msgid "Fixed Wi-Fi password not being received properly"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:57
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:71
 msgid "Fixed devices with non-ASCII names not being discoverable"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:58
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:72
 msgid ""
 "Fixed recipient's device name not being updated unless the list is refreshed"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:59
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:73
 msgid "Fixed duplicated recipient cards being spawned on list refresh"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:60
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:74
 msgid ""
 "Fixed idle-state recipient cards becoming non-activatable (can't send to) on "
 "selecting some other recipient"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:61
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:75
 msgid ""
 "Fixed accent styling not being removed recipient's \"Queued\" status in some "
 "cases"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:63
-msgid "Translations"
-msgstr ""
-
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:65
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:79
 msgid "Updated German translation"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:72
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:86
 msgid "Added Estonian translation"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:73
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:87
 msgid "Added Italian translation"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:74
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:88
 msgid "Added Turkish translation"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:81
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:95
 msgid "Added Portuguese (Brazil) translation"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:82
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:96
 msgid "Added partial German translation"
 msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:88
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:102
 msgid "Added Dutch translation"
 msgstr ""
