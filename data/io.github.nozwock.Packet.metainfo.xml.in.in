@@ -39,11 +39,36 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.0" date="2025-05-25">
+      <description translatable="no">
+        <!-- Translators: These are release notes, don't waste your time translating these, they won't take effect. -->
+        <!-- Sorry, only the metainfo summary and description should've been included and not these, but the tooling around this is very poor currently. -->
+        <p>Features</p>
+        <ul>
+          <li>Added an option to make Packet use a static port, allowing for whitelisting of the app in firewalls</li>
+          <li>Added an option to set a custom "Downloads folder"</li>
+          <li>Added back the cancel button to the "Recipient card" during files being sent</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Prevented the app from crashing on badly formatted locale strings</li>
+          <li>Fixed shared text's starting and ending characters being cut off some times</li>
+          <li>Fixed Wi-Fi password not being received properly</li>
+          <li>Fixed devices with non-ASCII names not being discoverable</li>
+          <li>Fixed recipient's device name not being updated unless the list is refreshed</li>
+          <li>Fixed duplicated recipient cards being spawned on list refresh</li>
+          <li>Fixed idle-state recipient cards becoming non-activatable (can't send to) on selecting some other recipient</li>
+          <li>Fixed accent styling not being removed recipient's "Queued" status in some cases</li>
+        </ul>
+        <p>Translations</p>
+        <ul>
+          <li>Updated German translation</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.1.4" date="2025-05-22">
       <description translatable="no">
         <ul>
-          <!-- Translators: These are release notes, don't waste your time translating these, they won't take effect for now. -->
-          <!-- Sorry, these shouldn't have been included but the tooling around this is very poor currently. -->
           <li>Added Estonian translation</li>
           <li>Added Italian translation</li>
           <li>Added Turkish translation</li>
