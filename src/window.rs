@@ -1212,7 +1212,7 @@ impl PacketApplicationWindow {
                     loop {
                         let channel_message = rx.recv().await.unwrap();
 
-                        tracing::debug!(?channel_message, "Received on UI thread");
+                        tracing::debug!(event = ?channel_message, "Received event on UI thread");
 
                         let id = &channel_message.id;
 
@@ -1361,15 +1361,16 @@ impl PacketApplicationWindow {
                                 send_transfers_id_cache_guard.get(&endpoint_info.id)
                             {
                                 // Update endpoint
-                                tracing::info!(?endpoint_info, "Updated endpoint info");
-                                data_transfer
-                                    .set_endpoint_info(objects::EndpointInfo(endpoint_info));
+                                let endpoint_info = objects::EndpointInfo(endpoint_info);
+                                tracing::info!(%endpoint_info, "Updated endpoint");
+                                data_transfer.set_endpoint_info(endpoint_info);
                             } else {
                                 // Set new endpoint
-                                tracing::info!(?endpoint_info, "Connected endpoint");
+                                let endpoint_info = objects::EndpointInfo(endpoint_info);
+                                tracing::info!(%endpoint_info, "Discovered endpoint");
                                 let obj = SendRequestState::new();
                                 let id = endpoint_info.id.clone();
-                                obj.set_endpoint_info(objects::EndpointInfo(endpoint_info));
+                                obj.set_endpoint_info(endpoint_info);
                                 imp.recipient_model.insert(0, &obj);
                                 send_transfers_id_cache_guard.insert(id, obj);
                             }
