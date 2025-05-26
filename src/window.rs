@@ -492,39 +492,40 @@ impl PacketApplicationWindow {
                             )
                             .await
                         {
-                            let fileinfo = file
+                            let file_info = file
                                 .query_info(
                                     XDP_XATTR_HOST_PATH,
                                     FileQueryInfoFlags::NONE,
                                     gio::Cancellable::NONE,
                                 )
                                 .unwrap();
+                            let xattr_host_path =
+                                file_info.attribute_as_string(XDP_XATTR_HOST_PATH);
 
-                            let file_path = file.path().unwrap();
-                            let host_file_path =
-                                fileinfo.attribute_as_string(XDP_XATTR_HOST_PATH).unwrap();
-                            let host_path_exists =
-                                std::fs::exists(&host_file_path).unwrap_or_default();
+                            let folder_path = file.path().unwrap();
 
-                            let folder_path = if host_path_exists {
-                                &host_file_path
-                            } else {
-                                file_path.to_str().unwrap()
-                            };
-
-                            imp.download_folder_row.set_subtitle(
-                                strip_user_home_prefix(&folder_path).to_str().unwrap(),
+                            tracing::debug!(
+                                ?folder_path,
+                                ?xattr_host_path,
+                                "Selected custom downloads folder"
                             );
 
+                            let host_path = xattr_host_path
+                                .map(|it| PathBuf::from(it))
+                                .unwrap_or_else(|| folder_path);
+
+                            imp.download_folder_row
+                                .set_subtitle(strip_user_home_prefix(&host_path).to_str().unwrap());
+
                             imp.settings
-                                .set_string("download-folder", &folder_path)
+                                .set_string("download-folder", host_path.to_str().unwrap())
                                 .unwrap();
                             imp.rqs
                                 .lock()
                                 .await
                                 .as_mut()
                                 .unwrap()
-                                .set_download_path(Some(PathBuf::from(&folder_path)));
+                                .set_download_path(Some(host_path));
                         };
                     }
                 ));
