@@ -12,21 +12,18 @@
   </description>
 
   <screenshots>
+    <screenshot type="default">
+      <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/banner-screenshot.png?raw=true</image>
+      <!-- Trasnlators: These are captions for the screenshots on Flathub -->
+      <caption>Sent Share Request</caption>
+    </screenshot>
     <screenshot>
       <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/packet-main.png?raw=true</image>
-      <caption>Home Page</caption>
+      <caption>Main Page</caption>
     </screenshot>
     <screenshot>
       <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/packet-receive.png?raw=true</image>
       <caption>Received Share Request</caption>
-    </screenshot>
-    <screenshot>
-      <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/packet-send.png?raw=true</image>
-      <caption>Sent Share Request</caption>
-    </screenshot>
-    <screenshot type="default">
-      <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/banner-screenshot.png?raw=true</image>
-      <caption>Sent Share Request (Wide)</caption>
     </screenshot>
   </screenshots>
 
