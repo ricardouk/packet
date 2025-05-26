@@ -1,18 +1,17 @@
 use std::cell::{Cell, RefCell};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use formatx::formatx;
 use gettextrs::{gettext, ngettext};
-use gtk::gio::{FileQueryInfoFlags, FILE_ATTRIBUTE_STANDARD_SIZE};
+use gtk::gio::FILE_ATTRIBUTE_STANDARD_SIZE;
 use gtk::glib::clone;
 use gtk::{gdk, gio, glib};
 
 use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
-use crate::constants::XDP_XATTR_HOST_PATH;
 use crate::objects::TransferState;
 use crate::objects::{self, SendRequestState};
 use crate::utils::strip_user_home_prefix;
@@ -447,7 +446,7 @@ impl PacketApplicationWindow {
         ));
         *signal_handle.as_ref().borrow_mut() = Some(_handle);
 
-        // Check if we still have access to set "Downloads Folder"
+        // Check if we still have access to the set "Downloads Folder"
         {
             let downloads_folder = imp.settings.string("download-folder");
             let downloads_folder_exists = std::fs::exists(&downloads_folder).unwrap_or_default();
@@ -495,54 +494,41 @@ impl PacketApplicationWindow {
                             )
                             .await
                         {
-                            let file_info = file
-                                .query_info(
-                                    XDP_XATTR_HOST_PATH,
-                                    FileQueryInfoFlags::NONE,
-                                    gio::Cancellable::NONE,
-                                )
-                                .unwrap();
-                            let xattr_host_path =
-                                file_info.attribute_as_string(XDP_XATTR_HOST_PATH);
+                            // TODO: Maybe format the display path in the preferences?
+                            // `Sandbox: Music` or `Music` instead of `/run/user/1000/_/Music` (for mounted paths)
+                            // This would require storing the display string in gschema however
+                            //
+                            // Check whether it's a sandbox path or not by matching the path
+                            // against the xattr host path, if it doesn't match, it's sandbox
 
+                            // Path provided is host path if the app has been granted host access to it via
+                            // --filesystem. Otherwise, it's a mounted path.
+                            //
+                            // Now, there's an issue with the vscode-flatpak extension where while running
+                            // the app through it, the path given by FileChooser is always a mounted path.
+                            // Leaving this note here so as to not base our logic on this wrong behaviour.
                             let folder_path = file.path().unwrap();
 
-                            let host_path_exists = xattr_host_path
-                                .as_ref()
-                                .and_then(|it| std::fs::exists(&it).ok())
-                                .unwrap_or_default();
+                            let display_path = strip_user_home_prefix(&folder_path);
+
                             tracing::debug!(
                                 ?folder_path,
-                                ?xattr_host_path,
-                                host_path_exists,
+                                ?display_path,
                                 "Selected custom downloads folder"
                             );
 
-                            let actual_path = xattr_host_path
-                                .map(|it| {
-                                    if host_path_exists {
-                                        PathBuf::from(it)
-                                    } else {
-                                        // No need to check for exists here
-                                        // since the path is provided by FileChooser
-                                        folder_path.clone()
-                                    }
-                                })
-                                .unwrap_or_else(|| folder_path);
-
-                            imp.download_folder_row.set_subtitle(
-                                strip_user_home_prefix(&actual_path).to_str().unwrap(),
-                            );
+                            imp.download_folder_row
+                                .set_subtitle(&display_path.to_string_lossy());
 
                             imp.settings
-                                .set_string("download-folder", actual_path.to_str().unwrap())
+                                .set_string("download-folder", folder_path.to_str().unwrap())
                                 .unwrap();
                             imp.rqs
                                 .lock()
                                 .await
                                 .as_mut()
                                 .unwrap()
-                                .set_download_path(Some(actual_path));
+                                .set_download_path(Some(folder_path));
                         };
                     }
                 ));
