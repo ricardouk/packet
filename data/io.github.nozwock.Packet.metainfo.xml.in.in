@@ -39,10 +39,24 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.2.1" date="2025-05-26">
+      <description translatable="no">
+        <!-- Translators: These are release notes, they won't take effect. It's up to you whether you'd still like to spend time translating these or not. -->
+        <!-- Sorry, only the metainfo summary and description should've been included and not these, but the tooling around this is very poor currently. -->
+        <p>Fixes</p>
+        <ul>
+          <li>Fixed panic on selecting a custom download folder if the app had host access to said path</li>
+          <li>Fixed old download folder being shown instead of xdg-download in the preferences when the app couldn't access it on start</li>
+        </ul>
+        <p>Translations</p>
+        <ul>
+          <li>Added Korean translation</li>
+          <li>Added Spanish translation</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.0" date="2025-05-25">
       <description translatable="no">
-        <!-- Translators: These are release notes, don't waste your time translating these, they won't take effect. -->
-        <!-- Sorry, only the metainfo summary and description should've been included and not these, but the tooling around this is very poor currently. -->
         <p>Features</p>
         <ul>
           <li>Added an option to make Packet use a static port, allowing for whitelisting of the app in firewalls</li>
