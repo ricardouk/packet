@@ -20,9 +20,13 @@
       <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/packet-receive.png?raw=true</image>
       <caption>Received Share Request</caption>
     </screenshot>
-    <screenshot type="default">
+    <screenshot>
       <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/packet-send.png?raw=true</image>
       <caption>Sent Share Request</caption>
+    </screenshot>
+    <screenshot type="default">
+      <image>https://github.com/nozwock/packet/blob/main/data/resources/screenshots/banner-screenshot.png?raw=true</image>
+      <caption>Sent Share Request (Wide)</caption>
     </screenshot>
   </screenshots>
 
