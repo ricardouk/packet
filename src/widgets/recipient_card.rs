@@ -242,6 +242,7 @@ pub fn create_recipient_card(
             if model_item.transfer_state() == TransferState::Queued {
                 result_label.set_visible(true);
                 result_label.set_label(&gettext("Queued"));
+                result_label.set_css_classes(&[]);
             };
 
             // Prevent exiting the recipients view until all transfers
