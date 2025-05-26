@@ -14,7 +14,7 @@ use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
 use crate::objects::TransferState;
 use crate::objects::{self, SendRequestState};
-use crate::utils::strip_user_home_prefix;
+use crate::utils::{get_xdg_download, strip_user_home_prefix};
 use crate::{tokio_runtime, widgets};
 
 #[derive(Debug)]
@@ -266,12 +266,7 @@ impl PacketApplicationWindow {
             imp.settings
                 .set_string(
                     "download-folder",
-                    directories::UserDirs::new()
-                        .unwrap()
-                        .download_dir()
-                        .unwrap()
-                        .to_str()
-                        .unwrap(),
+                    get_xdg_download().unwrap().to_str().unwrap(),
                 )
                 .unwrap();
         }
@@ -463,12 +458,7 @@ impl PacketApplicationWindow {
                 imp.settings
                     .set_string(
                         "download-folder",
-                        directories::UserDirs::new()
-                            .unwrap()
-                            .download_dir()
-                            .unwrap()
-                            .to_str()
-                            .unwrap(),
+                        get_xdg_download().unwrap().to_str().unwrap(),
                     )
                     .unwrap();
             }

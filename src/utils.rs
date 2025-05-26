@@ -5,6 +5,7 @@ use std::{
     time::{self},
 };
 
+use anyhow::{anyhow, Context};
 use gettextrs::ngettext;
 
 #[macro_export]
@@ -27,13 +28,22 @@ macro_rules! impl_deref_for_newtype {
 }
 
 pub fn strip_user_home_prefix<P: AsRef<Path>>(path: P) -> PathBuf {
-    if let Some(dirs) = directories::UserDirs::new() {
-        if path.as_ref().starts_with(dirs.home_dir()) {
-            return PathBuf::from("~").join(path.as_ref().strip_prefix(dirs.home_dir()).unwrap());
+    if let Some(home) = dirs::home_dir() {
+        if path.as_ref().starts_with(&home) {
+            return PathBuf::from("~").join(path.as_ref().strip_prefix(&home).unwrap());
         }
     }
 
     path.as_ref().into()
+}
+
+pub fn get_xdg_download() -> anyhow::Result<PathBuf> {
+    dirs::download_dir().with_context(|| {
+        anyhow!(
+            "Can't get the path to XDG_DOWNLOAD_DIR: HOME={:?}",
+            dirs::home_dir()
+        )
+    })
 }
 
 const STEPS_TRACK_COUNT: usize = 5;
