@@ -507,28 +507,42 @@ impl PacketApplicationWindow {
 
                             let folder_path = file.path().unwrap();
 
+                            let host_path_exists = xattr_host_path
+                                .as_ref()
+                                .and_then(|it| std::fs::exists(&it).ok())
+                                .unwrap_or_default();
                             tracing::debug!(
                                 ?folder_path,
                                 ?xattr_host_path,
+                                host_path_exists,
                                 "Selected custom downloads folder"
                             );
 
-                            let host_path = xattr_host_path
-                                .map(|it| PathBuf::from(it))
+                            let actual_path = xattr_host_path
+                                .map(|it| {
+                                    if host_path_exists {
+                                        PathBuf::from(it)
+                                    } else {
+                                        // No need to check for exists here
+                                        // since the path is provided by FileChooser
+                                        folder_path.clone()
+                                    }
+                                })
                                 .unwrap_or_else(|| folder_path);
 
-                            imp.download_folder_row
-                                .set_subtitle(strip_user_home_prefix(&host_path).to_str().unwrap());
+                            imp.download_folder_row.set_subtitle(
+                                strip_user_home_prefix(&actual_path).to_str().unwrap(),
+                            );
 
                             imp.settings
-                                .set_string("download-folder", host_path.to_str().unwrap())
+                                .set_string("download-folder", actual_path.to_str().unwrap())
                                 .unwrap();
                             imp.rqs
                                 .lock()
                                 .await
                                 .as_mut()
                                 .unwrap()
-                                .set_download_path(Some(host_path));
+                                .set_download_path(Some(actual_path));
                         };
                     }
                 ));
