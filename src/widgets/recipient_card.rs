@@ -1,5 +1,3 @@
-use std::cell::RefCell;
-
 use crate::{
     objects::{self, send_transfer::SendRequestState, TransferState},
     tokio_runtime,
@@ -34,6 +32,8 @@ where
         .and_then(|it| it.downcast::<T>().ok())
 }
 
+/// Don't try to reuse a ListBoxRow...\
+/// ListBoxRow can be attached to a different model's widget
 fn get_listbox_row_from_model_item<T>(
     model: &gio::ListStore,
     list_box: &gtk::ListBox,
@@ -356,7 +356,6 @@ pub fn create_recipient_card(
         }
     }
 
-    let listbox_row = RefCell::new(None);
     model_item.connect_endpoint_info_notify(clone!(
         #[weak]
         win,
@@ -367,16 +366,13 @@ pub fn create_recipient_card(
         move |model_item| {
             let imp = win.imp();
             let is_idle_card = model_item.transfer_state() == TransferState::AwaitingConsentOrIdle;
-
-            if is_idle_card {
-                if let Some(row) = get_listbox_row_from_model_item::<SendRequestState>(
-                    &imp.recipient_model,
-                    &imp.recipient_listbox,
-                    model_item,
-                ) {
-                    set_row_activatable(model_item, Some(&row), true);
-                };
-            }
+            if let Some(row) = get_listbox_row_from_model_item::<SendRequestState>(
+                &imp.recipient_model,
+                &imp.recipient_listbox,
+                model_item,
+            ) {
+                set_row_activatable(model_item, Some(&row), is_idle_card);
+            };
 
             let endpoint_info = model_item.endpoint_info();
             if endpoint_info.present.is_none() {
@@ -403,14 +399,6 @@ pub fn create_recipient_card(
             use rqs_lib::State;
 
             let channel_message = model_item.event();
-            if listbox_row.borrow().is_none() {
-                *listbox_row.borrow_mut() = get_listbox_row_from_model_item::<SendRequestState>(
-                    &imp.recipient_model,
-                    &imp.recipient_listbox,
-                    model_item,
-                );
-            }
-            let listbox_row_ref = listbox_row.borrow();
             let eta_estimator = model_item.imp().eta.as_ref();
 
             if let Some(ref state) = channel_message.0.state {
@@ -430,7 +418,12 @@ pub fn create_recipient_card(
                     | State::SentIntroduction => {
                         model_item.set_transfer_state(TransferState::RequestedForConsent);
 
-                        set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
+                        let listbox_row = get_listbox_row_from_model_item::<SendRequestState>(
+                            &imp.recipient_model,
+                            &imp.recipient_listbox,
+                            model_item,
+                        );
+                        set_row_activatable(model_item, listbox_row.as_ref(), false);
 
                         unavailibility_label.set_visible(false);
                         retry_button.set_visible(false);
@@ -462,8 +455,6 @@ pub fn create_recipient_card(
                     State::SendingFiles => {
                         model_item.set_transfer_state(TransferState::OngoingTransfer);
 
-                        set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
-
                         cancel_transfer_button.set_visible(true);
                         result_label.set_visible(false);
                         unavailibility_label.set_visible(false);
@@ -494,7 +485,6 @@ pub fn create_recipient_card(
                         // FIXME: Wait for 5~10 seconds after a send and timeout
                         // if did not receive SendingFiles within that timeframe
                         // This is how google does it in their client
-                        set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
 
                         progress_bar.set_visible(false);
                         cancel_transfer_button.set_visible(false);
@@ -516,7 +506,12 @@ pub fn create_recipient_card(
                     State::Cancelled => {
                         model_item.set_transfer_state(TransferState::AwaitingConsentOrIdle);
 
-                        set_row_activatable(model_item, listbox_row_ref.as_ref(), true);
+                        let listbox_row = get_listbox_row_from_model_item::<SendRequestState>(
+                            &imp.recipient_model,
+                            &imp.recipient_listbox,
+                            model_item,
+                        );
+                        set_row_activatable(model_item, listbox_row.as_ref(), true);
 
                         progress_bar.set_visible(false);
                         cancel_transfer_button.set_visible(false);
@@ -532,8 +527,6 @@ pub fn create_recipient_card(
                     }
                     State::Finished => {
                         model_item.set_transfer_state(TransferState::Done);
-
-                        set_row_activatable(model_item, listbox_row_ref.as_ref(), false);
 
                         cancel_transfer_button.set_visible(false);
                         progress_bar.set_visible(false);
