@@ -110,6 +110,8 @@ mod imp {
         pub recipient_listbox: TemplateChild<gtk::ListBox>,
         #[template_child]
         pub loading_recipients_box: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub recipients_help_button: TemplateChild<gtk::LinkButton>,
         #[default(gio::ListStore::new::<SendRequestState>())]
         pub recipient_model: gio::ListStore,
 
@@ -682,11 +684,33 @@ impl PacketApplicationWindow {
             move |model, _, _, _| {
                 if model.n_items() == 0 {
                     imp.loading_recipients_box.set_visible(true);
+                    imp.recipients_help_button.set_visible(true);
                     imp.recipient_listbox.set_visible(false);
                 } else {
                     imp.loading_recipients_box.set_visible(false);
+                    imp.recipients_help_button.set_visible(false);
                     imp.recipient_listbox.set_visible(true);
                 }
+            }
+        ));
+
+        imp.recipients_help_button
+            .action_set_enabled("menu.popup", false);
+        imp.recipients_help_button
+            .action_set_enabled("clipboard.copy", false);
+        imp.recipients_help_button.connect_activate_link(clone!(
+            #[weak]
+            imp,
+            #[upgrade_or]
+            true.into(),
+            move |_| {
+                imp.help_dialog.present(
+                    imp.obj()
+                        .root()
+                        .and_downcast_ref::<PacketApplicationWindow>(),
+                );
+
+                true.into()
             }
         ));
 

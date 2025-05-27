@@ -317,7 +317,7 @@ Adw.Dialog select_recipients_dialog {
                     Box {
                         orientation: vertical;
                         margin-top: 12;
-                        margin-bottom: 24;
+                        margin-bottom: 12;
                         margin-start: 24;
                         margin-end: 24;
                         spacing: 12;
@@ -336,13 +336,21 @@ Adw.Dialog select_recipients_dialog {
                             }
 
                             Label {
-                                halign: center;
+                                justify: center;
                                 label: _("Looking for devices…");
                             }
                         }
 
+                        LinkButton recipients_help_button {
+                            // `visibility` is set when ListBox is empty
+                            valign: end;
+                            halign: center;
+                            label: _("Can't see the other device?");
+                        }
+
                         ListBox recipient_listbox {
                             selection-mode: none;
+                            margin-bottom: 12;
 
                             styles [
                                 "boxed-list",
