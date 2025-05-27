@@ -14,7 +14,7 @@ use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
 use crate::objects::TransferState;
 use crate::objects::{self, SendRequestState};
-use crate::utils::{get_xdg_download, strip_user_home_prefix};
+use crate::utils::{get_xdg_download_with_fallback, strip_user_home_prefix};
 use crate::{tokio_runtime, widgets};
 
 #[derive(Debug)]
@@ -268,7 +268,7 @@ impl PacketApplicationWindow {
             imp.settings
                 .set_string(
                     "download-folder",
-                    get_xdg_download().unwrap().to_str().unwrap(),
+                    get_xdg_download_with_fallback().unwrap().to_str().unwrap(),
                 )
                 .unwrap();
         }
@@ -451,7 +451,7 @@ impl PacketApplicationWindow {
             if !downloads_folder_exists {
                 tracing::warn!(
                     ?downloads_folder,
-                    "Can't access Downloads folder. Resetting to default"
+                    "Couldn't access Downloads folder. Resetting to the default"
                 );
 
                 imp.toast_overlay
@@ -460,7 +460,7 @@ impl PacketApplicationWindow {
                 imp.settings
                     .set_string(
                         "download-folder",
-                        get_xdg_download().unwrap().to_str().unwrap(),
+                        get_xdg_download_with_fallback().unwrap().to_str().unwrap(),
                     )
                     .unwrap();
             }

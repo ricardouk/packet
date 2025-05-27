@@ -37,13 +37,22 @@ pub fn strip_user_home_prefix<P: AsRef<Path>>(path: P) -> PathBuf {
     path.as_ref().into()
 }
 
-pub fn get_xdg_download() -> anyhow::Result<PathBuf> {
-    dirs::download_dir().with_context(|| {
-        anyhow!(
-            "Can't get the path to XDG_DOWNLOAD_DIR: HOME={:?}",
-            dirs::home_dir()
-        )
-    })
+/// Fallback: `$HOME/Downloads`
+#[cfg(unix)]
+pub fn get_xdg_download_with_fallback() -> anyhow::Result<PathBuf> {
+    let home_dir = dirs::home_dir().with_context(|| anyhow!("Couldn't get user's HOME"))?;
+    Ok(dirs::download_dir().unwrap_or_else(|| {
+        // Even though per the spec the fallback is supposed to be just $HOME
+        // But, in Flatpak we seem have host access to the fallback $HOME/Downloads
+        // with `--filesystem=xdg-download`, so there's that.
+        let download_dir = home_dir.join("Downloads");
+        tracing::warn!(
+            "Couldn't find XDG_DOWNLOAD_DIR, falling back to {:?}",
+            download_dir
+        );
+
+        download_dir
+    }))
 }
 
 const STEPS_TRACK_COUNT: usize = 5;
