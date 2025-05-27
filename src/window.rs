@@ -466,9 +466,17 @@ impl PacketApplicationWindow {
             }
         }
 
-        imp.download_folder_row.set_subtitle(
-            &strip_user_home_prefix(&imp.settings.string("download-folder")).to_string_lossy(),
-        );
+        let download_folder_path = imp.settings.string("download-folder");
+        if !std::fs::exists(&download_folder_path).unwrap_or_default() {
+            tracing::info!(
+                ?download_folder_path,
+                "Download folder doesn't exist. Creating directory"
+            );
+            fs_err::create_dir_all(&download_folder_path).unwrap();
+        };
+
+        imp.download_folder_row
+            .set_subtitle(&strip_user_home_prefix(&download_folder_path).to_string_lossy());
 
         imp.download_folder_pick_button.connect_clicked(clone!(
             #[weak]
