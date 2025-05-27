@@ -416,45 +416,101 @@ Adw.Dialog help_dialog {
         Adw.HeaderBar {}
 
         ScrolledWindow {
+            hscrollbar-policy: never;
             propagate-natural-height: true;
             propagate-natural-width: true;
 
             Adw.Clamp {
-                maximum-size: 550;
-                tightening-threshold: 550;
+                maximum-size: 360;
+                tightening-threshold: 360;
+                margin-top: 12;
+                margin-bottom: 24;
+                margin-start: 32;
+                margin-end: 32;
 
                 Box {
                     orientation: vertical;
-                    margin-top: 24;
-                    margin-bottom: 24;
-                    margin-start: 24;
-                    margin-end: 24;
                     spacing: 12;
-                    halign: center;
-                    valign: center;
+                    hexpand: true;
+
+                    Label {
+                        label: _("Can't see the other device?");
+                        justify: center;
+                        wrap: true;
+                        margin-bottom: 12;
+
+                        styles [
+                            "title-4",
+                        ]
+                    }
 
                     Box {
-                        orientation: vertical;
-                        spacing: 4;
+                        spacing: 16;
+                        hexpand: true;
 
-                        Label {
-                            // Translators: This is a heading under the help page
-                            label: _("I don't see the other device");
-                            xalign: 0;
-                            justify: left;
-                            wrap: true;
-                            // Don't use h/v-align on Labels, use x/y-align instead
+                        Image {
+                            icon-name: "radiowaves-1-symbolic";
+                            icon-size: large;
+                            valign: center;
+
                             styles [
-                                "heading",
+                                "accent",
                             ]
                         }
 
                         Label {
-                            label: _("Make sure the other device is visible and connected to the same network as this device.\n\nIf it's an Android device and you still don't see it despite setting visibility to \"Everyone\", try opening the <b>Quick Share</b> page from the <b>Google Files</b> app and leave it open.\n\nAlso, ensure Bluetooth is enabled on both devices, as it's often required for device discovery even over Wi-Fi.");
-                            xalign: 0;
-                            justify: left;
+                            label: _("Ensure both devices are on the same Wi-Fi network and Bluetooth is enabled");
                             wrap: true;
+                            hexpand: true;
+                            justify: left;
+                            xalign: 0;
+                        }
+                    }
+
+                    Box {
+                        spacing: 16;
+                        hexpand: true;
+
+                        Image {
+                            icon-name: "eye-looking-symbolic";
+                            icon-size: large;
+                            valign: center;
+
+                            styles [
+                                "accent",
+                            ]
+                        }
+
+                        Label {
+                            label: _("Set devices' visibility to \"Visible to everyone nearby\"");
+                            wrap: true;
+                            hexpand: true;
+                            justify: left;
+                            xalign: 0;
+                        }
+                    }
+
+                    Box {
+                        spacing: 16;
+                        hexpand: true;
+
+                        Image {
+                            icon-name: "folder-visiting-symbolic";
+                            icon-size: large;
+                            valign: center;
+
+                            styles [
+                                "accent",
+                            ]
+                        }
+
+                        Label {
+                            label: _("If the Android device still doesn't appear, try opening the <b>\"Ready to receive\"</b> page in the <b>Files by Google</b> app");
                             use-markup: true;
+                            wrap: true;
+                            hexpand: true;
+                            justify: left;
+                            xalign: 0;
                         }
                     }
                 }
