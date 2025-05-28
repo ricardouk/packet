@@ -400,40 +400,76 @@ impl PacketApplicationWindow {
             ));
 
         let is_prev_entry_valid = Rc::new(Cell::new(None));
+        let changed_signal_handle = Rc::new(RefCell::new(None));
         imp.static_port_entry.connect_apply(clone!(
             #[weak]
             imp,
             #[weak]
             is_prev_entry_valid,
+            #[weak]
+            changed_signal_handle,
             move |obj| {
                 obj.remove_css_class("success");
                 is_prev_entry_valid.set(None);
 
-                let port_number = obj.text().as_str().parse::<u16>();
-                tracing::info!(?port_number, "Setting custom static port");
+                let port_number = {
+                    let port_number = obj.text().as_str().parse::<u16>();
+                    tracing::info!(?port_number, "Setting custom static port");
 
-                // FIXME: check if port is available, or...
-                // maybe not, just have an error status page
-                // for when the rqs service fails to start
-                // for whatever reason
-                imp.settings
-                    .set_int("static-port-number", port_number.unwrap().into())
-                    .unwrap();
+                    port_number.unwrap()
+                };
 
-                imp.preferences_dialog.close();
+                if port_scanner::local_port_available(port_number) {
+                    imp.settings
+                        .set_int("static-port-number", port_number.into())
+                        .unwrap();
 
-                imp.obj().restart_rqs_service();
+                    imp.preferences_dialog.close();
+
+                    imp.obj().restart_rqs_service();
+                } else {
+                    tracing::info!(port_number, "Port number isn't available");
+
+                    // To prevent the apply button from showing after setting the text
+                    obj.block_signal(&changed_signal_handle.borrow().as_ref().unwrap());
+                    imp.static_port_entry.set_show_apply_button(false);
+                    imp.static_port_entry
+                        .set_text(&imp.settings.int("static-port-number").to_string());
+                    imp.static_port_entry.set_show_apply_button(true);
+                    obj.unblock_signal(&changed_signal_handle.borrow().as_ref().unwrap());
+
+                    let info_dialog = adw::AlertDialog::builder()
+                        .heading(&gettext("Invalid Port"))
+                        .body(
+                            &formatx!(
+                                gettext(
+                                    "The chosen static port \"{}\" is not available. Try a different port above 1024."
+                                ),
+                                port_number
+                            )
+                            .unwrap_or_default(),
+                        )
+                        .default_response("ok")
+                        .build();
+                    info_dialog.add_response("ok", &gettext("_Ok"));
+                    info_dialog.set_response_appearance("ok", adw::ResponseAppearance::Suggested);
+                    info_dialog.present(
+                        imp.obj()
+                            .root()
+                            .and_downcast_ref::<PacketApplicationWindow>(),
+                    );
+                };
             }
         ));
 
-        let signal_handle = Rc::new(RefCell::new(None));
-        let _handle = imp.static_port_entry.connect_changed(clone!(
+        let _changed_signal_handle = imp.static_port_entry.connect_changed(clone!(
             #[strong]
-            signal_handle,
+            changed_signal_handle,
             #[strong]
             is_prev_entry_valid,
             move |obj| {
-                if obj.text().as_str().parse::<u16>().is_ok() {
+                let parsed_port_number = obj.text().as_str().parse::<u16>();
+                if parsed_port_number.is_ok() && parsed_port_number.unwrap() > 1024 {
                     if is_prev_entry_valid.get().is_none()
                         || !is_prev_entry_valid.get().unwrap_or(true)
                     {
@@ -445,12 +481,12 @@ impl PacketApplicationWindow {
                         obj.remove_css_class("error");
 
                         obj.set_show_apply_button(true);
-                        obj.block_signal(&signal_handle.borrow().as_ref().unwrap());
+                        obj.block_signal(&changed_signal_handle.borrow().as_ref().unwrap());
                         // `show-apply-button` becomes visible on `::changed` signal on
                         // the GtkText child of the AdwEntryRow, not the root widget itself.
                         // Hence, the GtkEditable delegate.
                         obj.delegate().unwrap().emit_by_name::<()>("changed", &[]);
-                        obj.unblock_signal(&signal_handle.borrow().as_ref().unwrap());
+                        obj.unblock_signal(&changed_signal_handle.borrow().as_ref().unwrap());
                     }
                 } else {
                     is_prev_entry_valid.set(Some(false));
@@ -462,7 +498,7 @@ impl PacketApplicationWindow {
                 }
             }
         ));
-        *signal_handle.as_ref().borrow_mut() = Some(_handle);
+        *changed_signal_handle.as_ref().borrow_mut() = Some(_changed_signal_handle);
 
         // Check if we still have access to the set "Downloads Folder"
         {
@@ -1223,7 +1259,13 @@ impl PacketApplicationWindow {
             .boolean("enable-static-port")
             .then(|| imp.settings.int("static-port-number") as u32);
         tokio_runtime().spawn(async move {
-            tracing::info!(?download_path, "Starting RQS service");
+            tracing::info!(
+                ?device_name,
+                visibility = ?is_device_visible,
+                ?download_path,
+                ?static_port,
+                "Starting RQS service"
+            );
 
             let mut rqs = rqs_lib::RQS::new(
                 if is_device_visible {
