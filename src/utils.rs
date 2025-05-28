@@ -5,7 +5,6 @@ use std::{
     time::{self},
 };
 
-use anyhow::{anyhow, Context};
 use gettextrs::ngettext;
 
 #[macro_export]
@@ -37,22 +36,37 @@ pub fn strip_user_home_prefix<P: AsRef<Path>>(path: P) -> PathBuf {
     path.as_ref().into()
 }
 
-/// Fallback: `$HOME/Downloads`
-#[cfg(unix)]
-pub fn get_xdg_download_with_fallback() -> anyhow::Result<PathBuf> {
-    let home_dir = dirs::home_dir().with_context(|| anyhow!("Couldn't get user's HOME"))?;
-    Ok(dirs::download_dir().unwrap_or_else(|| {
-        // Even though per the spec the fallback is supposed to be just $HOME
-        // But, in Flatpak we seem have host access to the fallback $HOME/Downloads
-        // with `--filesystem=xdg-download`, so there's that.
-        let download_dir = home_dir.join("Downloads");
-        tracing::warn!(
-            "Couldn't find XDG_DOWNLOAD_DIR, falling back to {:?}",
-            download_dir
-        );
+/// Flatpak uses get_user_special_dir to get xdg directories, and so if it fails
+/// due to there being no `XDG_DOWNLOAD_DIR` and `user-dirs.dirs`, Flatpak will simply
+/// refuse to mount xdg-download in the sandbox. Leaving us with nothing.
+///
+/// In that case, simply ask for the download folder from the user.
+pub fn xdg_download_with_fallback() -> PathBuf {
+    /// `$XDG_DATA_HOME/Downloads`
+    fn download_dir_fallback() -> PathBuf {
+        let fallback = dirs::data_dir().unwrap_or_default().join("Downloads");
+        if !std::fs::exists(&fallback).unwrap_or_default() {
+            _ = fs_err::create_dir_all(&fallback).inspect_err(|err| tracing::warn!(%err));
+        }
 
-        download_dir
-    }))
+        fallback
+    }
+
+    match dirs::home_dir() {
+        Some(home_dir) => dirs::download_dir().unwrap_or_else(|| {
+            let fallback = download_dir_fallback();
+            tracing::warn!(?home_dir, ?fallback, "Couldn't find XDG_DOWNLOAD_DIR");
+            fallback
+        }),
+        None => {
+            let fallback = download_dir_fallback();
+            tracing::warn!(
+                ?fallback,
+                "Couldn't get user's HOME while trying to get XDG_DOWNLOAD_DIR"
+            );
+            fallback
+        }
+    }
 }
 
 const STEPS_TRACK_COUNT: usize = 5;
