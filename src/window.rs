@@ -901,10 +901,13 @@ impl PacketApplicationWindow {
             #[weak(rename_to = this)]
             self,
             move |entry| {
-                entry.set_editable(false);
-                this.set_device_name(entry.text().as_str());
-                visibility_toggle_ui_update(&this.imp().device_visibility_switch, this.imp());
-                entry.set_editable(true);
+                let is_name_already_set = this.get_device_name_state() == entry.text();
+                if !is_name_already_set {
+                    entry.set_editable(false);
+                    this.set_device_name(entry.text().as_str());
+                    visibility_toggle_ui_update(&this.imp().device_visibility_switch, this.imp());
+                    entry.set_editable(true);
+                }
             }
         ));
 
