@@ -14,7 +14,7 @@ use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
 use crate::objects::TransferState;
 use crate::objects::{self, SendRequestState};
-use crate::utils::{get_xdg_download, strip_user_home_prefix};
+use crate::utils::{strip_user_home_prefix, xdg_download_with_fallback};
 use crate::{tokio_runtime, widgets};
 
 #[derive(Debug)]
@@ -268,7 +268,7 @@ impl PacketApplicationWindow {
             imp.settings
                 .set_string(
                     "download-folder",
-                    get_xdg_download().unwrap().to_str().unwrap(),
+                    xdg_download_with_fallback().to_str().unwrap(),
                 )
                 .unwrap();
         }
@@ -315,7 +315,18 @@ impl PacketApplicationWindow {
             })
             .build();
 
-        self.add_action_entries([preferences_dialog, received_files, help_dialog]);
+        let pick_download_folder = gio::ActionEntry::builder("pick-download-folder")
+            .activate(move |win: &Self, _, _| {
+                win.pick_download_folder();
+            })
+            .build();
+
+        self.add_action_entries([
+            preferences_dialog,
+            received_files,
+            help_dialog,
+            pick_download_folder,
+        ]);
     }
 
     fn get_device_name_state(&self) -> glib::GString {
@@ -445,85 +456,99 @@ impl PacketApplicationWindow {
 
         // Check if we still have access to the set "Downloads Folder"
         {
-            let downloads_folder = imp.settings.string("download-folder");
-            let downloads_folder_exists = std::fs::exists(&downloads_folder).unwrap_or_default();
+            let download_folder = imp.settings.string("download-folder");
+            let download_folder_exists = std::fs::exists(&download_folder).unwrap_or_default();
 
-            if !downloads_folder_exists {
+            if !download_folder_exists {
+                let fallback = xdg_download_with_fallback();
+
                 tracing::warn!(
-                    ?downloads_folder,
-                    "Can't access Downloads folder. Resetting to default"
+                    ?download_folder,
+                    ?fallback,
+                    "Couldn't access Downloads folder. Resetting to fallback"
                 );
 
-                imp.toast_overlay
-                    .add_toast(adw::Toast::new(&gettext("Can't access Downloads folder")));
-
+                // Fallback for when user doesn't select a download folder when prompted
                 imp.settings
-                    .set_string(
-                        "download-folder",
-                        get_xdg_download().unwrap().to_str().unwrap(),
-                    )
+                    .set_string("download-folder", fallback.to_str().unwrap())
                     .unwrap();
+
+                imp.toast_overlay.add_toast(
+                    adw::Toast::builder()
+                        .title(&gettext("Can't access Downloads folder"))
+                        .button_label(&gettext("Pick Folder"))
+                        .action_name("win.pick-download-folder")
+                        .build(),
+                );
             }
         }
 
         imp.download_folder_row.set_subtitle(
             &strip_user_home_prefix(&imp.settings.string("download-folder")).to_string_lossy(),
         );
-
         imp.download_folder_pick_button.connect_clicked(clone!(
             #[weak]
             imp,
             move |_| {
-                glib::spawn_future_local(clone!(
-                    #[weak]
-                    imp,
-                    async move {
-                        if let Ok(file) = gtk::FileDialog::new()
-                            .select_folder_future(
-                                imp.obj()
-                                    .root()
-                                    .and_downcast_ref::<PacketApplicationWindow>(),
-                            )
-                            .await
-                        {
-                            // TODO: Maybe format the display path in the preferences?
-                            // `Sandbox: Music` or `Music` instead of `/run/user/1000/_/Music` (for mounted paths)
-                            // This would require storing the display string in gschema however
-                            //
-                            // Check whether it's a sandbox path or not by matching the path
-                            // against the xattr host path, if it doesn't match, it's sandbox
+                imp.obj().pick_download_folder();
+            }
+        ));
+    }
 
-                            // Path provided is host path if the app has been granted host access to it via
-                            // --filesystem. Otherwise, it's a mounted path.
-                            //
-                            // Now, there's an issue with the vscode-flatpak extension where while running
-                            // the app through it, the path given by FileChooser is always a mounted path.
-                            // Leaving this note here so as to not base our logic on this wrong behaviour.
-                            let folder_path = file.path().unwrap();
+    fn pick_download_folder(&self) {
+        let imp = self.imp();
 
-                            let display_path = strip_user_home_prefix(&folder_path);
+        glib::spawn_future_local(clone!(
+            #[weak]
+            imp,
+            async move {
+                if let Ok(file) = gtk::FileDialog::new()
+                    .select_folder_future(
+                        imp.obj()
+                            .root()
+                            .and_downcast_ref::<PacketApplicationWindow>(),
+                    )
+                    .await
+                {
+                    // TODO: Maybe format the display path in the preferences?
+                    // `Sandbox: Music` or `Music` instead of `/run/user/1000/_/Music` (for mounted paths)
+                    // This would require storing the display string in gschema however
+                    //
+                    // Check whether it's a sandbox path or not by matching the path
+                    // against the xattr host path, if it doesn't match, it's sandbox
+                    //
+                    // Flatpak metadata is available from `/.flatpak-info`, which contains info
+                    // about host filesystem paths being available to the app, and much more.
 
-                            tracing::debug!(
-                                ?folder_path,
-                                ?display_path,
-                                "Selected custom downloads folder"
-                            );
+                    // Path provided is host path if the app has been granted host access to it via
+                    // --filesystem. Otherwise, it's a mounted path.
+                    //
+                    // Now, there's an issue with the vscode-flatpak extension where while running
+                    // the app through it, the path given by FileChooser is always a mounted path.
+                    // Leaving this note here so as to not base our logic on this wrong behaviour.
+                    let folder_path = file.path().unwrap();
 
-                            imp.download_folder_row
-                                .set_subtitle(&display_path.to_string_lossy());
+                    let display_path = strip_user_home_prefix(&folder_path);
 
-                            imp.settings
-                                .set_string("download-folder", folder_path.to_str().unwrap())
-                                .unwrap();
-                            imp.rqs
-                                .lock()
-                                .await
-                                .as_mut()
-                                .unwrap()
-                                .set_download_path(Some(folder_path));
-                        };
-                    }
-                ));
+                    tracing::debug!(
+                        ?folder_path,
+                        ?display_path,
+                        "Selected custom downloads folder"
+                    );
+
+                    imp.download_folder_row
+                        .set_subtitle(&display_path.to_string_lossy());
+
+                    imp.settings
+                        .set_string("download-folder", folder_path.to_str().unwrap())
+                        .unwrap();
+                    imp.rqs
+                        .lock()
+                        .await
+                        .as_mut()
+                        .unwrap()
+                        .set_download_path(Some(folder_path));
+                };
             }
         ));
     }
