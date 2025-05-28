@@ -435,7 +435,7 @@ Adw.PreferencesDialog preferences_dialog {
                 Button download_folder_pick_button {
                     valign: center;
                     icon-name: "folder-symbolic";
-                    tooltip-text: _("Pick downloads folder");
+                    tooltip-text: _("Pick download folder");
 
                     styles [
                         "flat",
@@ -449,7 +449,8 @@ Adw.PreferencesDialog preferences_dialog {
 
             Adw.ExpanderRow static_port_expander {
                 title: _("Static Network Port");
-                subtitle: _("Allows whitelisting Packet through a firewall");
+                // Translators: For whitelisting of the app.
+                subtitle: _("For whitelisting through a firewall");
                 show-enable-switch: true;
                 enable-expansion: false;
 
