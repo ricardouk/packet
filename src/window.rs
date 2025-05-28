@@ -400,9 +400,7 @@ impl PacketApplicationWindow {
                                     _ = this.restart_rqs_service().await;
 
                                     // Restart mDNS discovery if it was on before the RQS service restart
-                                    this.start_mdns_discovery(
-                                        imp.is_mdns_discovery_on.get().then_some(()),
-                                    );
+                                    this.start_mdns_discovery(Some(imp.is_mdns_discovery_on.get()));
                                 }
                             ));
                         } else {
@@ -1110,10 +1108,14 @@ impl PacketApplicationWindow {
             .collect::<Vec<_>>()
     }
 
-    fn start_mdns_discovery(&self, force: Option<()>) {
+    fn start_mdns_discovery(&self, force: Option<bool>) {
         let imp = self.imp();
 
-        if !imp.is_mdns_discovery_on.get() || force.is_some() {
+        if (force.is_some() && force.unwrap_or_default())
+            || (force.is_none() && !imp.is_mdns_discovery_on.get())
+        {
+            tracing::info!(?force, "Starting mDNS discovery task");
+
             tokio_runtime().spawn(clone!(
                 #[weak(rename_to = mdns_discovery_broadcast_tx)]
                 imp.mdns_discovery_broadcast_tx,
@@ -1133,7 +1135,12 @@ impl PacketApplicationWindow {
                                 .unwrap()
                                 .clone(),
                         )
-                        .inspect_err(|err| tracing::error!(%err));
+                        .inspect_err(|err| {
+                            tracing::error!(
+                                err = format!("{err:#}"),
+                                "Failed to start mDNS discovery task"
+                            )
+                        });
                 }
             ));
 
