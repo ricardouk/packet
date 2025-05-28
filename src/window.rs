@@ -372,6 +372,68 @@ impl PacketApplicationWindow {
             }
         }
 
+        imp.device_name_entry.connect_apply(clone!(
+            #[weak(rename_to = this)]
+            self,
+            move |entry| {
+                let device_name = entry.text();
+                let is_name_already_set = this.get_device_name_state() == device_name;
+                if !is_name_already_set {
+                    tracing::info!(?device_name, "Setting device name");
+
+                    {
+                        let imp = this.imp();
+
+                        // Since transfers from this device to other devices will be affected,
+                        // we won't proceed if they exist
+                        if this.is_no_file_being_send() {
+                            imp.preferences_dialog.close();
+
+                            this.set_device_name_state(&device_name).unwrap();
+
+                            glib::spawn_future_local(clone!(
+                                #[weak]
+                                this,
+                                #[weak]
+                                imp,
+                                async move {
+                                    _ = this.restart_rqs_service().await;
+
+                                    // Restart mDNS discovery if it was on before the RQS service restart
+                                    this.start_mdns_discovery(
+                                        imp.is_mdns_discovery_on.get().then_some(()),
+                                    );
+                                }
+                            ));
+                        } else {
+                            // Although this should be unreacable with the current design, since
+                            // the dialog locks out the user during an ongoing transfer and
+                            // the user can't open preferences whatsoever in that state
+
+                            imp.device_name_entry.set_show_apply_button(false);
+                            imp.device_name_entry
+                                .set_text(&this.get_device_name_state());
+                            imp.device_name_entry.set_show_apply_button(true);
+
+                            tracing::debug!("Active transfers found, can't rename device name");
+
+                            imp.toast_overlay.add_toast(
+                                adw::Toast::builder()
+                                    .title(&gettext(
+                                        "Can't rename device during an active transfer",
+                                    ))
+                                    .build(),
+                            );
+                        }
+                    }
+
+                    this.bottom_bar_status_indicator_ui_update(
+                        this.imp().device_visibility_switch.is_active(),
+                    );
+                }
+            }
+        ));
+
         imp.static_port_expander
             .connect_enable_expansion_notify(clone!(
                 #[weak]
@@ -392,7 +454,7 @@ impl PacketApplicationWindow {
                                 // for the duration of the service restart instead
                                 imp.preferences_dialog.close();
 
-                                imp.obj().restart_rqs_service();
+                                _ = imp.obj().restart_rqs_service().await;
                             }
                         }
                     ));
@@ -870,6 +932,31 @@ impl PacketApplicationWindow {
         ));
     }
 
+    fn bottom_bar_status_indicator_ui_update(&self, is_visible: bool) {
+        let imp = self.imp();
+        if is_visible {
+            imp.bottom_bar_title.set_label(&gettext("Ready"));
+            imp.bottom_bar_title.add_css_class("accent");
+            imp.bottom_bar_image.set_icon_name(Some("visible-symbolic"));
+            imp.bottom_bar_image.add_css_class("accent");
+            imp.bottom_bar_caption.set_label(
+                &formatx!(
+                    gettext("Visible as {:?}"),
+                    imp.obj().get_device_name_state().as_str()
+                )
+                .unwrap_or_else(|_| "badly formatted locale string".into()),
+            );
+        } else {
+            imp.bottom_bar_title.set_label(&gettext("Invisible"));
+            imp.bottom_bar_title.remove_css_class("accent");
+            imp.bottom_bar_image
+                .set_icon_name(Some("eye-not-looking-symbolic"));
+            imp.bottom_bar_image.remove_css_class("accent");
+            imp.bottom_bar_caption
+                .set_label(&gettext("No new devices can share with you"));
+        };
+    }
+
     fn setup_bottom_bar(&self) {
         let imp = self.imp();
 
@@ -897,50 +984,13 @@ impl PacketApplicationWindow {
             }
         ));
 
-        imp.device_name_entry.connect_apply(clone!(
-            #[weak(rename_to = this)]
-            self,
-            move |entry| {
-                let is_name_already_set = this.get_device_name_state() == entry.text();
-                if !is_name_already_set {
-                    entry.set_editable(false);
-                    this.set_device_name(entry.text().as_str());
-                    visibility_toggle_ui_update(&this.imp().device_visibility_switch, this.imp());
-                    entry.set_editable(true);
-                }
-            }
-        ));
-
-        fn visibility_toggle_ui_update(obj: &adw::SwitchRow, imp: &imp::PacketApplicationWindow) {
-            if obj.is_active() {
-                imp.bottom_bar_title.set_label(&gettext("Ready"));
-                imp.bottom_bar_title.add_css_class("accent");
-                imp.bottom_bar_image.set_icon_name(Some("visible-symbolic"));
-                imp.bottom_bar_image.add_css_class("accent");
-                imp.bottom_bar_caption.set_label(
-                    &formatx!(
-                        gettext("Visible as {:?}"),
-                        imp.obj().get_device_name_state().as_str()
-                    )
-                    .unwrap_or_else(|_| "badly formatted locale string".into()),
-                );
-            } else {
-                imp.bottom_bar_title.set_label(&gettext("Invisible"));
-                imp.bottom_bar_title.remove_css_class("accent");
-                imp.bottom_bar_image
-                    .set_icon_name(Some("eye-not-looking-symbolic"));
-                imp.bottom_bar_image.remove_css_class("accent");
-                imp.bottom_bar_caption
-                    .set_label(&gettext("No new devices can share with you"));
-            };
-        }
-
-        visibility_toggle_ui_update(&imp.device_visibility_switch.get(), &imp);
+        self.bottom_bar_status_indicator_ui_update(imp.device_visibility_switch.is_active());
         imp.device_visibility_switch.connect_active_notify(clone!(
             #[weak]
             imp,
             move |obj| {
-                visibility_toggle_ui_update(&obj, &imp);
+                imp.obj()
+                    .bottom_bar_status_indicator_ui_update(obj.is_active());
 
                 let visibility = if obj.is_active() {
                     rqs_lib::Visibility::Visible
@@ -1136,74 +1186,7 @@ impl PacketApplicationWindow {
         true
     }
 
-    fn set_device_name(&self, name: &str) {
-        let imp = self.imp();
-
-        // Since transfers from this device to other devices will be affected,
-        // we won't proceed if they exist
-        if self.is_no_file_being_send() {
-            // FIXME: Show a progress dialog conveying service restart?
-
-            self.set_device_name_state(name).unwrap();
-
-            let name = name.to_string();
-            let (tx, rx) = async_channel::bounded(1);
-            tokio_runtime().spawn(clone!(
-                #[weak(rename_to = rqs)]
-                imp.rqs,
-                async move {
-                    let (file_sender, ble_receiver) = {
-                        let mut guard = rqs.lock().await;
-                        let rqs = guard.as_mut().expect("State must be set");
-
-                        rqs.set_device_name(name);
-
-                        rqs.stop().await;
-                        rqs.run().await.unwrap()
-                    };
-
-                    tx.send((file_sender, ble_receiver)).await.unwrap();
-                }
-            ));
-            glib::spawn_future_local(clone!(
-                #[weak]
-                imp,
-                async move {
-                    let (file_sender, ble_receiver) = rx.recv().await.unwrap();
-
-                    *imp.file_sender.lock().await = Some(file_sender);
-                    *imp.ble_receiver.lock().await = Some(ble_receiver);
-
-                    // Restart mDNS discovery if it was on before the RQS service restart
-                    imp.obj()
-                        .start_mdns_discovery(imp.is_mdns_discovery_on.get().then_some(()));
-
-                    tracing::debug!("RQS service has been reset");
-
-                    // FIXME: Show a toast for device name change success?
-                }
-            ));
-        } else {
-            // Although this should no longer be possible with the current design,
-            // since the dialog locks out the user during an ongoing transfer and
-            // the userc can't open preferences whatsoever in that state
-
-            imp.device_name_entry.set_show_apply_button(false);
-            imp.device_name_entry
-                .set_text(&self.get_device_name_state());
-            imp.device_name_entry.set_show_apply_button(true);
-
-            tracing::debug!("Active transfers found, can't rename device name");
-
-            imp.toast_overlay.add_toast(
-                adw::Toast::builder()
-                    .title(&gettext("Can't rename device during an active transfer"))
-                    .build(),
-            );
-        }
-    }
-
-    fn restart_rqs_service(&self) {
+    fn restart_rqs_service(&self) -> glib::JoinHandle<()> {
         glib::spawn_future_local(clone!(
             #[weak(rename_to = this)]
             self,
@@ -1212,9 +1195,9 @@ impl PacketApplicationWindow {
                     .root_stack
                     .set_visible_child_name("loading_service_page");
                 _ = this.stop_rqs_service().await;
-                this.setup_rqs_service();
+                _ = this.setup_rqs_service().await;
             }
-        ));
+        ))
     }
 
     fn stop_rqs_service(&self) -> tokio::task::JoinHandle<()> {
@@ -1249,7 +1232,7 @@ impl PacketApplicationWindow {
         handle
     }
 
-    fn setup_rqs_service(&self) {
+    fn setup_rqs_service(&self) -> glib::JoinHandle<()> {
         let imp = self.imp();
 
         let (tx, rx) = async_channel::bounded(1);
@@ -1288,7 +1271,7 @@ impl PacketApplicationWindow {
             let rqs_run_result = rqs.run().await;
             tx.send((rqs, rqs_run_result)).await.unwrap();
         });
-        glib::spawn_future_local(clone!(
+        let rqs_init_handle = glib::spawn_future_local(clone!(
             #[weak]
             imp,
             async move {
@@ -1345,7 +1328,7 @@ impl PacketApplicationWindow {
                                 // send_request_notification(name, channel_msg.id.clone());
                             }
                             Err(err) => {
-                                tracing::error!(%err)
+                                tracing::error!("{err:#}")
                             }
                         };
                     }
@@ -1488,7 +1471,10 @@ impl PacketApplicationWindow {
                                 tx.send(endpoint_info).await.unwrap();
                             }
                             Err(err) => {
-                                tracing::error!(%err,"MDNS discovery error");
+                                tracing::error!(
+                                    err = format!("{err:#}"),
+                                    "mDNS discovery receiver"
+                                );
                             }
                         }
                     }
@@ -1555,7 +1541,10 @@ impl PacketApplicationWindow {
                                 tracing::debug!(?visibility, "Visibility change");
                             }
                             Err(err) => {
-                                tracing::error!(%err,"Visibility watcher error");
+                                tracing::error!(
+                                    err = format!("{err:#}"),
+                                    "Visibility watcher receiver"
+                                );
                             }
                         }
                     }
@@ -1593,5 +1582,7 @@ impl PacketApplicationWindow {
             //     }
             // ));
         }
+
+        rqs_init_handle
     }
 }
