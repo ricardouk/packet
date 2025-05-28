@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-28 19:00+0530\n"
+"POT-Creation-Date: 2025-05-29 03:52+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "_Preferences"
 msgstr ""
 
-#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:419
+#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:467
 msgid "Help"
 msgstr ""
 
@@ -35,100 +35,117 @@ msgid "_About Packet"
 msgstr ""
 
 #. Translators: The name should remain untranslated
-#: data/resources/ui/window.blp:37 data/resources/ui/window.blp:99
-#: src/application.rs:131 src/main.rs:34
+#: data/resources/ui/window.blp:38 data/resources/ui/window.blp:63
+#: data/resources/ui/window.blp:140 src/application.rs:131 src/main.rs:34
 #: data/io.github.nozwock.Packet.desktop.in.in:2
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
 msgid "Packet"
 msgstr ""
 
-#: data/resources/ui/window.blp:51
+#: data/resources/ui/window.blp:52
 msgid "Setting up Packet…"
 msgstr ""
 
-#: data/resources/ui/window.blp:100
+#: data/resources/ui/window.blp:71
+msgid "Copy error report"
+msgstr ""
+
+#: data/resources/ui/window.blp:85
+msgid "Couldn't Set Up"
+msgstr ""
+
+#: data/resources/ui/window.blp:86
+msgid "An error occurred while trying to setup Packet"
+msgstr ""
+
+#: data/resources/ui/window.blp:91
+msgid "Try Again"
+msgstr ""
+
+#: data/resources/ui/window.blp:141
 msgid "Add, or drop a file to send"
 msgstr ""
 
-#: data/resources/ui/window.blp:103
+#: data/resources/ui/window.blp:144
 msgid "Add Files"
 msgstr ""
 
-#: data/resources/ui/window.blp:158
+#: data/resources/ui/window.blp:199
 msgid "Add File"
 msgstr ""
 
-#: data/resources/ui/window.blp:247
+#: data/resources/ui/window.blp:294
 msgid "Send"
 msgstr ""
 
-#: data/resources/ui/window.blp:270
+#: data/resources/ui/window.blp:317
 msgid "Select Recipients"
 msgstr ""
 
-#: data/resources/ui/window.blp:340
+#: data/resources/ui/window.blp:387
 msgid "Looking for devices…"
 msgstr ""
 
-#: data/resources/ui/window.blp:348 data/resources/ui/window.blp:445
+#: data/resources/ui/window.blp:395 data/resources/ui/window.blp:493
 msgid "Can't see the other device?"
 msgstr ""
 
-#: data/resources/ui/window.blp:367
+#: data/resources/ui/window.blp:414
 msgid "Preferences"
 msgstr ""
 
-#: data/resources/ui/window.blp:372
+#: data/resources/ui/window.blp:419
 msgid "General"
 msgstr ""
 
-#: data/resources/ui/window.blp:375
+#: data/resources/ui/window.blp:422
 msgid "Device Name"
 msgstr ""
 
-#: data/resources/ui/window.blp:380
+#: data/resources/ui/window.blp:427
 msgid "Visibility"
 msgstr ""
 
-#: data/resources/ui/window.blp:381
+#: data/resources/ui/window.blp:428
 msgid "Whether others can see this device"
 msgstr ""
 
-#: data/resources/ui/window.blp:385
+#: data/resources/ui/window.blp:432
 msgid "Downloads Folder"
 msgstr ""
 
-#: data/resources/ui/window.blp:391
-msgid "Pick downloads folder"
+#: data/resources/ui/window.blp:438
+msgid "Pick download folder"
 msgstr ""
 
-#: data/resources/ui/window.blp:401
+#: data/resources/ui/window.blp:448
 msgid "Advanced"
 msgstr ""
 
-#: data/resources/ui/window.blp:404
+#: data/resources/ui/window.blp:451
 msgid "Static Network Port"
 msgstr ""
 
-#: data/resources/ui/window.blp:405
-msgid "Allows whitelisting Packet through a firewall"
+#. Translators: For whitelisting of the app.
+#: data/resources/ui/window.blp:453
+msgid "For whitelisting through a firewall"
 msgstr ""
 
-#: data/resources/ui/window.blp:410
+#: data/resources/ui/window.blp:458
 msgid "Port Number"
 msgstr ""
 
-#: data/resources/ui/window.blp:470
+#: data/resources/ui/window.blp:518
 msgid ""
 "Make sure both devices are connected to the same Wi-Fi network and have "
 "Bluetooth turned on"
 msgstr ""
 
-#: data/resources/ui/window.blp:493
+#: data/resources/ui/window.blp:541
 msgid "Make sure the device is set to be visible to all nearby devices"
 msgstr ""
 
-#: data/resources/ui/window.blp:516
+#: data/resources/ui/window.blp:564
 msgid ""
 "For an Android device, try opening the <b>Quick Share</b> page in the "
 "<b>Files by Google</b> app"
@@ -171,7 +188,7 @@ msgid "Remove"
 msgstr ""
 
 #. Translators: An e.g. "4 Files"
-#: src/widgets/file_card.rs:133 src/window.rs:892
+#: src/widgets/file_card.rs:133 src/window.rs:971
 #, rust-format
 msgid "{} File"
 msgid_plural "{} Files"
@@ -290,36 +307,55 @@ msgid_plural "Sent {} files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/window.rs:478
+#: src/window.rs:442
+msgid "Invalid Port"
+msgstr ""
+
+#: src/window.rs:446
+#, rust-format
+msgid ""
+"The chosen static port \"{}\" is not available. Try a different port above "
+"1024."
+msgstr ""
+
+#: src/window.rs:454
+msgid "_Ok"
+msgstr ""
+
+#: src/window.rs:524
 msgid "Can't access Downloads folder"
 msgstr ""
 
-#: src/window.rs:479
+#: src/window.rs:525
 msgid "Pick Folder"
 msgstr ""
 
-#: src/window.rs:830
+#: src/window.rs:630
+msgid "Copied error report to clipboard"
+msgstr ""
+
+#: src/window.rs:909
 msgid "Ready"
 msgstr ""
 
-#: src/window.rs:836
+#: src/window.rs:915
 #, rust-format
 msgid "Visible as {:?}"
 msgstr ""
 
-#: src/window.rs:842
+#: src/window.rs:921
 msgid "Invisible"
 msgstr ""
 
-#: src/window.rs:848
+#: src/window.rs:927
 msgid "No new devices can share with you"
 msgstr ""
 
-#: src/window.rs:881
+#: src/window.rs:960
 msgid "Couldn't open files"
 msgstr ""
 
-#: src/window.rs:1114
+#: src/window.rs:1194
 msgid "Can't rename device during an active transfer"
 msgstr ""
 
