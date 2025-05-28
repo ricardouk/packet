@@ -17,7 +17,7 @@ rqs_lib = { git = "https://github.com/nozwock/rquickshare.git", rev = "9bf563f85
 ] }
 better_default = "1.0.5"
 fs-err = "3.1"
-anyhow = { version = "1.0", features = ["backtrace"] }
+anyhow = { version = "1.0" }
 tokio = { version = "1.45.0", features = [
     "macros",
     "rt",

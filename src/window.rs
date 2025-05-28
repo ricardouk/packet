@@ -51,6 +51,12 @@ mod imp {
         pub root_stack: TemplateChild<gtk::Stack>,
 
         #[template_child]
+        pub rqs_error_copy_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub rqs_error_retry_button: TemplateChild<gtk::Button>,
+        pub rqs_error: Rc<RefCell<Option<anyhow::Error>>>,
+
+        #[template_child]
         pub toast_overlay: TemplateChild<adw::ToastOverlay>,
 
         #[template_child]
@@ -375,10 +381,13 @@ impl PacketApplicationWindow {
                         #[weak]
                         obj,
                         async move {
+                            let port_number = imp.settings.int("static-port-number");
                             if obj.enables_expansion()
-                                && Some(imp.settings.int("static-port-number") as u32)
+                                && Some(port_number as u32)
                                     != imp.rqs.lock().await.as_ref().unwrap().port_number
                             {
+                                tracing::info!(port_number, "Setting custom static port");
+
                                 // FIXME: maybe just make the widget insensitive
                                 // for the duration of the service restart instead
                                 imp.preferences_dialog.close();
@@ -400,15 +409,15 @@ impl PacketApplicationWindow {
                 obj.remove_css_class("success");
                 is_prev_entry_valid.set(None);
 
+                let port_number = obj.text().as_str().parse::<u16>();
+                tracing::info!(?port_number, "Setting custom static port");
+
                 // FIXME: check if port is available, or...
                 // maybe not, just have an error status page
                 // for when the rqs service fails to start
                 // for whatever reason
                 imp.settings
-                    .set_int(
-                        "static-port-number",
-                        obj.text().as_str().parse::<u16>().unwrap().into(),
-                    )
+                    .set_int("static-port-number", port_number.unwrap().into())
                     .unwrap();
 
                 imp.preferences_dialog.close();
@@ -557,9 +566,42 @@ impl PacketApplicationWindow {
     fn setup_ui(&self) {
         self.setup_bottom_bar();
 
+        self.setup_status_pages();
         self.setup_main_page();
         self.setup_manage_files_page();
         self.setup_recipient_page();
+    }
+
+    fn setup_status_pages(&self) {
+        let imp = self.imp();
+
+        let clipboard = self.clipboard();
+        imp.rqs_error_copy_button.connect_clicked(clone!(
+            #[weak]
+            imp,
+            move |_| {
+                // TODO: Replace the copy button with an info button that
+                // opens up a dialog with the option to copy or save the
+                // app log, and a link to the issues page.
+                clipboard.set_text(
+                    &imp.rqs_error
+                        .borrow()
+                        .as_ref()
+                        .map(|e| format!("{e:#}"))
+                        .unwrap_or_default(),
+                );
+                imp.toast_overlay.add_toast(adw::Toast::new(&gettext(
+                    "Copied error report to clipboard",
+                )));
+            }
+        ));
+        imp.rqs_error_retry_button.connect_clicked(clone!(
+            #[weak(rename_to = this)]
+            self,
+            move |_| {
+                this.restart_rqs_service();
+            }
+        ));
     }
 
     fn setup_main_page(&self) {
@@ -1194,28 +1236,40 @@ impl PacketApplicationWindow {
                 Some(device_name.to_string()),
             );
 
-            let (file_sender, ble_receiver) = rqs.run().await.unwrap();
-
-            tx.send((rqs, file_sender, ble_receiver)).await.unwrap();
+            let rqs_run_result = rqs.run().await;
+            tx.send((rqs, rqs_run_result)).await.unwrap();
         });
         glib::spawn_future_local(clone!(
             #[weak]
             imp,
             async move {
-                let (rqs, file_sender, ble_receiver) = rx.recv().await.unwrap();
-                *imp.rqs.lock().await = Some(rqs);
-                *imp.file_sender.lock().await = Some(file_sender);
-                *imp.ble_receiver.lock().await = Some(ble_receiver);
+                let (rqs, rqs_run_result) = rx.recv().await.unwrap();
 
+                tracing::debug!("Fetched RQS instance after run()");
+                *imp.rqs.lock().await = Some(rqs);
                 let (mdns_discovery_broadcast_tx, _) =
                     tokio::sync::broadcast::channel::<rqs_lib::EndpointInfo>(10);
                 *imp.mdns_discovery_broadcast_tx.lock().await = Some(mdns_discovery_broadcast_tx);
 
-                tracing::debug!("Fetched RQS instance after run()");
+                match rqs_run_result {
+                    Ok((file_sender, ble_receiver)) => {
+                        *imp.file_sender.lock().await = Some(file_sender);
+                        *imp.ble_receiver.lock().await = Some(ble_receiver);
 
-                imp.root_stack.get().set_visible_child_name("main_page");
+                        imp.root_stack.get().set_visible_child_name("main_page");
 
-                spawn_rqs_receiver_tasks(&imp);
+                        spawn_rqs_receiver_tasks(&imp);
+                    }
+                    Err(err) => {
+                        let err = err.context("Failed to setup Packet");
+                        tracing::error!("{err:#}");
+                        imp.rqs_error.borrow_mut().replace(err);
+
+                        imp.root_stack
+                            .get()
+                            .set_visible_child_name("rqs_error_status_page");
+                    }
+                };
             }
         ));
 

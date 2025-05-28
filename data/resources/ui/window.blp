@@ -29,41 +29,82 @@ template $PacketApplicationWindow: Adw.ApplicationWindow {
     width-request: 360;
     height-request: 294;
 
-    Stack root_stack {
-        transition-type: crossfade;
+    Adw.ToastOverlay toast_overlay {
+        Stack root_stack {
+            transition-type: crossfade;
 
-        StackPage {
-            name: "loading_service_page";
-            title: _("Packet");
+            StackPage {
+                name: "loading_service_page";
+                title: _("Packet");
 
-            child: Adw.ToolbarView {
-                [top]
-                Adw.HeaderBar {
-                    [end]
-                    Button {
-                        icon-name: "help-about-symbolic";
-                        action-name: "app.about";
+                child: Adw.ToolbarView {
+                    [top]
+                    Adw.HeaderBar {
+                        [end]
+                        Button {
+                            icon-name: "help-about-symbolic";
+                            action-name: "app.about";
+                        }
                     }
-                }
 
-                Adw.StatusPage loading_rqs_status_page {
-                    vexpand: true;
-                    title: _("Setting up Packet…");
+                    Adw.StatusPage loading_rqs_status_page {
+                        vexpand: true;
+                        title: _("Setting up Packet…");
 
-                    paintable: Adw.SpinnerPaintable {
-                        widget: loading_rqs_status_page;
-                    };
-                }
-            };
-        }
+                        paintable: Adw.SpinnerPaintable {
+                            widget: loading_rqs_status_page;
+                        };
+                    }
+                };
+            }
 
-        StackPage {
-            name: "main_page";
+            StackPage {
+                name: "rqs_error_status_page";
+                title: _("Packet");
 
-            child: Adw.ToolbarView {
-                extend-content-to-top-edge: true;
+                child: Adw.ToolbarView {
+                    [top]
+                    Adw.HeaderBar {
+                        [start]
+                        Button rqs_error_copy_button {
+                            icon-name: "edit-copy-symbolic";
+                            tooltip-text: _("Copy error report");
+                        }
 
-                Adw.ToastOverlay toast_overlay {
+                        [end]
+                        MenuButton {
+                            icon-name: "open-menu-symbolic";
+                            menu-model: primary_menu;
+                            primary: true;
+                        }
+                    }
+
+                    Adw.StatusPage {
+                        // Translators: This is the title of the status page where some error occurred while trying to setup Packet
+                        icon-name: "dialog-error-symbolic";
+                        title: _("Couldn't Set Up");
+                        description: _("An error occurred while trying to setup Packet");
+                        vexpand: true;
+
+                        Button rqs_error_retry_button {
+                            halign: center;
+                            label: _("Try Again");
+
+                            styles [
+                                "pill",
+                                "accent",
+                            ]
+                        }
+                    }
+                };
+            }
+
+            StackPage {
+                name: "main_page";
+
+                child: Adw.ToolbarView {
+                    extend-content-to-top-edge: true;
+
                     Box {
                         orientation: vertical;
                         hexpand: true;
@@ -183,6 +224,12 @@ template $PacketApplicationWindow: Adw.ApplicationWindow {
                         Adw.Clamp {
                             maximum-size: 550;
 
+                            [end]
+                            Button {
+                                icon-name: "help-about-symbolic";
+                                action-name: "app.about";
+                            }
+
                             Box bottom_bar {
                                 orientation: vertical;
                                 valign: end;
@@ -260,8 +307,8 @@ template $PacketApplicationWindow: Adw.ApplicationWindow {
                             }
                         }
                     }
-                }
-            };
+                };
+            }
         }
     }
 }
