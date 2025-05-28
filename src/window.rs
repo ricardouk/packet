@@ -427,7 +427,11 @@ impl PacketApplicationWindow {
                     imp.preferences_dialog.close();
 
                     imp.obj().restart_rqs_service();
-                } else {
+                }
+                else if Some(port_number as u32) == imp.rqs.blocking_lock().as_ref().unwrap().port_number {
+                    // Don't do anything if port is already set
+                }
+                else {
                     tracing::info!(port_number, "Port number isn't available");
 
                     // To prevent the apply button from showing after setting the text
