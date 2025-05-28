@@ -176,6 +176,10 @@ mod imp {
             }
 
             // Abort all looping tasks before closing
+            tracing::info!(
+                count = self.looping_async_tasks.borrow().len(),
+                "Cancelling looping tasks"
+            );
             while let Some(join_handle) = self.looping_async_tasks.borrow_mut().pop() {
                 match join_handle {
                     LoopingTaskHandle::Tokio(join_handle) => join_handle.abort(),
@@ -189,13 +193,10 @@ mod imp {
                 self.rqs,
                 async move {
                     {
+                        tracing::info!("Stopping RQS service");
                         let mut rqs_guard = rqs.lock().await;
                         if let Some(rqs) = rqs_guard.as_mut() {
-                            // FIXME: Put a timeout here on closing RQS.
-                            // Only wait for a few seconds
-                            // Seems to take a long time in VM for some reason
                             rqs.stop().await;
-                            tracing::info!("Stopped RQS service");
                         }
                     }
 
@@ -1135,6 +1136,10 @@ impl PacketApplicationWindow {
         let imp = self.imp();
 
         // Abort all looping tasks before closing
+        tracing::info!(
+            count = imp.looping_async_tasks.borrow().len(),
+            "Cancelling looping tasks"
+        );
         while let Some(join_handle) = imp.looping_async_tasks.borrow_mut().pop() {
             match join_handle {
                 LoopingTaskHandle::Tokio(join_handle) => join_handle.abort(),
