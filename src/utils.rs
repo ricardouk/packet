@@ -53,11 +53,28 @@ pub fn xdg_download_with_fallback() -> PathBuf {
     }
 
     match dirs::home_dir() {
-        Some(home_dir) => dirs::download_dir().unwrap_or_else(|| {
+        Some(home_dir) => {
             let fallback = download_dir_fallback();
-            tracing::warn!(?home_dir, ?fallback, "Couldn't find XDG_DOWNLOAD_DIR");
-            fallback
-        }),
+            match dirs::download_dir() {
+                Some(download_dir) => {
+                    if std::fs::exists(&download_dir).unwrap_or_default() {
+                        download_dir
+                    } else {
+                        tracing::warn!(
+                            ?home_dir,
+                            ?download_dir,
+                            ?fallback,
+                            "Found XDG_DOWNLOAD_DIR but it doesn't exist"
+                        );
+                        fallback
+                    }
+                }
+                None => {
+                    tracing::warn!(?home_dir, ?fallback, "Couldn't find XDG_DOWNLOAD_DIR");
+                    fallback
+                }
+            }
+        }
         None => {
             let fallback = download_dir_fallback();
             tracing::warn!(
