@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-29 03:52+0530\n"
+"POT-Creation-Date: 2025-05-29 06:03+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -188,7 +188,7 @@ msgid "Remove"
 msgstr ""
 
 #. Translators: An e.g. "4 Files"
-#: src/widgets/file_card.rs:133 src/window.rs:971
+#: src/widgets/file_card.rs:133 src/window.rs:1067
 #, rust-format
 msgid "{} File"
 msgid_plural "{} Files"
@@ -307,56 +307,56 @@ msgid_plural "Sent {} files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/window.rs:442
+#: src/window.rs:428
+msgid "Can't rename device during an active transfer"
+msgstr ""
+
+#: src/window.rs:569
 msgid "Invalid Port"
 msgstr ""
 
-#: src/window.rs:446
+#: src/window.rs:573
 #, rust-format
 msgid ""
 "The chosen static port \"{}\" is not available. Try a different port above "
 "1024."
 msgstr ""
 
-#: src/window.rs:454
+#: src/window.rs:581
 msgid "_Ok"
 msgstr ""
 
-#: src/window.rs:524
+#: src/window.rs:629
 msgid "Can't access Downloads folder"
 msgstr ""
 
-#: src/window.rs:525
+#: src/window.rs:630
 msgid "Pick Folder"
 msgstr ""
 
-#: src/window.rs:630
+#: src/window.rs:735
 msgid "Copied error report to clipboard"
 msgstr ""
 
-#: src/window.rs:909
+#: src/window.rs:977
 msgid "Ready"
 msgstr ""
 
-#: src/window.rs:915
+#: src/window.rs:983
 #, rust-format
 msgid "Visible as {:?}"
 msgstr ""
 
-#: src/window.rs:921
+#: src/window.rs:989
 msgid "Invisible"
 msgstr ""
 
-#: src/window.rs:927
+#: src/window.rs:995
 msgid "No new devices can share with you"
 msgstr ""
 
-#: src/window.rs:960
+#: src/window.rs:1056
 msgid "Couldn't open files"
-msgstr ""
-
-#: src/window.rs:1194
-msgid "Can't rename device during an active transfer"
 msgstr ""
 
 #: data/io.github.nozwock.Packet.desktop.in.in:3
