@@ -140,6 +140,10 @@ template $PacketApplicationWindow: Adw.ApplicationWindow {
                                             title: _("Packet");
                                             description: _("Add, or drop a file to send");
 
+                                            styles [
+                                                "icon-dropshadow",
+                                            ]
+
                                             child: Button main_add_files_button {
                                                 label: _("Add Files");
                                                 margin-top: 24;
