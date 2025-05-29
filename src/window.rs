@@ -4,18 +4,20 @@ use std::rc::Rc;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
+use anyhow::{anyhow, Context};
 use formatx::formatx;
 use gettextrs::{gettext, ngettext};
 use gtk::gio::FILE_ATTRIBUTE_STANDARD_SIZE;
 use gtk::glib::clone;
 use gtk::{gdk, gio, glib};
+use tokio::sync::watch;
 
 use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
 use crate::objects::TransferState;
 use crate::objects::{self, SendRequestState};
 use crate::utils::{strip_user_home_prefix, xdg_download_with_fallback};
-use crate::{tokio_runtime, widgets};
+use crate::{monitors, tokio_runtime, widgets};
 
 #[derive(Debug)]
 pub enum LoopingTaskHandle {
@@ -123,6 +125,17 @@ mod imp {
 
         pub send_transfers_id_cache: Arc<Mutex<HashMap<String, SendRequestState>>>,
 
+        #[default(gio::NetworkMonitor::default())]
+        pub network_monitor: gio::NetworkMonitor,
+        pub dbus_system_conn: Rc<RefCell<Option<zbus::Connection>>>,
+        // Would do unwrap_or_default anyways, so keeping it as just bool
+        pub network_state: Rc<Cell<bool>>,
+        pub bluetooth_state: Rc<Cell<bool>>,
+
+        // FIXME: use this to receive network state on send/receive transfers, to cancel them
+        // on connection loss
+        pub network_state_sender: Arc<Mutex<Option<tokio::sync::broadcast::Sender<bool>>>>,
+
         // RQS State
         pub rqs: Arc<Mutex<Option<rqs_lib::RQS>>>,
         pub file_sender: Arc<Mutex<Option<tokio::sync::mpsc::Sender<rqs_lib::SendInfo>>>>,
@@ -166,6 +179,7 @@ mod imp {
             obj.setup_gactions();
             obj.setup_preferences();
             obj.setup_ui();
+            obj.setup_connection_monitors();
             obj.setup_rqs_service();
         }
     }
@@ -973,27 +987,50 @@ impl PacketApplicationWindow {
 
     fn bottom_bar_status_indicator_ui_update(&self, is_visible: bool) {
         let imp = self.imp();
-        if is_visible {
-            imp.bottom_bar_title.set_label(&gettext("Ready"));
-            imp.bottom_bar_title.add_css_class("accent");
-            imp.bottom_bar_image.set_icon_name(Some("visible-symbolic"));
-            imp.bottom_bar_image.add_css_class("accent");
-            imp.bottom_bar_caption.set_label(
-                &formatx!(
-                    gettext("Visible as {:?}"),
-                    imp.obj().get_device_name_state().as_str()
-                )
-                .unwrap_or_else(|_| "badly formatted locale string".into()),
-            );
+
+        let network_state = imp.network_state.get();
+        let bluetooth_state = imp.bluetooth_state.get();
+
+        if network_state && bluetooth_state {
+            if is_visible {
+                imp.bottom_bar_title.set_label(&gettext("Ready"));
+                imp.bottom_bar_title.add_css_class("accent");
+                imp.bottom_bar_image.set_icon_name(Some("visible-symbolic"));
+                imp.bottom_bar_image.add_css_class("accent");
+                imp.bottom_bar_caption.set_label(
+                    &formatx!(
+                        gettext("Visible as {:?}"),
+                        imp.obj().get_device_name_state().as_str()
+                    )
+                    .unwrap_or_else(|_| "badly formatted locale string".into()),
+                );
+            } else {
+                imp.bottom_bar_title.set_label(&gettext("Invisible"));
+                imp.bottom_bar_title.remove_css_class("accent");
+                imp.bottom_bar_image
+                    .set_icon_name(Some("eye-not-looking-symbolic"));
+                imp.bottom_bar_image.remove_css_class("accent");
+                imp.bottom_bar_caption
+                    .set_label(&gettext("No new devices can share with you"));
+            };
         } else {
-            imp.bottom_bar_title.set_label(&gettext("Invisible"));
-            imp.bottom_bar_title.remove_css_class("accent");
             imp.bottom_bar_image
-                .set_icon_name(Some("eye-not-looking-symbolic"));
+                .set_icon_name(Some("cross-small-circle-outline-symbolic"));
+            imp.bottom_bar_title.set_label(&gettext("Disconnected"));
             imp.bottom_bar_image.remove_css_class("accent");
-            imp.bottom_bar_caption
-                .set_label(&gettext("No new devices can share with you"));
-        };
+            imp.bottom_bar_title.remove_css_class("accent");
+
+            if !network_state && !bluetooth_state {
+                imp.bottom_bar_caption
+                    .set_label(&gettext("Connect to Wi-Fi and turn on Bluetooth"));
+            } else if !network_state && bluetooth_state {
+                imp.bottom_bar_caption
+                    .set_label(&gettext("Connect to Wi-Fi"));
+            } else if network_state && !bluetooth_state {
+                imp.bottom_bar_caption
+                    .set_label(&gettext("Turn on Bluetooth"));
+            }
+        }
     }
 
     fn setup_bottom_bar(&self) {
@@ -1280,6 +1317,106 @@ impl PacketApplicationWindow {
         ));
 
         handle
+    }
+
+    fn setup_connection_monitors(&self) {
+        let imp = self.imp();
+
+        let (tx, mut network_rx) = watch::channel(false);
+        imp.network_monitor
+            .connect_network_changed(move |monitor, _| {
+                _ = tx.send(monitor.is_network_available());
+            });
+
+        glib::spawn_future_local(clone!(
+            #[weak(rename_to = this)]
+            self,
+            #[weak(rename_to = dbus_system_conn)]
+            imp.dbus_system_conn,
+            async move {
+                let conn = {
+                    let conn = zbus::Connection::system().await;
+                    *dbus_system_conn.borrow_mut() = conn.clone().ok();
+                    conn.unwrap()
+                };
+
+                let bluetooth_initial_state = monitors::is_bluetooth_powered(&conn)
+                    .await
+                    .map_err(|err| {
+                        anyhow!(err).context("Failed to get initial Bluetooth powered state")
+                    })
+                    .inspect_err(|err| {
+                        tracing::warn!(fallback = false, "{err:#}",);
+                    })
+                    .unwrap_or_default();
+                let (tx, mut bluetooth_rx) = watch::channel(bluetooth_initial_state);
+                glib::spawn_future(async move {
+                    if let Err(err) = monitors::spawn_bluetooth_power_monitor_task(conn, tx)
+                        .await
+                        .map_err(|err| anyhow!(err))
+                    {
+                        tracing::error!(
+                            "{:#}",
+                            err.context("Failed to spawn the Bluetooth powered state monitor task")
+                        );
+                    };
+                });
+
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    this,
+                    async move {
+                        enum ChangedState {
+                            Network,
+                            Bluetooth,
+                        }
+
+                        let imp = this.imp();
+
+                        imp.bluetooth_state.set(bluetooth_initial_state);
+
+                        #[allow(unused)]
+                        let mut is_state_changed = None;
+
+                        loop {
+                            tokio::select! {
+                                _ = network_rx.changed() => {
+
+                                    let v = *network_rx.borrow();
+
+                                    // Since we get spammed with network change events
+                                    // even though the state hasn't changed from before
+                                    //
+                                    // This also helps keep the logs to a minimum
+                                    is_state_changed = (imp.network_state.get() != v).then_some(ChangedState::Network);
+
+                                    imp.network_state.set(v) ;
+                                }
+                                _ = bluetooth_rx.changed() => {
+                                    is_state_changed = Some(ChangedState::Bluetooth);
+
+                                    imp.bluetooth_state.set(*bluetooth_rx.borrow());
+                                    tracing::info!(bluetooth_state = imp.bluetooth_state.get(), "Bluetooth powered state changed");
+                                }
+                            };
+
+                            if is_state_changed.is_some() {
+                                if let Some(ChangedState::Network) = is_state_changed {
+                                    tracing::info!(
+                                        network_state = imp.network_state.get(),
+                                        "Network state changed"
+                                    );
+                                }
+
+                                this.bottom_bar_status_indicator_ui_update(
+                                    imp.device_visibility_switch.is_active(),
+                                );
+                            }
+                        }
+                    }
+                ));
+            }
+        ));
     }
 
     fn setup_rqs_service(&self) -> glib::JoinHandle<()> {
