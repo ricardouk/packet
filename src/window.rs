@@ -372,10 +372,17 @@ impl PacketApplicationWindow {
             }
         }
 
+        let prev_validation_state = Rc::new(Cell::new(None));
+        let changed_signal_handle = Rc::new(RefCell::new(None));
         imp.device_name_entry.connect_apply(clone!(
             #[weak(rename_to = this)]
             self,
+            #[weak]
+            prev_validation_state,
             move |entry| {
+                entry.remove_css_class("success");
+                prev_validation_state.set(None);
+
                 let device_name = entry.text();
                 let is_name_already_set = this.get_device_name_state() == device_name;
                 if !is_name_already_set {
@@ -431,6 +438,23 @@ impl PacketApplicationWindow {
                 }
             }
         ));
+        let _changed_signal_handle = imp.device_name_entry.connect_changed(clone!(
+            #[strong]
+            changed_signal_handle,
+            #[strong]
+            prev_validation_state,
+            move |obj| {
+                set_entry_validation_state(
+                    &obj,
+                    // Empty device names are not discoverable from other devices, they'll be
+                    // filtered out as malformed.
+                    !obj.text().trim().is_empty(),
+                    &prev_validation_state,
+                    changed_signal_handle.borrow().as_ref().unwrap(),
+                );
+            }
+        ));
+        *changed_signal_handle.as_ref().borrow_mut() = Some(_changed_signal_handle);
 
         /// `signal_handle` is the handle for the `changed` signal handler
         /// where this function should be called.
