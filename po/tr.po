@@ -7,11 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-20 15:03+0530\n"
-"PO-Revision-Date: 2025-05-22 04:11+0000\n"
+"POT-Creation-Date: 2025-05-29 18:40+0530\n"
+"PO-Revision-Date: 2025-05-29 01:10+0000\n"
 "Last-Translator: \"Serhat S.\" <sebihotza@protonmail.com>\n"
-"Language-Team: Turkish <https://hosted.weblate.org/projects/packet/main/tr/>"
-"\n"
+"Language-Team: Turkish <https://hosted.weblate.org/projects/packet/main/tr/"
+">\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "_Preferences"
 msgstr "_Tercihler"
 
-#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:372
+#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:471
 msgid "Help"
 msgstr "Yardım"
 
@@ -36,121 +36,170 @@ msgid "_About Packet"
 msgstr "_Packet Hakkında"
 
 #. Translators: The name should remain untranslated
-#: data/resources/ui/window.blp:37 data/resources/ui/window.blp:99
-#: src/application.rs:131 src/main.rs:33
-#: data/io.github.nozwock.Packet.desktop.in.in:3
+#: data/resources/ui/window.blp:38 data/resources/ui/window.blp:63
+#: data/resources/ui/window.blp:140 src/application.rs:131 src/main.rs:35
+#: data/io.github.nozwock.Packet.desktop.in.in:2
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
 msgid "Packet"
 msgstr "Packet"
 
-#: data/resources/ui/window.blp:51
-msgid "Setting up Packet..."
+#: data/resources/ui/window.blp:52
+#, fuzzy
+#| msgid "Setting up Packet..."
+msgid "Setting up Packet…"
 msgstr "Packet yapılandırılıyor..."
 
-#: data/resources/ui/window.blp:100
+#: data/resources/ui/window.blp:71
+msgid "Copy error report"
+msgstr ""
+
+#: data/resources/ui/window.blp:85
+#, fuzzy
+#| msgid "Couldn't open files"
+msgid "Couldn't Set Up"
+msgstr "Dosyalar açılamadı"
+
+#: data/resources/ui/window.blp:86
+msgid "An error occurred while trying to setup Packet"
+msgstr ""
+
+#: data/resources/ui/window.blp:91
+msgid "Try Again"
+msgstr ""
+
+#: data/resources/ui/window.blp:141
 msgid "Add, or drop a file to send"
 msgstr "Göndermek için bir dosya ekleyin veya bırakın"
 
-#: data/resources/ui/window.blp:103
+#: data/resources/ui/window.blp:148
 msgid "Add Files"
 msgstr "Dosya Ekle"
 
-#: data/resources/ui/window.blp:158
+#: data/resources/ui/window.blp:203
 msgid "Add File"
 msgstr "Dosya Ekle"
 
-#: data/resources/ui/window.blp:247
+#: data/resources/ui/window.blp:298
 msgid "Send"
 msgstr "Gönder"
 
-#: data/resources/ui/window.blp:270
+#: data/resources/ui/window.blp:321
 msgid "Select Recipients"
 msgstr "Alıcıları Seçin"
 
-#: data/resources/ui/window.blp:351
+#: data/resources/ui/window.blp:391
+msgid "Looking for devices…"
+msgstr ""
+
+#: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
+#, fuzzy
+#| msgid "I don't see the other device"
+msgid "Can't see the other device?"
+msgstr "Diğer cihazı göremiyorum"
+
+#: data/resources/ui/window.blp:418
 msgid "Preferences"
 msgstr "Tercihler"
 
-#: data/resources/ui/window.blp:356
-msgid "Network"
-msgstr "Ağ"
+#: data/resources/ui/window.blp:423
+msgid "General"
+msgstr ""
 
-#: data/resources/ui/window.blp:359
+#: data/resources/ui/window.blp:426
 msgid "Device Name"
 msgstr "Cihaz Adı"
 
-#: data/resources/ui/window.blp:364
+#: data/resources/ui/window.blp:431
 msgid "Visibility"
 msgstr "Görünürlük"
 
-#: data/resources/ui/window.blp:365
+#: data/resources/ui/window.blp:432
 msgid "Whether others can see this device"
 msgstr "Diğer kişiler bu cihazı görebilir mi"
 
-#. Translators: This is a heading under the help page
-#: data/resources/ui/window.blp:403
-msgid "I don't see the other device"
-msgstr "Diğer cihazı göremiyorum"
+#: data/resources/ui/window.blp:436
+#, fuzzy
+#| msgid "Download folder"
+msgid "Downloads Folder"
+msgstr "İndirme klasörü"
 
-#: data/resources/ui/window.blp:414
-msgid ""
-"Make sure the other device is visible and connected to the same network as "
-"this device.\n"
-"\n"
-"If it's an Android device and you still don't see it despite setting "
-"visibility to \"Everyone\", try opening the <b>Quick Share</b> page from the "
-"<b>Google Files</b> app and leave it open.\n"
-"\n"
-"Also, ensure Bluetooth is enabled on both devices, as it's often required "
-"for device discovery even over Wi-Fi."
+#: data/resources/ui/window.blp:442
+#, fuzzy
+#| msgid "Download folder"
+msgid "Pick download folder"
+msgstr "İndirme klasörü"
+
+#: data/resources/ui/window.blp:452
+msgid "Advanced"
 msgstr ""
-"Diğer cihazın görünür ve aynı ağda olduğundan emin olun.\n"
-"\n"
-"Eğer diğer cihaz Android ise ve görünürlüğü \"Herkes\" olarak ayarlamanıza "
-"rağmen cihazı göremiyorsanız <b>Quick Share</b> sayfasını <b>Google Files</"
-"b> uygulamasından açmayı deneyin ve sayfayı açık bırakın.\n"
-"\n"
-"Ayrıca Wi-Fi üzerinde dahi cihaz keşfi için genellikle gerektiğinden dolayı, "
-"Bluetooth'un iki cihazda da etkinleştirilmiş olduğundan emin olun."
+
+#: data/resources/ui/window.blp:455
+msgid "Static Network Port"
+msgstr ""
+
+#. Translators: For whitelisting of the app.
+#: data/resources/ui/window.blp:457
+msgid "For whitelisting through a firewall"
+msgstr ""
+
+#: data/resources/ui/window.blp:462
+msgid "Port Number"
+msgstr ""
+
+#: data/resources/ui/window.blp:522
+msgid ""
+"Make sure both devices are connected to the same Wi-Fi network and have "
+"Bluetooth turned on"
+msgstr ""
+
+#: data/resources/ui/window.blp:545
+msgid "Make sure the device is set to be visible to all nearby devices"
+msgstr ""
+
+#: data/resources/ui/window.blp:568
+msgid ""
+"For an Android device, try opening the <b>Quick Share</b> page in the "
+"<b>Files by Google</b> app"
+msgstr ""
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/application.rs:144
 msgid "translator-credits"
 msgstr "Serhat Sivrikaya"
 
-#: src/application.rs:149
+#: src/application.rs:151
 msgid "Similar Projects"
 msgstr "Benzer Projeler"
 
-#: src/objects/send_transfer.rs:38 src/objects/send_transfer.rs:46
+#: src/objects/send_transfer.rs:50 src/objects/send_transfer.rs:58
 #: src/widgets/recipient_card.rs:108 src/widgets/recipient_card.rs:147
 msgid "Unknown device"
 msgstr "Bilinmeyen cihaz"
 
-#: src/utils.rs:133
+#: src/utils.rs:194
 msgid "hour"
 msgid_plural "hours"
 msgstr[0] "saat"
 msgstr[1] "saat"
 
-#: src/utils.rs:135 src/utils.rs:145
+#: src/utils.rs:196 src/utils.rs:206
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "dakika"
 msgstr[1] "dakika"
 
-#: src/utils.rs:147 src/utils.rs:150
+#: src/utils.rs:208 src/utils.rs:211
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "saniye"
 msgstr[1] "saniye"
 
-#: src/widgets/file_card.rs:115
+#: src/widgets/file_card.rs:116
 msgid "Remove"
 msgstr "Kaldır"
 
 #. Translators: An e.g. "4 Files"
-#: src/widgets/file_card.rs:133 src/window.rs:638
+#: src/widgets/file_card.rs:134 src/window.rs:1106
 msgid "{} File"
 msgid_plural "{} Files"
 msgstr[0] "{} Dosya"
@@ -168,135 +217,177 @@ msgstr "Metin"
 msgid "Wi-Fi"
 msgstr "Wi-Fi"
 
-#: src/widgets/receive_transfer.rs:38
+#: src/widgets/receive_transfer.rs:59
 msgid "Receiving"
 msgstr "Alınıyor"
 
-#: src/widgets/receive_transfer.rs:41 src/widgets/recipient_card.rs:308
+#: src/widgets/receive_transfer.rs:62 src/widgets/recipient_card.rs:310
 msgid "Cancel"
 msgstr "İptal"
 
-#: src/widgets/receive_transfer.rs:139
+#: src/widgets/receive_transfer.rs:159
 msgid "Incoming Transfer"
 msgstr "Gelen Aktarma"
 
-#: src/widgets/receive_transfer.rs:163
+#: src/widgets/receive_transfer.rs:183
 msgid "Decline"
 msgstr "Reddet"
 
-#: src/widgets/receive_transfer.rs:164
+#: src/widgets/receive_transfer.rs:184
 msgid "Accept"
 msgstr "Kabul Et"
 
 #. Translators: An e.g. "6 Files (42.3MB)"
-#: src/widgets/receive_transfer.rs:195
+#: src/widgets/receive_transfer.rs:215
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
 msgstr[0] "{} Dosya ({})"
 msgstr[1] "{} Dosya ({})"
 
-#: src/widgets/receive_transfer.rs:215
+#: src/widgets/receive_transfer.rs:235
 msgid "Preview ({})"
 msgstr "Ön İzleme ({})"
 
 #. Translators: This is the pin-code for the transfer
-#: src/widgets/receive_transfer.rs:239 src/widgets/recipient_card.rs:445
+#: src/widgets/receive_transfer.rs:251 src/widgets/recipient_card.rs:442
 msgid "Code: {}"
 msgstr "Kod: {}"
 
 #. Translators: {} will be replaced with an estimated remaining time string
 #. e.g. "About 4 minutes 32 seconds left"
-#: src/widgets/receive_transfer.rs:347 src/widgets/recipient_card.rs:478
+#: src/widgets/receive_transfer.rs:359 src/widgets/recipient_card.rs:473
 msgid "About {} left"
 msgstr "Yaklaşık {} kaldı"
 
-#: src/widgets/receive_transfer.rs:374
+#: src/widgets/receive_transfer.rs:386
 msgid "Unexpected dissconnection"
 msgstr "Beklenmedik kesinti"
 
-#: src/widgets/receive_transfer.rs:397
+#: src/widgets/receive_transfer.rs:409
 msgid "Transfer cancelled by sender"
 msgstr "Aktarma gönderen tarafından iptal edildi"
 
-#: src/widgets/receive_transfer.rs:432
+#: src/widgets/receive_transfer.rs:444
 msgid "Copy to clipboard"
 msgstr "Panoya kopyala"
 
-#: src/widgets/receive_transfer.rs:440
+#: src/widgets/receive_transfer.rs:452
 msgid "Save text as file"
 msgstr "Metni dosyaya kaydet"
 
-#: src/widgets/receive_transfer.rs:497 src/widgets/receive_transfer.rs:613
+#: src/widgets/receive_transfer.rs:509 src/widgets/receive_transfer.rs:627
 msgid "Open"
 msgstr "Aç"
 
-#: src/widgets/receive_transfer.rs:594
-msgid "Unimplemented"
-msgstr "Henüz desteklenmiyor"
-
-#: src/widgets/receive_transfer.rs:605
+#: src/widgets/receive_transfer.rs:619
 msgid "{} file received"
 msgid_plural "{} files received"
 msgstr[0] "{} dosya alındı"
 msgstr[1] "{} dosya alındı"
 
-#: src/widgets/recipient_card.rs:220
+#: src/widgets/recipient_card.rs:221
 msgid "Unavailable"
 msgstr "Mevcut değil"
 
-#: src/widgets/recipient_card.rs:243
+#: src/widgets/recipient_card.rs:244
 msgid "Queued"
 msgstr "Sırada"
 
-#: src/widgets/recipient_card.rs:289
+#: src/widgets/recipient_card.rs:291
 msgid "Retry"
 msgstr "Yeniden Dene"
 
-#: src/widgets/recipient_card.rs:439
+#: src/widgets/recipient_card.rs:436
 msgid "Requested"
 msgstr "İstek gönderildi"
 
-#: src/widgets/recipient_card.rs:505
+#: src/widgets/recipient_card.rs:499
 msgid "Failed"
 msgstr "Başarısız"
 
-#: src/widgets/recipient_card.rs:545
+#: src/widgets/recipient_card.rs:542
 msgid "Sent {} file"
 msgid_plural "Sent {} files"
 msgstr[0] "{} dosya gönderildi"
 msgstr[1] "{} dosya gönderildi"
 
-#: src/window.rs:576
-msgid "Ready"
-msgstr "Hazır"
-
-#: src/window.rs:582
-msgid "Visible as {:?}"
-msgstr "{:?} olarak görünür"
-
-#: src/window.rs:588
-msgid "Invisible"
-msgstr "Görünmez"
-
-#: src/window.rs:594
-msgid "No new devices can share with you"
-msgstr "Yeni cihazlar sizinle paylaşamaz"
-
-#: src/window.rs:627
-msgid "Couldn't open files"
-msgstr "Dosyalar açılamadı"
-
-#: src/window.rs:860
+#: src/window.rs:442
 msgid "Can't rename device during an active transfer"
 msgstr "Aktarma devam ederken cihaz yeniden adlandırılamaz"
 
-#: data/io.github.nozwock.Packet.desktop.in.in:4
+#: src/window.rs:583
+msgid "Invalid Port"
+msgstr ""
+
+#: src/window.rs:587
+msgid ""
+"The chosen static port \"{}\" is not available. Try a different port above "
+"1024."
+msgstr ""
+
+#: src/window.rs:595
+msgid "_Ok"
+msgstr ""
+
+#: src/window.rs:643
+#, fuzzy
+#| msgid "Download folder"
+msgid "Can't access Downloads folder"
+msgstr "İndirme klasörü"
+
+#: src/window.rs:644
+msgid "Pick Folder"
+msgstr ""
+
+#: src/window.rs:749
+#, fuzzy
+#| msgid "Copy to clipboard"
+msgid "Copied error report to clipboard"
+msgstr "Panoya kopyala"
+
+#: src/window.rs:996
+msgid "Ready"
+msgstr "Hazır"
+
+#: src/window.rs:1002
+msgid "Visible as {:?}"
+msgstr "{:?} olarak görünür"
+
+#: src/window.rs:1008
+msgid "Invisible"
+msgstr "Görünmez"
+
+#: src/window.rs:1014
+msgid "No new devices can share with you"
+msgstr "Yeni cihazlar sizinle paylaşamaz"
+
+#: src/window.rs:1019
+msgid "Disconnected"
+msgstr ""
+
+#: src/window.rs:1025
+msgid "Connect to Wi-Fi and turn on Bluetooth"
+msgstr ""
+
+#: src/window.rs:1028
+msgid "Connect to Wi-Fi"
+msgstr ""
+
+#: src/window.rs:1031
+msgid "Turn on Bluetooth"
+msgstr ""
+
+#: src/window.rs:1095
+msgid "Couldn't open files"
+msgstr "Dosyalar açılamadı"
+
+#: data/io.github.nozwock.Packet.desktop.in.in:3
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
 msgid "Share files easily"
 msgstr "Kolayca dosya paylaşın"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/io.github.nozwock.Packet.desktop.in.in:10
+#: data/io.github.nozwock.Packet.desktop.in.in:9
 msgid "Gnome;GTK;Quick;Nearby;Share;"
 msgstr "Gnome;GTK;Quick;Yakındakilerle;Paylaş;Share;"
 
@@ -342,28 +433,54 @@ msgstr ""
 "Packet, Bluetooth'un etkinleştirilmesini ve cihazların mDNS destekleyen bir "
 "Wi-Fi ağına bağlanmasını gerektirir."
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:17
-msgid "Home Page"
-msgstr "Ana Sayfa"
-
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:21
-msgid "Received Share Request"
-msgstr "Paylaşım İsteği Alındı"
-
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:25
+#. Trasnlators: These are captions for the screenshots on Flathub
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:18
 msgid "Sent Share Request"
 msgstr "Paylaşım İsteği Gönderildi"
 
-#. Translators: These are release notes, don't waste your time translating these, they won't take effect for now.
-#. Sorry, these shouldn't have been included but the tooling around this is very poor currently.
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:43
-msgid "Added Portuguese (Brazil) translation"
-msgstr "Portekizce (Brezilya) çeviri eklendi"
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:22
+msgid "Main Page"
+msgstr ""
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:44
-msgid "Added partial German translation"
-msgstr "Kısmi Almanca çeviri eklendi"
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:26
+msgid "Received Share Request"
+msgstr "Paylaşım İsteği Alındı"
 
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:50
-msgid "Added Dutch translation"
-msgstr "Felemenkçe çeviri eklendi"
+#~ msgid "Network"
+#~ msgstr "Ağ"
+
+#~ msgid ""
+#~ "Make sure the other device is visible and connected to the same network "
+#~ "as this device.\n"
+#~ "\n"
+#~ "If it's an Android device and you still don't see it despite setting "
+#~ "visibility to \"Everyone\", try opening the <b>Quick Share</b> page from "
+#~ "the <b>Google Files</b> app and leave it open.\n"
+#~ "\n"
+#~ "Also, ensure Bluetooth is enabled on both devices, as it's often required "
+#~ "for device discovery even over Wi-Fi."
+#~ msgstr ""
+#~ "Diğer cihazın görünür ve aynı ağda olduğundan emin olun.\n"
+#~ "\n"
+#~ "Eğer diğer cihaz Android ise ve görünürlüğü \"Herkes\" olarak "
+#~ "ayarlamanıza rağmen cihazı göremiyorsanız <b>Quick Share</b> sayfasını "
+#~ "<b>Google Files</b> uygulamasından açmayı deneyin ve sayfayı açık "
+#~ "bırakın.\n"
+#~ "\n"
+#~ "Ayrıca Wi-Fi üzerinde dahi cihaz keşfi için genellikle gerektiğinden "
+#~ "dolayı, Bluetooth'un iki cihazda da etkinleştirilmiş olduğundan emin olun."
+
+#~ msgid "Unimplemented"
+#~ msgstr "Henüz desteklenmiyor"
+
+#~ msgid "Home Page"
+#~ msgstr "Ana Sayfa"
+
+#~ msgid "Added Portuguese (Brazil) translation"
+#~ msgstr "Portekizce (Brezilya) çeviri eklendi"
+
+#~ msgid "Added partial German translation"
+#~ msgstr "Kısmi Almanca çeviri eklendi"
+
+#~ msgid "Added Dutch translation"
+#~ msgstr "Felemenkçe çeviri eklendi"
