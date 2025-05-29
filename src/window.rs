@@ -432,6 +432,45 @@ impl PacketApplicationWindow {
             }
         ));
 
+        /// `signal_handle` is the handle for the `changed` signal handler
+        /// where this function should be called.
+        ///
+        /// Reset `prev_validation_state` to `None` in the `apply` signal.
+        fn set_entry_validation_state(
+            entry: &adw::EntryRow,
+            is_valid: bool,
+            prev_validation_state: &Rc<Cell<Option<bool>>>,
+            signal_handle: &glib::signal::SignalHandlerId,
+        ) {
+            if is_valid {
+                if prev_validation_state.get().is_none()
+                    || !prev_validation_state.get().unwrap_or(true)
+                {
+                    // To emit `changed` only on valid/invalid state change,
+                    // and not when the entry is valid and was valid previously
+                    prev_validation_state.set(Some(true));
+
+                    entry.add_css_class("success");
+                    entry.remove_css_class("error");
+
+                    entry.set_show_apply_button(true);
+                    entry.block_signal(&signal_handle);
+                    // `show-apply-button` becomes visible on `::changed` signal on
+                    // the GtkText child of the AdwEntryRow, not the root widget itself.
+                    // Hence, the GtkEditable delegate.
+                    entry.delegate().unwrap().emit_by_name::<()>("changed", &[]);
+                    entry.unblock_signal(&signal_handle);
+                }
+            } else {
+                prev_validation_state.set(Some(false));
+
+                entry.remove_css_class("success");
+                entry.add_css_class("error");
+
+                entry.set_show_apply_button(false);
+            }
+        }
+
         imp.static_port_expander
             .connect_enable_expansion_notify(clone!(
                 #[weak]
@@ -459,18 +498,18 @@ impl PacketApplicationWindow {
                 }
             ));
 
-        let is_prev_entry_valid = Rc::new(Cell::new(None));
+        let prev_validation_state = Rc::new(Cell::new(None));
         let changed_signal_handle = Rc::new(RefCell::new(None));
         imp.static_port_entry.connect_apply(clone!(
             #[weak]
             imp,
             #[weak]
-            is_prev_entry_valid,
+            prev_validation_state,
             #[weak]
             changed_signal_handle,
             move |obj| {
                 obj.remove_css_class("success");
-                is_prev_entry_valid.set(None);
+                prev_validation_state.set(None);
 
                 let port_number = {
                     let port_number = obj.text().as_str().parse::<u16>();
@@ -525,41 +564,19 @@ impl PacketApplicationWindow {
                 };
             }
         ));
-
         let _changed_signal_handle = imp.static_port_entry.connect_changed(clone!(
             #[strong]
             changed_signal_handle,
             #[strong]
-            is_prev_entry_valid,
+            prev_validation_state,
             move |obj| {
                 let parsed_port_number = obj.text().as_str().parse::<u16>();
-                if parsed_port_number.is_ok() && parsed_port_number.unwrap() > 1024 {
-                    if is_prev_entry_valid.get().is_none()
-                        || !is_prev_entry_valid.get().unwrap_or(true)
-                    {
-                        // To emit `changed` only on valid/invalid state change,
-                        // and not when the entry is valid and was valid previously
-                        is_prev_entry_valid.set(Some(true));
-
-                        obj.add_css_class("success");
-                        obj.remove_css_class("error");
-
-                        obj.set_show_apply_button(true);
-                        obj.block_signal(&changed_signal_handle.borrow().as_ref().unwrap());
-                        // `show-apply-button` becomes visible on `::changed` signal on
-                        // the GtkText child of the AdwEntryRow, not the root widget itself.
-                        // Hence, the GtkEditable delegate.
-                        obj.delegate().unwrap().emit_by_name::<()>("changed", &[]);
-                        obj.unblock_signal(&changed_signal_handle.borrow().as_ref().unwrap());
-                    }
-                } else {
-                    is_prev_entry_valid.set(Some(false));
-
-                    obj.remove_css_class("success");
-                    obj.add_css_class("error");
-
-                    obj.set_show_apply_button(false);
-                }
+                set_entry_validation_state(
+                    &obj,
+                    parsed_port_number.is_ok() && parsed_port_number.unwrap() > 1024,
+                    &prev_validation_state,
+                    changed_signal_handle.borrow().as_ref().unwrap(),
+                );
             }
         ));
         *changed_signal_handle.as_ref().borrow_mut() = Some(_changed_signal_handle);
