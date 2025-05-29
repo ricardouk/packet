@@ -1009,12 +1009,14 @@ impl PacketApplicationWindow {
                         "manage_files_nav_page" => {
                             imp.bottom_bar_status.set_halign(gtk::Align::Start);
                             imp.bottom_bar_status_top.set_halign(gtk::Align::Start);
+                            imp.bottom_bar_caption.set_xalign(0.);
                             imp.bottom_bar_spacer.set_visible(true);
                             imp.manage_files_send_button.set_visible(true);
                         }
                         _ => {
                             imp.bottom_bar_status.set_halign(gtk::Align::Center);
                             imp.bottom_bar_status_top.set_halign(gtk::Align::Center);
+                            imp.bottom_bar_caption.set_xalign(0.5);
                             imp.bottom_bar_spacer.set_visible(false);
                             imp.manage_files_send_button.set_visible(false);
                         }
