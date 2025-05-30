@@ -2288,7 +2288,7 @@ dependencies = [
 [[package]]
 name = "rqs_lib"
 version = "0.11.5"
-source = "git+https://github.com/nozwock/rquickshare.git?rev=9bf563f857ebae543d36bc75187f9b6895748a2a#9bf563f857ebae543d36bc75187f9b6895748a2a"
+source = "git+https://github.com/nozwock/rquickshare.git?rev=2142a5273dc61bb64e05acbf4f1f82750c83f171#2142a5273dc61bb64e05acbf4f1f82750c83f171"
 dependencies = [
  "anyhow",
  "base64",

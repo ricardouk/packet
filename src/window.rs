@@ -1741,33 +1741,43 @@ impl PacketApplicationWindow {
                 .borrow_mut()
                 .push(LoopingTaskHandle::Tokio(handle));
 
-            // FIXME: Since renaming device name will restart the service,
-            // we need to reset the ble_receiver here in the loop as well.
-            // Ideal solution seem to be to keep a handle on this async task
-            // and close it when we set device name and respawn it.
-            // tokio_runtime().spawn(clone!(
-            //     #[weak(rename_to = ble_receiver)]
-            //     imp.ble_receiver,
-            //     async move {
-            //         let mut ble_receiver =
-            //             ble_receiver.lock().await.as_ref().unwrap().resubscribe();
-            //         // let mut last_sent = std::time::Instant::now() - std::time::Duration::from_secs(120);
-            //         loop {
-            //             match ble_receiver.recv().await {
-            //                 Ok(_) => {
-            //                     // let is_visible = device_visibility_switch.is_active();
-            //                     // FIXME: Get visibility via a channel
-            //                     // and temporarily make device visible?
+            // A task the handles BLE advertisements from other nearby devices
+            //
+            // Close previous tasks and restart service whenever running RQS::run,
+            // since that resets the ble receiver and other stuff, and here the
+            // ble receiver is set to whichever one is in the Window state at the
+            // time of setting up the task.
+            let handle = tokio_runtime().spawn(clone!(
+                #[weak(rename_to = ble_receiver)]
+                imp.ble_receiver,
+                async move {
+                    let mut ble_receiver =
+                        ble_receiver.lock().await.as_ref().unwrap().resubscribe();
 
-            //                     tracing::debug!("Received BLE")
-            //                 }
-            //                 Err(err) => {
-            //                     tracing::error!(%err,"Error receiving BLE");
-            //                 }
-            //             }
-            //         }
-            //     }
-            // ));
+                    // let mut last_sent = std::time::Instant::now() - std::time::Duration::from_secs(120);
+                    loop {
+                        match ble_receiver.recv().await {
+                            Ok(_) => {
+                                // let is_visible = device_visibility_switch.is_active();
+
+                                // FIXME: The task is for the "A nearby device is sharing" feature
+                                // where you're given an option to make yourself temporarily visible
+
+                                // tracing::debug!("Received BLE event, show a \"A nearby device is sharing\" notification here")
+                            }
+                            Err(err) => {
+                                tracing::error!(
+                                    err = format!("{err:#}"),
+                                    "Couldn't receive BLE event"
+                                );
+                            }
+                        }
+                    }
+                }
+            ));
+            imp.looping_async_tasks
+                .borrow_mut()
+                .push(LoopingTaskHandle::Tokio(handle));
         }
 
         rqs_init_handle
