@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-29 18:40+0530\n"
-"PO-Revision-Date: 2025-05-31 12:57+0000\n"
-"Last-Translator: Григорий Горбовской <grishaxtail@gmail.com>\n"
+"PO-Revision-Date: 2025-05-31 15:54+0000\n"
+"Last-Translator: Aleksandr Melman <alexmelman88@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/packet/main/ru/>"
 "\n"
 "Language: ru\n"
@@ -26,15 +26,15 @@ msgstr "_Настройки"
 
 #: data/resources/ui/window.blp:12 data/resources/ui/window.blp:471
 msgid "Help"
-msgstr "Помощь"
+msgstr "Справка"
 
 #: data/resources/ui/window.blp:17
 msgid "_Keyboard Shortcuts"
-msgstr "_Сочетания клавиш"
+msgstr "_Комбинации клавиш"
 
 #: data/resources/ui/window.blp:22
 msgid "_About Packet"
-msgstr "_О Packet"
+msgstr "_О приложении"
 
 #. Translators: The name should remain untranslated
 #: data/resources/ui/window.blp:38 data/resources/ui/window.blp:63
@@ -46,11 +46,11 @@ msgstr "Packet"
 
 #: data/resources/ui/window.blp:52
 msgid "Setting up Packet…"
-msgstr "Подготавливаем Packet…"
+msgstr "Подготовка Packet…"
 
 #: data/resources/ui/window.blp:71
 msgid "Copy error report"
-msgstr "Скопировать отчёт о проблеме"
+msgstr "Копировать отчёт об ошибке"
 
 #: data/resources/ui/window.blp:85
 msgid "Couldn't Set Up"
@@ -86,7 +86,7 @@ msgstr "Выберите получателей"
 
 #: data/resources/ui/window.blp:391
 msgid "Looking for devices…"
-msgstr "Ищем устройства…"
+msgstr "Поиск устройств…"
 
 #: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
 msgid "Can't see the other device?"
@@ -98,11 +98,11 @@ msgstr "Настройки"
 
 #: data/resources/ui/window.blp:423
 msgid "General"
-msgstr "Основные"
+msgstr "Общие"
 
 #: data/resources/ui/window.blp:426
 msgid "Device Name"
-msgstr "Название устройства"
+msgstr "Имя устройства"
 
 #: data/resources/ui/window.blp:431
 msgid "Visibility"
@@ -156,7 +156,7 @@ msgid ""
 "For an Android device, try opening the <b>Quick Share</b> page in the "
 "<b>Files by Google</b> app"
 msgstr ""
-"Попробуйте на Android устройстве открыть страницу <b>Быстрая отправка</b> в "
+"Попробуйте на устройстве Android открыть страницу <b>Быстрая отправка</b> в "
 "приложении <b>Файлы</b> (Files от Google)"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
@@ -225,11 +225,11 @@ msgstr "Получение"
 
 #: src/widgets/receive_transfer.rs:62 src/widgets/recipient_card.rs:310
 msgid "Cancel"
-msgstr "Отмена"
+msgstr "Отменить"
 
 #: src/widgets/receive_transfer.rs:159
 msgid "Incoming Transfer"
-msgstr "Входящая отправка"
+msgstr "Входящая передача"
 
 #: src/widgets/receive_transfer.rs:183
 msgid "Decline"
@@ -272,11 +272,11 @@ msgstr "Внезапное разъединение"
 
 #: src/widgets/receive_transfer.rs:409
 msgid "Transfer cancelled by sender"
-msgstr "Отправка отменена отправителем"
+msgstr "Передача отменена отправителем"
 
 #: src/widgets/receive_transfer.rs:444
 msgid "Copy to clipboard"
-msgstr "Скопировать в буфер обмена"
+msgstr "Копировать в буфер обмена"
 
 #: src/widgets/receive_transfer.rs:452
 msgid "Save text as file"
@@ -324,7 +324,7 @@ msgstr[2] "Отправлено {} файлов"
 
 #: src/window.rs:442
 msgid "Can't rename device during an active transfer"
-msgstr "Невозможно переименовать устройство во время активной отправки"
+msgstr "Невозможно переименовать устройство во время активной передачи"
 
 #: src/window.rs:583
 msgid "Invalid Port"
@@ -353,20 +353,20 @@ msgstr "Выберите папку"
 
 #: src/window.rs:749
 msgid "Copied error report to clipboard"
-msgstr "Отчёт о проблеме скопирован в буфер обмена"
+msgstr "Отчёт об ошибке скопирован в буфер обмена"
 
 #: src/window.rs:996
 msgid "Ready"
-msgstr "Готов"
+msgstr "Готово"
 
 #: src/window.rs:1002
 #, rust-format
 msgid "Visible as {:?}"
-msgstr "Видим как {:?}"
+msgstr "Видно как {:?}"
 
 #: src/window.rs:1008
 msgid "Invisible"
-msgstr "Невидим"
+msgstr "Невидно"
 
 #: src/window.rs:1014
 msgid "No new devices can share with you"
@@ -374,7 +374,7 @@ msgstr "Новые устройства не смогут делиться с в
 
 #: src/window.rs:1019
 msgid "Disconnected"
-msgstr "Отключен"
+msgstr "Отключено"
 
 #: src/window.rs:1025
 msgid "Connect to Wi-Fi and turn on Bluetooth"
@@ -417,7 +417,7 @@ msgstr "Развёрнутое состояние окна"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:19
 msgid "Device name"
-msgstr "Название устройства"
+msgstr "Имя устройства"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:23
 msgid "Device visibility"
@@ -433,8 +433,8 @@ msgid ""
 "Send and receive files wirelessly with Android devices using Quick Share or "
 "another device with Packet installed."
 msgstr ""
-"Отправляйте и получайте файлы по сети с Android устройствами используя "
-"Быструю отправку или другим устройством с установленным Packet."
+"Отправляйте и получайте файлы по сети с устройствами Android, используя "
+"Быструю отправку, или другим устройством с установленным Packet."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:11
 msgid ""
@@ -447,7 +447,7 @@ msgstr ""
 #. Trasnlators: These are captions for the screenshots on Flathub
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:18
 msgid "Sent Share Request"
-msgstr "Отправлен запрос на отправку"
+msgstr "Отправлен запрос на передачу"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:22
 msgid "Main Page"
@@ -455,4 +455,4 @@ msgstr "Главная страница"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:26
 msgid "Received Share Request"
-msgstr "Получен запрос на отправку"
+msgstr "Получен запрос на передачу"
