@@ -19,11 +19,11 @@ use self::config::{GETTEXT_PACKAGE, LOCALEDIR, RESOURCES_FILE};
 fn main() -> glib::ExitCode {
     // Initialize logger
     tracing_subscriber::fmt()
+        .with_line_number(true)
         .with_env_filter(
             EnvFilter::builder()
-                .with_default_directive(LevelFilter::DEBUG.into())
-                .from_env_lossy()
-                .add_directive("rqs_lib=debug".parse().unwrap()),
+                .with_default_directive(LevelFilter::INFO.into())
+                .from_env_lossy(),
         )
         .init();
 
