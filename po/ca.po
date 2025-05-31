@@ -8,31 +8,32 @@ msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-29 18:40+0530\n"
-"PO-Revision-Date: 2025-05-30 14:18+0000\n"
-"Last-Translator: Pascal Dietrich <pascal.1.dietrich@hotmail.com>\n"
-"Language-Team: French <https://hosted.weblate.org/projects/packet/main/fr/>\n"
-"Language: fr\n"
+"PO-Revision-Date: 2025-05-31 07:20+0000\n"
+"Last-Translator: Alan Mena Comaleras <alanmena+weblate@pm.me>\n"
+"Language-Team: Catalan <https://hosted.weblate.org/projects/packet/main/ca/>"
+"\n"
+"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.12-dev\n"
 
 #: data/resources/ui/window.blp:7
 msgid "_Preferences"
-msgstr "_Préférences"
+msgstr "_Preferències"
 
 #: data/resources/ui/window.blp:12 data/resources/ui/window.blp:471
 msgid "Help"
-msgstr "Aide"
+msgstr "Ajuda"
 
 #: data/resources/ui/window.blp:17
 msgid "_Keyboard Shortcuts"
-msgstr "_Raccourcis clavier"
+msgstr "_Dreceres del teclat"
 
 #: data/resources/ui/window.blp:22
 msgid "_About Packet"
-msgstr "À _propos de Packet"
+msgstr "_Sobre el Packet"
 
 #. Translators: The name should remain untranslated
 #: data/resources/ui/window.blp:38 data/resources/ui/window.blp:63
@@ -44,170 +45,170 @@ msgstr "Packet"
 
 #: data/resources/ui/window.blp:52
 msgid "Setting up Packet…"
-msgstr "Configuration de Packet…"
+msgstr "Configurant el Packet…"
 
 #: data/resources/ui/window.blp:71
 msgid "Copy error report"
-msgstr "Copier le rapport d’erreur"
+msgstr "Copia l'informe d'error"
 
 #: data/resources/ui/window.blp:85
 msgid "Couldn't Set Up"
-msgstr "Configuration impossible"
+msgstr "No s'ha pogut configurar"
 
 #: data/resources/ui/window.blp:86
 msgid "An error occurred while trying to setup Packet"
-msgstr "Une erreur s’est produite lors de la configuration de Packet"
+msgstr "Ha ocorregut un error mentre es configurava el Packet"
 
 #: data/resources/ui/window.blp:91
 msgid "Try Again"
-msgstr "Réessayez"
+msgstr "Torna-ho a intentar"
 
 #: data/resources/ui/window.blp:141
 msgid "Add, or drop a file to send"
-msgstr "Ajoutez, ou déposez un fichier à envoyer"
+msgstr "Afegeix, o arrossega aquí un fitxer per enviar-lo"
 
 #: data/resources/ui/window.blp:148
 msgid "Add Files"
-msgstr "Ajouter des fichiers"
+msgstr "Afegeix fitxers"
 
 #: data/resources/ui/window.blp:203
 msgid "Add File"
-msgstr "Ajouter un fichier"
+msgstr "Afegeix fitxer"
 
 #: data/resources/ui/window.blp:298
 msgid "Send"
-msgstr "Envoyer"
+msgstr "Enviar"
 
 #: data/resources/ui/window.blp:321
 msgid "Select Recipients"
-msgstr "Sélectionner les destinataires"
+msgstr "Selecciona els destinataris"
 
 #: data/resources/ui/window.blp:391
 msgid "Looking for devices…"
-msgstr "Recherche d’appareils…"
+msgstr "Buscant dispositius…"
 
 #: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
 msgid "Can't see the other device?"
-msgstr "L’autre appareil n’apparaît pas ?"
+msgstr "No pots veure l'altre dispositiu?"
 
 #: data/resources/ui/window.blp:418
 msgid "Preferences"
-msgstr "Préférences"
+msgstr "Preferències"
 
 #: data/resources/ui/window.blp:423
 msgid "General"
-msgstr "Général"
+msgstr "General"
 
 #: data/resources/ui/window.blp:426
 msgid "Device Name"
-msgstr "Nom de l’appareil"
+msgstr "Nom del dispositiu"
 
 #: data/resources/ui/window.blp:431
 msgid "Visibility"
-msgstr "Visibilité"
+msgstr "Visibilitat"
 
 #: data/resources/ui/window.blp:432
 msgid "Whether others can see this device"
-msgstr "Indique si d’autres peuvent voir cet appareil"
+msgstr "Si altres persones poden veure aquest dispositiu"
 
 #: data/resources/ui/window.blp:436
 msgid "Downloads Folder"
-msgstr "Dossier des téléchargements"
+msgstr "Carpeta de baixades"
 
 #: data/resources/ui/window.blp:442
 msgid "Pick download folder"
-msgstr "Choisissez un dossier pour les téléchargements"
+msgstr "Escull"
 
 #: data/resources/ui/window.blp:452
 msgid "Advanced"
-msgstr "Avancé"
+msgstr "Avançat"
 
 #: data/resources/ui/window.blp:455
 msgid "Static Network Port"
-msgstr "Port Réseau Statique"
+msgstr "Port de xarxa estàtic"
 
 #. Translators: For whitelisting of the app.
 #: data/resources/ui/window.blp:457
 msgid "For whitelisting through a firewall"
-msgstr "Ajout de l’appli à la liste blanche à travers un pare-feu"
+msgstr ""
 
 #: data/resources/ui/window.blp:462
 msgid "Port Number"
-msgstr "Numéro de port"
+msgstr "Port"
 
 #: data/resources/ui/window.blp:522
 msgid ""
 "Make sure both devices are connected to the same Wi-Fi network and have "
 "Bluetooth turned on"
 msgstr ""
-"Assurez-vous que les deux appareils sont connectés au même réseau Wi-Fi avec "
-"le Bluetooth activé"
+"Assegura't que els dos dispositius estan connectats a la mateixa xarxa i "
+"tenen el Bluetooth encès"
 
 #: data/resources/ui/window.blp:545
 msgid "Make sure the device is set to be visible to all nearby devices"
 msgstr ""
-"Assurez-vous que l’appareil est défini comme visible sur tous les appareils "
-"à proximité"
+"Assegura't que el dispositiu està configurat com a visible a tots els "
+"dispositius propers"
 
 #: data/resources/ui/window.blp:568
 msgid ""
 "For an Android device, try opening the <b>Quick Share</b> page in the "
 "<b>Files by Google</b> app"
 msgstr ""
-"Pour un appareil Android, essayez d’ouvrir la page <b>Quick Share</b> dans l’"
-"application <b>Files de Google</b>"
+"Per a un dispositiu Android, intenta obrir la pàgina <b>Quick Share</b> en "
+"l'aplicació <b>Files by Google</b>"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/application.rs:144
 msgid "translator-credits"
-msgstr "Irénée Thirion"
+msgstr "Alan Mena Comaleras"
 
 #: src/application.rs:151
 msgid "Similar Projects"
-msgstr "Projets similaires"
+msgstr "Projectes similars"
 
 #: src/objects/send_transfer.rs:50 src/objects/send_transfer.rs:58
 #: src/widgets/recipient_card.rs:108 src/widgets/recipient_card.rs:147
 msgid "Unknown device"
-msgstr "Appareil inconnu"
+msgstr "Dispositiu desconegut"
 
 #: src/utils.rs:194
 msgid "hour"
 msgid_plural "hours"
-msgstr[0] "heure"
-msgstr[1] "heures"
+msgstr[0] "hora"
+msgstr[1] "hores"
 
 #: src/utils.rs:196 src/utils.rs:206
 msgid "minute"
 msgid_plural "minutes"
-msgstr[0] "minute"
-msgstr[1] "minutes"
+msgstr[0] "minut"
+msgstr[1] "minuts"
 
 #: src/utils.rs:208 src/utils.rs:211
 msgid "second"
 msgid_plural "seconds"
-msgstr[0] "seconde"
-msgstr[1] "secondes"
+msgstr[0] "segon"
+msgstr[1] "segons"
 
 #: src/widgets/file_card.rs:116
 msgid "Remove"
-msgstr "Supprimer"
+msgstr "Eliminar"
 
 #. Translators: An e.g. "4 Files"
 #: src/widgets/file_card.rs:134 src/window.rs:1106
 #, rust-format
 msgid "{} File"
 msgid_plural "{} Files"
-msgstr[0] "{} fichier"
-msgstr[1] "{} fichiers"
+msgstr[0] "{} Fitxer"
+msgstr[1] "{} Fitxers"
 
 #: src/widgets/receive_transfer.rs:20
 msgid "Link"
-msgstr "Lien"
+msgstr "Enllaç"
 
 #: src/widgets/receive_transfer.rs:21
 msgid "Text"
-msgstr "Texte"
+msgstr "Text"
 
 #: src/widgets/receive_transfer.rs:22
 msgid "Wi-Fi"
@@ -215,111 +216,111 @@ msgstr "Wi-Fi"
 
 #: src/widgets/receive_transfer.rs:59
 msgid "Receiving"
-msgstr "Réception"
+msgstr "Rebent"
 
 #: src/widgets/receive_transfer.rs:62 src/widgets/recipient_card.rs:310
 msgid "Cancel"
-msgstr "Annuler"
+msgstr "Cancel·lar"
 
 #: src/widgets/receive_transfer.rs:159
 msgid "Incoming Transfer"
-msgstr "Transfert entrant"
+msgstr "Transferència entrant"
 
 #: src/widgets/receive_transfer.rs:183
 msgid "Decline"
-msgstr "Refuser"
+msgstr "Denegar"
 
 #: src/widgets/receive_transfer.rs:184
 msgid "Accept"
-msgstr "Accepter"
+msgstr "Acceptar"
 
 #. Translators: An e.g. "6 Files (42.3MB)"
 #: src/widgets/receive_transfer.rs:215
 #, rust-format
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
-msgstr[0] "{} fichier ({})"
-msgstr[1] "{} fichiers ({})"
+msgstr[0] "{} fitxer ({})"
+msgstr[1] "{} fitxers ({})"
 
 #: src/widgets/receive_transfer.rs:235
 #, rust-format
 msgid "Preview ({})"
-msgstr "Prévisualiser ({})"
+msgstr "Previsualitzar ({})"
 
 #. Translators: This is the pin-code for the transfer
 #: src/widgets/receive_transfer.rs:251 src/widgets/recipient_card.rs:442
 #, rust-format
 msgid "Code: {}"
-msgstr "Code : {}"
+msgstr "Codi: {}"
 
 #. Translators: {} will be replaced with an estimated remaining time string
 #. e.g. "About 4 minutes 32 seconds left"
 #: src/widgets/receive_transfer.rs:359 src/widgets/recipient_card.rs:473
 #, rust-format
 msgid "About {} left"
-msgstr "Il reste environ {}"
+msgstr "Manquen {} aproximadament"
 
 #: src/widgets/receive_transfer.rs:386
 msgid "Unexpected dissconnection"
-msgstr "Déconnexion inattendue"
+msgstr "Desconnexió inesperada"
 
 #: src/widgets/receive_transfer.rs:409
 msgid "Transfer cancelled by sender"
-msgstr "Transfert annulé par l’expéditeur"
+msgstr "Transferència cancel·lada pel remitent"
 
 #: src/widgets/receive_transfer.rs:444
 msgid "Copy to clipboard"
-msgstr "Copier vers le presse-papiers"
+msgstr "Copia al porta-retalls"
 
 #: src/widgets/receive_transfer.rs:452
 msgid "Save text as file"
-msgstr "Enregistrer le texte comme un fichier"
+msgstr "Guardar text com a fitxer"
 
 #: src/widgets/receive_transfer.rs:509 src/widgets/receive_transfer.rs:627
 msgid "Open"
-msgstr "Ouvrir"
+msgstr "Obrir"
 
 #: src/widgets/receive_transfer.rs:619
 #, rust-format
 msgid "{} file received"
 msgid_plural "{} files received"
-msgstr[0] "{} fichier reçu"
-msgstr[1] "{} fichiers reçus"
+msgstr[0] "{} fitxer rebut"
+msgstr[1] "{} fitxers rebuts"
 
 #: src/widgets/recipient_card.rs:221
 msgid "Unavailable"
-msgstr "Indisponible"
+msgstr "No disponible"
 
 #: src/widgets/recipient_card.rs:244
 msgid "Queued"
-msgstr "Mis en attente"
+msgstr "En cua"
 
 #: src/widgets/recipient_card.rs:291
 msgid "Retry"
-msgstr "Réessayer"
+msgstr "Reintentar"
 
 #: src/widgets/recipient_card.rs:436
 msgid "Requested"
-msgstr "Requis"
+msgstr "Sol·licitat"
 
 #: src/widgets/recipient_card.rs:499
 msgid "Failed"
-msgstr "Échoué"
+msgstr ""
 
 #: src/widgets/recipient_card.rs:542
 #, rust-format
 msgid "Sent {} file"
 msgid_plural "Sent {} files"
-msgstr[0] "{} fichier envoyé"
-msgstr[1] "{} fichiers envoyés"
+msgstr[0] "S'ha enviat {} fitxer"
+msgstr[1] "S'han enviat {} fitxers"
 
 #: src/window.rs:442
 msgid "Can't rename device during an active transfer"
-msgstr "Impossible de renommer l’appareil pendant qu’un transfert est actif"
+msgstr "No es pot reanomenar el dispositiu durant una transferència activa"
 
 #: src/window.rs:583
 msgid "Invalid Port"
-msgstr "Port invalide"
+msgstr "Port invàlid"
 
 #: src/window.rs:587
 #, rust-format
@@ -327,33 +328,33 @@ msgid ""
 "The chosen static port \"{}\" is not available. Try a different port above "
 "1024."
 msgstr ""
-"Le port statique choisi « {} » n’est pas disponible. Essayez un autre port "
-"au-dessus de 1024."
+"El port estàtic escollit \"{}\" no està disponible. Prova un altre port "
+"superior a 1024."
 
 #: src/window.rs:595
 msgid "_Ok"
-msgstr "_D’accord"
+msgstr "_Ok"
 
 #: src/window.rs:643
 msgid "Can't access Downloads folder"
-msgstr "Impossible d’accéder au dossier de téléchargements"
+msgstr "No es pot accedir a la carpeta de baixades"
 
 #: src/window.rs:644
 msgid "Pick Folder"
-msgstr "Choisissez un dossier"
+msgstr "Escull una carpeta"
 
 #: src/window.rs:749
 msgid "Copied error report to clipboard"
-msgstr "Erreur copiée vers le presse-papiers"
+msgstr "S'ha copiat el registre d'error al porta-retalls"
 
 #: src/window.rs:996
 msgid "Ready"
-msgstr "Prêt"
+msgstr "Preparat"
 
 #: src/window.rs:1002
 #, rust-format
 msgid "Visible as {:?}"
-msgstr "Visible comme {:?}"
+msgstr "Visible com a {:?}"
 
 #: src/window.rs:1008
 msgid "Invisible"
@@ -361,62 +362,63 @@ msgstr "Invisible"
 
 #: src/window.rs:1014
 msgid "No new devices can share with you"
-msgstr "Aucun nouvel appareil ne peut partager avec vous"
+msgstr ""
 
 #: src/window.rs:1019
 msgid "Disconnected"
-msgstr "Déconnecté"
+msgstr "Desconnectat"
 
 #: src/window.rs:1025
 msgid "Connect to Wi-Fi and turn on Bluetooth"
-msgstr "Connectez-vous au Wi-Fi et activez le Bluetooth"
+msgstr "Connectat a la Wi-Fi i engega el Bluetooth"
 
 #: src/window.rs:1028
 msgid "Connect to Wi-Fi"
-msgstr "Connectez-vous au Wi-Fi"
+msgstr "Connecta't a la Wi-Fi"
 
 #: src/window.rs:1031
 msgid "Turn on Bluetooth"
-msgstr "Activez le Bluetooth"
+msgstr "Engega el Bluetooth"
 
 #: src/window.rs:1095
 msgid "Couldn't open files"
-msgstr "Impossible d’ouvrir les fichiers"
+msgstr "No s'han pogut obrir els fitxers"
 
 #: data/io.github.nozwock.Packet.desktop.in.in:3
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
 msgid "Share files easily"
-msgstr "Partagez des fichiers facilement"
+msgstr "Comparteix fitxers fàcilment"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: data/io.github.nozwock.Packet.desktop.in.in:9
+#, fuzzy
 msgid "Gnome;GTK;Quick;Nearby;Share;"
-msgstr "Gnome;GTK;Quick;Nearby;Share;Partager;rapide;"
+msgstr "Gnome;GTK;Quick;Nearby;Share;"
 
 #. Trasnlators: The gschema strings won't be used in the app directly and aren't a priority
 #: data/io.github.nozwock.Packet.gschema.xml.in:7
 msgid "Window width"
-msgstr "Largeur de la fenêtre"
+msgstr "Ample de la finestra"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:11
 msgid "Window height"
-msgstr "Hauteur de la fenêtre"
+msgstr "Alçada de la finestra"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:15
 msgid "Window maximized state"
-msgstr "État maximisé de la fenêtre"
+msgstr ""
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:19
 msgid "Device name"
-msgstr "Nom de l’appareil"
+msgstr "Nom del dispositiu"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:23
 msgid "Device visibility"
-msgstr "Visibilité de l’appareil"
+msgstr "Visibilitat del dispositiu"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:27
 msgid "Download folder"
-msgstr "Dossier de téléchargement"
+msgstr "Descarrega carpeta"
 
 #. Trasnlators: The metainfo strings are for Flathub and aren't a priority
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
@@ -424,27 +426,24 @@ msgid ""
 "Send and receive files wirelessly with Android devices using Quick Share or "
 "another device with Packet installed."
 msgstr ""
-"Envoyez et recevez des fichiers sans connexion filaire avec des appareils "
-"Android utilisant Quick Share ou avec un autre appareil où Packet est "
-"installé."
+"Envia i rep fitxers sense fils amb dispositius Android fent servir Quick "
+"Share o un altre dispositiu amb Packet instal·lat."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:11
 msgid ""
 "Packet requires Bluetooth to be enabled and the devices to be connected to a "
 "Wi-Fi network with mDNS."
 msgstr ""
-"Packet requiert que le Bluetooth soit activé et que les appareils soient "
-"connectés à un réseau Wi-Fi avec mDNS."
 
 #. Trasnlators: These are captions for the screenshots on Flathub
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:18
 msgid "Sent Share Request"
-msgstr "Demande de partage envoyée"
+msgstr ""
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:22
 msgid "Main Page"
-msgstr "Page principale"
+msgstr "Pàgina principal"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:26
 msgid "Received Share Request"
-msgstr "Demande de partage reçue"
+msgstr "Sol·licitud de transferència rebuda"

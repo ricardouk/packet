@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-29 18:40+0530\n"
-"PO-Revision-Date: 2025-05-29 01:10+0000\n"
-"Last-Translator: nozwock <nozwock@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2025-05-30 14:18+0000\n"
+"Last-Translator: Pascal Dietrich <pascal.1.dietrich@hotmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/packet/main/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -20,21 +20,19 @@ msgstr ""
 
 #: data/resources/ui/window.blp:7
 msgid "_Preferences"
-msgstr ""
+msgstr "_Einstellungen"
 
 #: data/resources/ui/window.blp:12 data/resources/ui/window.blp:471
 msgid "Help"
-msgstr ""
+msgstr "Hilfe"
 
 #: data/resources/ui/window.blp:17
 msgid "_Keyboard Shortcuts"
-msgstr ""
+msgstr "_Tastaturkürzel"
 
 #: data/resources/ui/window.blp:22
-#, fuzzy
-#| msgid "Packet"
 msgid "_About Packet"
-msgstr "Packet"
+msgstr "_Über Packet"
 
 #. Translators: The name should remain untranslated
 #: data/resources/ui/window.blp:38 data/resources/ui/window.blp:63
@@ -46,128 +44,119 @@ msgstr "Packet"
 
 #: data/resources/ui/window.blp:52
 msgid "Setting up Packet…"
-msgstr ""
+msgstr "Packet einrichten…"
 
 #: data/resources/ui/window.blp:71
 msgid "Copy error report"
-msgstr ""
+msgstr "Fehlerbericht kopieren"
 
 #: data/resources/ui/window.blp:85
-#, fuzzy
-#| msgid "Couldn't open files"
 msgid "Couldn't Set Up"
-msgstr "Konnte Dateien nicht öffnen"
+msgstr "Einrichtung nicht möglich"
 
 #: data/resources/ui/window.blp:86
 msgid "An error occurred while trying to setup Packet"
-msgstr ""
+msgstr "Beim Einrichten von Packet ist ein Fehler aufgetreten"
 
 #: data/resources/ui/window.blp:91
 msgid "Try Again"
-msgstr ""
+msgstr "Versuchen Sie es erneut"
 
 #: data/resources/ui/window.blp:141
 msgid "Add, or drop a file to send"
-msgstr ""
+msgstr "Füge eine Datei zum Senden hinzu, oder ziehe diese hierher"
 
 #: data/resources/ui/window.blp:148
-#, fuzzy
-#| msgid "{} File"
-#| msgid_plural "{} Files"
 msgid "Add Files"
-msgstr "{} Datei"
+msgstr "Dateien hinzufügen"
 
 #: data/resources/ui/window.blp:203
-#, fuzzy
-#| msgid "{} File"
-#| msgid_plural "{} Files"
 msgid "Add File"
-msgstr "{} Datei"
+msgstr "Datei hinzufügen"
 
 #: data/resources/ui/window.blp:298
 msgid "Send"
-msgstr ""
+msgstr "Senden"
 
 #: data/resources/ui/window.blp:321
 msgid "Select Recipients"
-msgstr ""
+msgstr "Empfänger auswählen"
 
 #: data/resources/ui/window.blp:391
 msgid "Looking for devices…"
-msgstr ""
+msgstr "Suche nach Geräten…"
 
 #: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
 msgid "Can't see the other device?"
-msgstr ""
+msgstr "Andere Geräte nicht gefunden?"
 
 #: data/resources/ui/window.blp:418
 msgid "Preferences"
-msgstr ""
+msgstr "Einstellungen"
 
 #: data/resources/ui/window.blp:423
 msgid "General"
-msgstr ""
+msgstr "Allgemein"
 
 #: data/resources/ui/window.blp:426
-#, fuzzy
-#| msgid "Device name"
 msgid "Device Name"
 msgstr "Gerätename"
 
 #: data/resources/ui/window.blp:431
-#, fuzzy
-#| msgid "Device visibility"
 msgid "Visibility"
-msgstr "Gerätesichtbarkeit"
+msgstr "Sichtbarkeit"
 
 #: data/resources/ui/window.blp:432
 msgid "Whether others can see this device"
-msgstr ""
+msgstr "Ob andere dieses Gerät sehen können"
 
 #: data/resources/ui/window.blp:436
-#, fuzzy
-#| msgid "Download folder"
 msgid "Downloads Folder"
-msgstr "Download-Ordner"
+msgstr "Downloads-Ordner"
 
 #: data/resources/ui/window.blp:442
-#, fuzzy
-#| msgid "Download folder"
 msgid "Pick download folder"
-msgstr "Download-Ordner"
+msgstr "Download-Ordner auswählen"
 
 #: data/resources/ui/window.blp:452
 msgid "Advanced"
-msgstr ""
+msgstr "Erweitert"
 
 #: data/resources/ui/window.blp:455
 msgid "Static Network Port"
-msgstr ""
+msgstr "Statischer Netzwerkport"
 
 #. Translators: For whitelisting of the app.
 #: data/resources/ui/window.blp:457
+#, fuzzy
 msgid "For whitelisting through a firewall"
-msgstr ""
+msgstr "Zum Durchlassen durch eine Firewall"
 
 #: data/resources/ui/window.blp:462
 msgid "Port Number"
-msgstr ""
+msgstr "Port Nummer"
 
 #: data/resources/ui/window.blp:522
 msgid ""
 "Make sure both devices are connected to the same Wi-Fi network and have "
 "Bluetooth turned on"
 msgstr ""
+"Stellen Sie sicher, dass beide Geräte mit dem selben WLAN verbunden sind und "
+"Bluetooth eingeschaltet ist"
 
 #: data/resources/ui/window.blp:545
 msgid "Make sure the device is set to be visible to all nearby devices"
 msgstr ""
+"Stellen Sie sicher, dass das Gerät so eingestellt ist, dass es für alle "
+"anderen Geräte in der Nähe sichtbar ist"
 
 #: data/resources/ui/window.blp:568
 msgid ""
 "For an Android device, try opening the <b>Quick Share</b> page in the "
 "<b>Files by Google</b> app"
 msgstr ""
+"Versuchen Sie auf Android-Geräten die <b>Quick Share</b> Seite in der "
+"<b>Files by Google</b> App zu öffnen"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/application.rs:144
@@ -325,33 +314,31 @@ msgstr ""
 
 #: src/window.rs:583
 msgid "Invalid Port"
-msgstr ""
+msgstr "Ungültiger Port"
 
 #: src/window.rs:587
 msgid ""
 "The chosen static port \"{}\" is not available. Try a different port above "
 "1024."
 msgstr ""
+"Der gewählte Port \"{}\" ist nicht verfügbar. Versuchen Sie es mit einem "
+"anderen Port über 1024."
 
 #: src/window.rs:595
 msgid "_Ok"
-msgstr ""
+msgstr "_Ok"
 
 #: src/window.rs:643
-#, fuzzy
-#| msgid "Download folder"
 msgid "Can't access Downloads folder"
-msgstr "Download-Ordner"
+msgstr "Kann auf den Downloads-Ordner nicht zugreifen"
 
 #: src/window.rs:644
 msgid "Pick Folder"
-msgstr ""
+msgstr "Ordner auswählen"
 
 #: src/window.rs:749
-#, fuzzy
-#| msgid "Copy to clipboard"
 msgid "Copied error report to clipboard"
-msgstr "In die Zwischenablage kopieren"
+msgstr "Der Fehlerbericht wurde in die Zwischenablage kopiert"
 
 #: src/window.rs:996
 msgid "Ready"
@@ -371,19 +358,19 @@ msgstr "Neue Geräte können nichts mit Ihnen teilen"
 
 #: src/window.rs:1019
 msgid "Disconnected"
-msgstr ""
+msgstr "Verbindung getrennt"
 
 #: src/window.rs:1025
 msgid "Connect to Wi-Fi and turn on Bluetooth"
-msgstr ""
+msgstr "Verbinden Sie sich mit dem WLAN und schalten Sie Bluetooth ein"
 
 #: src/window.rs:1028
 msgid "Connect to Wi-Fi"
-msgstr ""
+msgstr "Mit dem WLAN verbinden"
 
 #: src/window.rs:1031
 msgid "Turn on Bluetooth"
-msgstr ""
+msgstr "Bluetooth einschalten"
 
 #: src/window.rs:1095
 msgid "Couldn't open files"
@@ -397,7 +384,7 @@ msgstr "Dateien einfach teilen"
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: data/io.github.nozwock.Packet.desktop.in.in:9
 msgid "Gnome;GTK;Quick;Nearby;Share;"
-msgstr "Gnome;GTK;Quick;Nearby;Share;"
+msgstr "Gnome;GTK;Quick;Nearby;Share;Teilen;schnell;"
 
 #. Trasnlators: The gschema strings won't be used in the app directly and aren't a priority
 #: data/io.github.nozwock.Packet.gschema.xml.in:7
@@ -410,7 +397,7 @@ msgstr "Fensterhöhe"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:15
 msgid "Window maximized state"
-msgstr ""
+msgstr "Maximierter Fensterzustand"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:19
 msgid "Device name"
@@ -443,16 +430,14 @@ msgstr ""
 
 #. Trasnlators: These are captions for the screenshots on Flathub
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:18
-#, fuzzy
 msgid "Sent Share Request"
 msgstr "Freigabeanfrage gesendet"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:22
 msgid "Main Page"
-msgstr ""
+msgstr "Startseite"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:26
-#, fuzzy
 msgid "Received Share Request"
 msgstr "Freigabeanfrage erhalten"
 
