@@ -36,6 +36,31 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.3.1" date="2025-06-1">
+      <description translatable="no">
+        <p>Changes</p>
+        <ul>
+          <li>Changed the icon for "Disconnected" status</li>
+          <li>Changed default fallback log level to INFO to prevent spam when RUST_LOG env var isn't set</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Fixed BleListener not receiving Nearby Share LE broadcasts</li>
+        </ul>
+        <p>Translations</p>
+        <ul>
+          <li>Added Catalan translation</li>
+          <li>Added Czech translation</li>
+          <li>Added Persian (Iran) translation</li>
+          <li>Added French translation</li>
+          <li>Added Russian translation</li>
+          <li>Updated Dutch translation</li>
+          <li>Updated German translation</li>
+          <li>Updated Italian translation</li>
+          <li>Updated Korean translation</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.0" date="2025-05-29">
       <description translatable="no">
         <p>Changes</p>
