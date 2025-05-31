@@ -1015,7 +1015,7 @@ impl PacketApplicationWindow {
             };
         } else {
             imp.bottom_bar_image
-                .set_icon_name(Some("cross-small-circle-outline-symbolic"));
+                .set_icon_name(Some("horizontal-arrows-long-x-symbolic"));
             imp.bottom_bar_title.set_label(&gettext("Disconnected"));
             imp.bottom_bar_image.remove_css_class("accent");
             imp.bottom_bar_title.remove_css_class("accent");
