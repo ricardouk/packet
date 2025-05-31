@@ -8,10 +8,10 @@ msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-29 18:40+0530\n"
-"PO-Revision-Date: 2025-05-29 01:10+0000\n"
-"Last-Translator: \"Serhat S.\" <sebihotza@protonmail.com>\n"
-"Language-Team: Turkish <https://hosted.weblate.org/projects/packet/main/tr/"
-">\n"
+"PO-Revision-Date: 2025-05-30 10:16+0000\n"
+"Last-Translator: sassan <endwse@gmail.com>\n"
+"Language-Team: Turkish <https://hosted.weblate.org/projects/packet/main/tr/>"
+"\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -51,7 +51,7 @@ msgstr "Packet yapılandırılıyor..."
 
 #: data/resources/ui/window.blp:71
 msgid "Copy error report"
-msgstr ""
+msgstr "Hata raporunu kopyala"
 
 #: data/resources/ui/window.blp:85
 #, fuzzy
@@ -65,7 +65,7 @@ msgstr ""
 
 #: data/resources/ui/window.blp:91
 msgid "Try Again"
-msgstr ""
+msgstr "Tekrar deneyin"
 
 #: data/resources/ui/window.blp:141
 msgid "Add, or drop a file to send"
@@ -89,7 +89,7 @@ msgstr "Alıcıları Seçin"
 
 #: data/resources/ui/window.blp:391
 msgid "Looking for devices…"
-msgstr ""
+msgstr "Cihazlar aranıyor…"
 
 #: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
 #, fuzzy
@@ -131,7 +131,7 @@ msgstr "İndirme klasörü"
 
 #: data/resources/ui/window.blp:452
 msgid "Advanced"
-msgstr ""
+msgstr "Gelişmiş"
 
 #: data/resources/ui/window.blp:455
 msgid "Static Network Port"
