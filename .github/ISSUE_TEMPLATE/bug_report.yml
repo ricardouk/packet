@@ -48,9 +48,9 @@ body:
     attributes:
       label: Platform Info
       description: >
-        Enter details such as your Linux distribution's name and version.
+        Enter details such as your Linux distribution's name and version, and other relevant info.
       placeholder: |
         Example:
         - Distro: Fedora 42
     validations:
-      required: true
+      required: false
