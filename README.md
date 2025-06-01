@@ -8,6 +8,8 @@ A partial implementation of Google's Quick Share protocol that lets you send and
 
 ## Installation
 
+[![flathub-installs-badge]][flathub]
+
 <a href="https://flathub.org/apps/details/io.github.nozwock.Packet">
 <img src="https://flathub.org/api/badge?svg&locale=en&dark" width="190px" />
 </a>
@@ -44,3 +46,5 @@ flatpak override --user io.github.nozwock.Packet --filesystem='/path/to/your/fol
 [dominik]: https://gitlab.gnome.org/wallaby
 [neardrop]: https://github.com/grishka/NearDrop/
 [rquickshare]: https://github.com/Martichou/rquickshare/
+[flathub]: https://flathub.org/apps/details/io.github.nozwock.Packet
+[flathub-installs-badge]: https://img.shields.io/badge/dynamic/json?label=Packet&url=https%3A%2F%2Fflathub.org%2Fapi%2Fv2%2Fstats%2Fio.github.nozwock.Packet&query=%24.installs_total&logo=flathub&color=007ec6
