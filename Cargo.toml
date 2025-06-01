@@ -12,7 +12,7 @@ gtk = { version = "0.9", package = "gtk4", features = ["v4_18"] }
 adw = { version = "0.7", package = "libadwaita", features = ["v1_7"] }
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-rqs_lib = { git = "https://github.com/nozwock/rquickshare.git", rev = "2142a5273dc61bb64e05acbf4f1f82750c83f171", default-features = false, features = [
+rqs_lib = { git = "https://github.com/nozwock/rquickshare.git", rev = "f835dea27643ee9a15d0022840715aaaf1eb3443", default-features = false, features = [
     "experimental",
 ] }
 better_default = "1.0.5"
