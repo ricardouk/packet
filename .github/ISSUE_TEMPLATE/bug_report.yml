@@ -1,0 +1,56 @@
+name: Bug Report
+description: "Report a bug or issue you've encountered."
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: >
+        Provide a clear and concise description of the bug here.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Run the application with the following command and upload the log here (drag & drop or paste):
+
+        **Flatpak:**
+        ```
+        flatpak run io.github.nozwock.Packet | tee packet.log
+        ```
+
+        **Non-Flatpak:**
+        ```
+        export RUST_LOG=packet=debug,rqs_lib=debug
+        packet | tee packet.log
+        ```
+      placeholder: |
+        Paste your log output here or drag & drop the `packet.log` file into this box.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: flatpak
+    attributes:
+      label: Distribution Type
+      description: Are you using the Flatpak version of Packet?
+      options:
+        - label: Yes, I'm using the Flatpak version
+          required: false
+
+  - type: textarea
+    id: platform
+    attributes:
+      label: Platform Info
+      description: >
+        Enter details such as your Linux distribution's name and version.
+      placeholder: |
+        Example:
+        - Distro: Fedora 42
+    validations:
+      required: true
