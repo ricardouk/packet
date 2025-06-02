@@ -1,0 +1,472 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the packet package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: packet\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-29 18:40+0530\n"
+"PO-Revision-Date: 2025-06-01 15:15+0000\n"
+"Last-Translator: yousef mohamed <oandygames.ygames@gmail.com>\n"
+"Language-Team: Arabic <https://hosted.weblate.org/projects/packet/main/ar/>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Weblate 5.12-dev\n"
+
+#: data/resources/ui/window.blp:7
+msgid "_Preferences"
+msgstr "_التفضيلات"
+
+#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:471
+msgid "Help"
+msgstr "مساعدة"
+
+#: data/resources/ui/window.blp:17
+msgid "_Keyboard Shortcuts"
+msgstr "_اختصارات الكيبورد"
+
+#: data/resources/ui/window.blp:22
+msgid "_About Packet"
+msgstr "_حول Packet"
+
+#. Translators: The name should remain untranslated
+#: data/resources/ui/window.blp:38 data/resources/ui/window.blp:63
+#: data/resources/ui/window.blp:140 src/application.rs:131 src/main.rs:35
+#: data/io.github.nozwock.Packet.desktop.in.in:2
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
+msgid "Packet"
+msgstr "Packet"
+
+#: data/resources/ui/window.blp:52
+msgid "Setting up Packet…"
+msgstr "يتم اعداد Packet…"
+
+#: data/resources/ui/window.blp:71
+msgid "Copy error report"
+msgstr "نسخ رمز الخطأ"
+
+#: data/resources/ui/window.blp:85
+msgid "Couldn't Set Up"
+msgstr "تعذّر الإعداد"
+
+#: data/resources/ui/window.blp:86
+msgid "An error occurred while trying to setup Packet"
+msgstr "حدث حطأ اثناء اعداد Packet"
+
+#: data/resources/ui/window.blp:91
+msgid "Try Again"
+msgstr "حاول مجدداً"
+
+#: data/resources/ui/window.blp:141
+msgid "Add, or drop a file to send"
+msgstr "أضف، أو إسقاط ملف لإرساله"
+
+#: data/resources/ui/window.blp:148
+msgid "Add Files"
+msgstr "أضف الملفات"
+
+#: data/resources/ui/window.blp:203
+msgid "Add File"
+msgstr "أضف ملف"
+
+#: data/resources/ui/window.blp:298
+msgid "Send"
+msgstr "إرسال"
+
+#: data/resources/ui/window.blp:321
+msgid "Select Recipients"
+msgstr "اختر المستلمين"
+
+#: data/resources/ui/window.blp:391
+msgid "Looking for devices…"
+msgstr "يتم البحث عن اجهزة…"
+
+#: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
+msgid "Can't see the other device?"
+msgstr "لم يتم العثور علي اجهزة اخري؟"
+
+#: data/resources/ui/window.blp:418
+msgid "Preferences"
+msgstr "التفضيلات"
+
+#: data/resources/ui/window.blp:423
+msgid "General"
+msgstr "عام"
+
+#: data/resources/ui/window.blp:426
+msgid "Device Name"
+msgstr "اسم الجهاز"
+
+#: data/resources/ui/window.blp:431
+msgid "Visibility"
+msgstr "الظهور"
+
+#: data/resources/ui/window.blp:432
+msgid "Whether others can see this device"
+msgstr "إمكانية رؤية هذا الجهاز من قِبل الآخرين"
+
+#: data/resources/ui/window.blp:436
+msgid "Downloads Folder"
+msgstr "مجلد التحميلات"
+
+#: data/resources/ui/window.blp:442
+msgid "Pick download folder"
+msgstr "اختر مجلد التحميل"
+
+#: data/resources/ui/window.blp:452
+msgid "Advanced"
+msgstr "متقدم"
+
+#: data/resources/ui/window.blp:455
+msgid "Static Network Port"
+msgstr "Static Network Port"
+
+#. Translators: For whitelisting of the app.
+#: data/resources/ui/window.blp:457
+msgid "For whitelisting through a firewall"
+msgstr "للسماح من firewall"
+
+#: data/resources/ui/window.blp:462
+msgid "Port Number"
+msgstr "Port Number"
+
+#: data/resources/ui/window.blp:522
+msgid ""
+"Make sure both devices are connected to the same Wi-Fi network and have "
+"Bluetooth turned on"
+msgstr "تأكد من ان الجهازين متصلين بنفس شبكة WI-FI و تشغيل Bluetooth لهما"
+
+#: data/resources/ui/window.blp:545
+msgid "Make sure the device is set to be visible to all nearby devices"
+msgstr "تأكد من ضبط الجهاز ليكون مرئيًا لجميع الأجهزة القريبة"
+
+#: data/resources/ui/window.blp:568
+msgid ""
+"For an Android device, try opening the <b>Quick Share</b> page in the "
+"<b>Files by Google</b> app"
+msgstr ""
+"لجهاز اندرويد, جرب فتح <b>Quick Share</b> صفحة في برنامج <b>Files by "
+"Google</b>"
+
+#. Translators: Replace "translator-credits" with your names, one name per line
+#: src/application.rs:144
+msgid "translator-credits"
+msgstr "Yousef Mohamed"
+
+#: src/application.rs:151
+msgid "Similar Projects"
+msgstr "مشاريع مشابهة"
+
+#: src/objects/send_transfer.rs:50 src/objects/send_transfer.rs:58
+#: src/widgets/recipient_card.rs:108 src/widgets/recipient_card.rs:147
+msgid "Unknown device"
+msgstr "جهاز غير معروف"
+
+#: src/utils.rs:194
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "0 ساعة"
+msgstr[1] "ساعة واحدة"
+msgstr[2] "ساعتان"
+msgstr[3] "ساعات"
+msgstr[4] "ساعة"
+msgstr[5] "ساعة"
+
+#: src/utils.rs:196 src/utils.rs:206
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "0 دقيقة"
+msgstr[1] "دقيقة واحدة"
+msgstr[2] "دقيقتان"
+msgstr[3] "دقيقة"
+msgstr[4] "دقيقة"
+msgstr[5] "دقيقة"
+
+#: src/utils.rs:208 src/utils.rs:211
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "0 ثانية"
+msgstr[1] "ثانية واحدة"
+msgstr[2] "ثانيتان"
+msgstr[3] "ثوانٍ"
+msgstr[4] "ثوانٍ"
+msgstr[5] "ثوانٍ"
+
+#: src/widgets/file_card.rs:116
+msgid "Remove"
+msgstr "ازالة"
+
+#. Translators: An e.g. "4 Files"
+#: src/widgets/file_card.rs:134 src/window.rs:1106
+#, rust-format
+msgid "{} File"
+msgid_plural "{} Files"
+msgstr[0] "0 ملف"
+msgstr[1] "ملف واحد"
+msgstr[2] "ملفان"
+msgstr[3] "{} ملف"
+msgstr[4] "{} ملف"
+msgstr[5] "{} ملف"
+
+#: src/widgets/receive_transfer.rs:20
+msgid "Link"
+msgstr "رابط"
+
+#: src/widgets/receive_transfer.rs:21
+msgid "Text"
+msgstr "نص"
+
+#: src/widgets/receive_transfer.rs:22
+msgid "Wi-Fi"
+msgstr "WI-Fi"
+
+#: src/widgets/receive_transfer.rs:59
+msgid "Receiving"
+msgstr "جاري الاستلام"
+
+#: src/widgets/receive_transfer.rs:62 src/widgets/recipient_card.rs:310
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: src/widgets/receive_transfer.rs:159
+msgid "Incoming Transfer"
+msgstr "نقل قادم"
+
+#: src/widgets/receive_transfer.rs:183
+msgid "Decline"
+msgstr "رفض"
+
+#: src/widgets/receive_transfer.rs:184
+msgid "Accept"
+msgstr "موافقة"
+
+#. Translators: An e.g. "6 Files (42.3MB)"
+#: src/widgets/receive_transfer.rs:215
+#, rust-format
+msgid "{} file ({})"
+msgid_plural "{} files ({})"
+msgstr[0] "{} ملف ({})"
+msgstr[1] "ملف واحد ({})"
+msgstr[2] "ملفان ({})"
+msgstr[3] "{} ملفات ({})"
+msgstr[4] "{} ملفات ({})"
+msgstr[5] "{} ملفات ({})"
+
+#: src/widgets/receive_transfer.rs:235
+#, rust-format
+msgid "Preview ({})"
+msgstr "معاينة ({})"
+
+#. Translators: This is the pin-code for the transfer
+#: src/widgets/receive_transfer.rs:251 src/widgets/recipient_card.rs:442
+#, rust-format
+msgid "Code: {}"
+msgstr "الرمز: {}"
+
+#. Translators: {} will be replaced with an estimated remaining time string
+#. e.g. "About 4 minutes 32 seconds left"
+#: src/widgets/receive_transfer.rs:359 src/widgets/recipient_card.rs:473
+#, rust-format
+msgid "About {} left"
+msgstr "حوالي {} متبقي"
+
+#: src/widgets/receive_transfer.rs:386
+msgid "Unexpected dissconnection"
+msgstr "انقطاع اتصال غير متوقع"
+
+#: src/widgets/receive_transfer.rs:409
+msgid "Transfer cancelled by sender"
+msgstr "تم إلغاء النقل من قِبل المرسل"
+
+#: src/widgets/receive_transfer.rs:444
+msgid "Copy to clipboard"
+msgstr "نسخ للحافظة"
+
+#: src/widgets/receive_transfer.rs:452
+msgid "Save text as file"
+msgstr "حفظ النص كملف"
+
+#: src/widgets/receive_transfer.rs:509 src/widgets/receive_transfer.rs:627
+msgid "Open"
+msgstr "فتح"
+
+#: src/widgets/receive_transfer.rs:619
+#, rust-format
+msgid "{} file received"
+msgid_plural "{} files received"
+msgstr[0] "0 ملف تم استلامة"
+msgstr[1] "ملف واحد تم استلامة"
+msgstr[2] "ملفات تم استلامهما"
+msgstr[3] "{} ملف تم استلامهم"
+msgstr[4] "{} ملف تم استلامهم"
+msgstr[5] "{} ملف تم استلامهم"
+
+#: src/widgets/recipient_card.rs:221
+msgid "Unavailable"
+msgstr "غير متاح"
+
+#: src/widgets/recipient_card.rs:244
+msgid "Queued"
+msgstr "في قائمة الانتظار"
+
+#: src/widgets/recipient_card.rs:291
+msgid "Retry"
+msgstr "إعادة المحاولة"
+
+#: src/widgets/recipient_card.rs:436
+msgid "Requested"
+msgstr "تم الطلب"
+
+#: src/widgets/recipient_card.rs:499
+msgid "Failed"
+msgstr "فشل"
+
+#: src/widgets/recipient_card.rs:542
+#, rust-format
+msgid "Sent {} file"
+msgid_plural "Sent {} files"
+msgstr[0] "تم ارسال 0 ملف"
+msgstr[1] "تم ارسال ملف واحد"
+msgstr[2] "تم ارسال ملفان"
+msgstr[3] "تم ارسال {} ملف"
+msgstr[4] "تم ارسال {} ملف"
+msgstr[5] "تم ارسال {} ملف"
+
+#: src/window.rs:442
+msgid "Can't rename device during an active transfer"
+msgstr "لا تستطيع تسمية الجهاز اثناء عملية النقل"
+
+#: src/window.rs:583
+msgid "Invalid Port"
+msgstr "Port خاطئ"
+
+#: src/window.rs:587
+#, rust-format
+msgid ""
+"The chosen static port \"{}\" is not available. Try a different port above "
+"1024."
+msgstr "البورت الثابت التتي تم اختيارة ليس متاحاً جرب بورت مختلف اعلي من 1024."
+
+#: src/window.rs:595
+msgid "_Ok"
+msgstr "حسناً"
+
+#: src/window.rs:643
+msgid "Can't access Downloads folder"
+msgstr "لا يمكن الوصول إلى مجلد التنزيلات"
+
+#: src/window.rs:644
+msgid "Pick Folder"
+msgstr "اختر مجلد"
+
+#: src/window.rs:749
+msgid "Copied error report to clipboard"
+msgstr "تم نسخ رمز الخطأ الي الحافظة"
+
+#: src/window.rs:996
+msgid "Ready"
+msgstr "جاهز"
+
+#: src/window.rs:1002
+#, rust-format
+msgid "Visible as {:?}"
+msgstr "مرئي كـ{:?}"
+
+#: src/window.rs:1008
+msgid "Invisible"
+msgstr "مخفي"
+
+#: src/window.rs:1014
+msgid "No new devices can share with you"
+msgstr "لا توجد أجهزة جديدة يمكنها المشاركة معك"
+
+#: src/window.rs:1019
+msgid "Disconnected"
+msgstr "غير متصل"
+
+#: src/window.rs:1025
+msgid "Connect to Wi-Fi and turn on Bluetooth"
+msgstr "اتصل بال WI-FI وفعل ال Bluetooth"
+
+#: src/window.rs:1028
+msgid "Connect to Wi-Fi"
+msgstr "اتصل بال WI-FI"
+
+#: src/window.rs:1031
+msgid "Turn on Bluetooth"
+msgstr "فعل ال Bluetooth"
+
+#: src/window.rs:1095
+msgid "Couldn't open files"
+msgstr "تعذّر فتح الملفات"
+
+#: data/io.github.nozwock.Packet.desktop.in.in:3
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
+msgid "Share files easily"
+msgstr "شارك الملفات بسهولة"
+
+#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+#: data/io.github.nozwock.Packet.desktop.in.in:9
+msgid "Gnome;GTK;Quick;Nearby;Share;"
+msgstr "Gnome;GTK;Quick;Nearby;Share;"
+
+#. Trasnlators: The gschema strings won't be used in the app directly and aren't a priority
+#: data/io.github.nozwock.Packet.gschema.xml.in:7
+msgid "Window width"
+msgstr "عرض النافذة"
+
+#: data/io.github.nozwock.Packet.gschema.xml.in:11
+msgid "Window height"
+msgstr "ارتفاع النافذة"
+
+#: data/io.github.nozwock.Packet.gschema.xml.in:15
+msgid "Window maximized state"
+msgstr "وضع النافذة المكبرة"
+
+#: data/io.github.nozwock.Packet.gschema.xml.in:19
+msgid "Device name"
+msgstr "اسم الجهاز"
+
+#: data/io.github.nozwock.Packet.gschema.xml.in:23
+msgid "Device visibility"
+msgstr "رؤية الجهاز"
+
+#: data/io.github.nozwock.Packet.gschema.xml.in:27
+msgid "Download folder"
+msgstr "مجلد التنزيلات"
+
+#. Trasnlators: The metainfo strings are for Flathub and aren't a priority
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
+msgid ""
+"Send and receive files wirelessly with Android devices using Quick Share or "
+"another device with Packet installed."
+msgstr ""
+"ارسل واستقبل الملفات لاسليكاً مع اجهزة اندرويد بأستخدام Quick Share او "
+"بأستخدام جهاز اخر مثبت علية برنامج Packet."
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:11
+msgid ""
+"Packet requires Bluetooth to be enabled and the devices to be connected to a "
+"Wi-Fi network with mDNS."
+msgstr ""
+"Packet يتطلب ال Bluetooth ان يكون مفعلاً وان الاجهزة موصلة بشبكة ال WI-FI مع "
+"mDNS."
+
+#. Trasnlators: These are captions for the screenshots on Flathub
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:18
+msgid "Sent Share Request"
+msgstr "تم إرسال طلب المشاركة"
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:22
+msgid "Main Page"
+msgstr "الصفحة الرئيسية"
+
+#: data/io.github.nozwock.Packet.metainfo.xml.in.in:26
+msgid "Received Share Request"
+msgstr "تم استلام طلب المشاركة"
