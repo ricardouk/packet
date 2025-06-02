@@ -36,6 +36,26 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.3.2" date="2025-06-3">
+      <description translatable="no">
+        <p>Fixes</p>
+        <ul>
+          <li>Fixed shared Wi-Fi password being empty</li>
+        </ul>
+        <p>Translations</p>
+        <ul>
+          <li>Added Occitan translation</li>
+          <li>Added Azerbaijani translation</li>
+          <li>Added Bengali translation</li>
+          <li>Added Arabic translation</li>
+          <li>Updated Korean translation</li>
+          <li>Updated Polish translation</li>
+          <li>Updated German translation</li>
+          <li>Updated Turkish translation</li>
+          <li>Updated Portuguese (Brazil) translation</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.1" date="2025-06-1">
       <description translatable="no">
         <p>Changes</p>
