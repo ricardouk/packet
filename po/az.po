@@ -8,32 +8,32 @@ msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-29 18:40+0530\n"
-"PO-Revision-Date: 2025-06-01 19:18+0000\n"
-"Last-Translator: Adam Lewicki <a.lewicki95@gmail.com>\n"
-"Language-Team: Polish <https://hosted.weblate.org/projects/packet/main/pl/>\n"
-"Language: pl\n"
+"PO-Revision-Date: 2025-06-01 09:25+0000\n"
+"Last-Translator: Matin <matinhuseynzade@gmail.com>\n"
+"Language-Team: Azerbaijani <https://hosted.weblate.org/projects/packet/main/"
+"az/>\n"
+"Language: az\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
-"|| n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.12-dev\n"
 
 #: data/resources/ui/window.blp:7
 msgid "_Preferences"
-msgstr "_Preferencje"
+msgstr "_Seçimlər"
 
 #: data/resources/ui/window.blp:12 data/resources/ui/window.blp:471
 msgid "Help"
-msgstr "Pomoc"
+msgstr "Yardım"
 
 #: data/resources/ui/window.blp:17
 msgid "_Keyboard Shortcuts"
-msgstr "Skróty klawiszowe"
+msgstr "_Klaviyatura Qısayolları"
 
 #: data/resources/ui/window.blp:22
 msgid "_About Packet"
-msgstr "O programie"
+msgstr "_Packet Haqqında"
 
 #. Translators: The name should remain untranslated
 #: data/resources/ui/window.blp:38 data/resources/ui/window.blp:63
@@ -41,177 +41,172 @@ msgstr "O programie"
 #: data/io.github.nozwock.Packet.desktop.in.in:2
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
 msgid "Packet"
-msgstr "Udostępnianie"
+msgstr "Packet"
 
 #: data/resources/ui/window.blp:52
 msgid "Setting up Packet…"
-msgstr "Ustawienia…"
+msgstr "Packet Quraşdırılır…"
 
 #: data/resources/ui/window.blp:71
 msgid "Copy error report"
-msgstr "Kopiuj raport błędu"
+msgstr "Xəta hesabatını kopyala"
 
 #: data/resources/ui/window.blp:85
 msgid "Couldn't Set Up"
-msgstr "Nie można ustawić"
+msgstr "Quraşdırıla bilmədi"
 
 #: data/resources/ui/window.blp:86
 msgid "An error occurred while trying to setup Packet"
-msgstr "Wystąpił problem podczas ustawiania programu"
+msgstr "Packet quraşdırılarkən bir xəta meydana gəldi"
 
 #: data/resources/ui/window.blp:91
 msgid "Try Again"
-msgstr "Spróbuj ponownie"
+msgstr "Təkrar Cəhd Edin"
 
 #: data/resources/ui/window.blp:141
 msgid "Add, or drop a file to send"
-msgstr "Dodaj, lub upuść plik do wysłania"
+msgstr "Göndərmək üçün fayl əlavə edin"
 
 #: data/resources/ui/window.blp:148
 msgid "Add Files"
-msgstr "Dodaj pliki"
+msgstr "Faylları Əlavə Edin"
 
 #: data/resources/ui/window.blp:203
 msgid "Add File"
-msgstr "Dodaj plik"
+msgstr "Fayl Əlavə Edin"
 
 #: data/resources/ui/window.blp:298
 msgid "Send"
-msgstr "Wyślij"
+msgstr "Göndər"
 
 #: data/resources/ui/window.blp:321
 msgid "Select Recipients"
-msgstr "Wybierz odbiorcę"
+msgstr "Alıcıları Seçin"
 
 #: data/resources/ui/window.blp:391
 msgid "Looking for devices…"
-msgstr "Wyszukiwanie urządzeń…"
+msgstr "Cihazlar axtarılır…"
 
 #: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
 msgid "Can't see the other device?"
-msgstr "Nie widzisz innego urządzenia?"
+msgstr "Digər cihazı görə bilmirsiniz?"
 
 #: data/resources/ui/window.blp:418
 msgid "Preferences"
-msgstr "Preferencje"
+msgstr "Seçimlər"
 
 #: data/resources/ui/window.blp:423
 msgid "General"
-msgstr "Ogólne"
+msgstr "Ümumi"
 
 #: data/resources/ui/window.blp:426
 msgid "Device Name"
-msgstr "Nazwa urządzenia"
+msgstr "Cihaz Adı"
 
 #: data/resources/ui/window.blp:431
 msgid "Visibility"
-msgstr "Widoczność"
+msgstr "Görünürlük"
 
 #: data/resources/ui/window.blp:432
 msgid "Whether others can see this device"
-msgstr "Czy inni widzą to urządzenie"
+msgstr "Bu cihazı başqaları görə bilərmi"
 
 #: data/resources/ui/window.blp:436
 msgid "Downloads Folder"
-msgstr "Katalog pobierań"
+msgstr "Yüklənilənlər Qovluğu"
 
 #: data/resources/ui/window.blp:442
 msgid "Pick download folder"
-msgstr "Wybierz katalog pobierania"
+msgstr "Yükləmə qovluğu seçin"
 
 #: data/resources/ui/window.blp:452
 msgid "Advanced"
-msgstr "Zaawansowane"
+msgstr "Ətraflı"
 
 #: data/resources/ui/window.blp:455
 msgid "Static Network Port"
-msgstr "Statyczny port sieciowy"
+msgstr "Statik Şəbəkə Portu"
 
 #. Translators: For whitelisting of the app.
 #: data/resources/ui/window.blp:457
 msgid "For whitelisting through a firewall"
-msgstr "Dodanie do listy dozwolonych w zaporze sieciowej"
+msgstr "Firewall ağ siyahısına salmaq üçün"
 
 #: data/resources/ui/window.blp:462
 msgid "Port Number"
-msgstr "Numer portu"
+msgstr "Port Nömrəsi"
 
 #: data/resources/ui/window.blp:522
 msgid ""
 "Make sure both devices are connected to the same Wi-Fi network and have "
 "Bluetooth turned on"
 msgstr ""
-"Upewnij się, że oba urządzenia są podłączone do tej samej sieci Wi-Fi i mają "
-"włączony Bluetooth"
+"Hər iki cihazın eyni Wi-Fi şəbəkəsinə bağlı olduğundan və Bluetooth açıq "
+"olduğundan əmin olun"
 
 #: data/resources/ui/window.blp:545
 msgid "Make sure the device is set to be visible to all nearby devices"
-msgstr ""
-"Upewnij się, że urządzenie jest widoczne dla wszystkich pobliskich urządzeń"
+msgstr "Cihazın yaxındakı cihazlara görünür olduğundan əmin olun"
 
 #: data/resources/ui/window.blp:568
 msgid ""
 "For an Android device, try opening the <b>Quick Share</b> page in the "
 "<b>Files by Google</b> app"
 msgstr ""
-"W przypadku urządzenia z Androidem spróbuj otworzyć funkcję <b>Szybkie "
-"udostępnianie</b> w aplikacji <b>Files by Google</b>"
+"Android cihazları üçün, <b>Files by Google</b> proqramından <b>Quick Share</"
+"b> səhifəsini açmağı yoxlayın"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/application.rs:144
 msgid "translator-credits"
-msgstr "Tłumacze"
+msgstr "Mətin Hüseynzadə"
 
 #: src/application.rs:151
 msgid "Similar Projects"
-msgstr "Podobny projekt"
+msgstr "Bənzər Layihələr"
 
 #: src/objects/send_transfer.rs:50 src/objects/send_transfer.rs:58
 #: src/widgets/recipient_card.rs:108 src/widgets/recipient_card.rs:147
 msgid "Unknown device"
-msgstr "Nieznane urządzenie"
+msgstr "Naməlum cihaz"
 
 #: src/utils.rs:194
 msgid "hour"
 msgid_plural "hours"
-msgstr[0] "godzina"
-msgstr[1] "godziny"
-msgstr[2] "godzin"
+msgstr[0] "saat"
+msgstr[1] "saat"
 
 #: src/utils.rs:196 src/utils.rs:206
 msgid "minute"
 msgid_plural "minutes"
-msgstr[0] "minuta"
-msgstr[1] "minuty"
-msgstr[2] "minut"
+msgstr[0] "dəqiqə"
+msgstr[1] "dəqiqə"
 
 #: src/utils.rs:208 src/utils.rs:211
 msgid "second"
 msgid_plural "seconds"
-msgstr[0] "sekundy"
-msgstr[1] "sekundy"
-msgstr[2] "sekund"
+msgstr[0] "saniyə"
+msgstr[1] "saniyə"
 
 #: src/widgets/file_card.rs:116
 msgid "Remove"
-msgstr "Usuń"
+msgstr "Sil"
 
 #. Translators: An e.g. "4 Files"
 #: src/widgets/file_card.rs:134 src/window.rs:1106
 #, rust-format
 msgid "{} File"
 msgid_plural "{} Files"
-msgstr[0] "{} plik"
-msgstr[1] "{} pliki"
-msgstr[2] "{} plików"
+msgstr[0] "{} Fayl"
+msgstr[1] "{} Fayl"
 
 #: src/widgets/receive_transfer.rs:20
 msgid "Link"
-msgstr "Odnośnik"
+msgstr "Keçid"
 
 #: src/widgets/receive_transfer.rs:21
 msgid "Text"
-msgstr "Tekst"
+msgstr "Mətn"
 
 #: src/widgets/receive_transfer.rs:22
 msgid "Wi-Fi"
@@ -219,37 +214,36 @@ msgstr "Wi-Fi"
 
 #: src/widgets/receive_transfer.rs:59
 msgid "Receiving"
-msgstr "Odbieranie"
+msgstr "Qəbul edilir"
 
 #: src/widgets/receive_transfer.rs:62 src/widgets/recipient_card.rs:310
 msgid "Cancel"
-msgstr "Anuluj"
+msgstr "Ləğv Et"
 
 #: src/widgets/receive_transfer.rs:159
 msgid "Incoming Transfer"
-msgstr "Przychodzący transfer"
+msgstr "Gələn Ötürmə"
 
 #: src/widgets/receive_transfer.rs:183
 msgid "Decline"
-msgstr "Odrzuć"
+msgstr "Rədd Et"
 
 #: src/widgets/receive_transfer.rs:184
 msgid "Accept"
-msgstr "Akceptuj"
+msgstr "Qəbul Et"
 
 #. Translators: An e.g. "6 Files (42.3MB)"
 #: src/widgets/receive_transfer.rs:215
 #, rust-format
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
-msgstr[0] "{} plik ({})"
-msgstr[1] "{} pliki ({})"
-msgstr[2] "{} plików ({})"
+msgstr[0] "{} fayl ({})"
+msgstr[1] "{} fayl ({})"
 
 #: src/widgets/receive_transfer.rs:235
 #, rust-format
 msgid "Preview ({})"
-msgstr "Podgląd ({})"
+msgstr "Ön Baxış ({})"
 
 #. Translators: This is the pin-code for the transfer
 #: src/widgets/receive_transfer.rs:251 src/widgets/recipient_card.rs:442
@@ -262,71 +256,69 @@ msgstr "Kod: {}"
 #: src/widgets/receive_transfer.rs:359 src/widgets/recipient_card.rs:473
 #, rust-format
 msgid "About {} left"
-msgstr "Pozostało około {}"
+msgstr "Təxmini {} qalıb"
 
 #: src/widgets/receive_transfer.rs:386
 msgid "Unexpected dissconnection"
-msgstr "Nieoczekiwane odłączenie"
+msgstr "Gözlənilməyən kəsinti"
 
 #: src/widgets/receive_transfer.rs:409
 msgid "Transfer cancelled by sender"
-msgstr "Transfer anulowany przez nadawcę"
+msgstr "Ötürmə göndərən tərəfindən ləğv edildi"
 
 #: src/widgets/receive_transfer.rs:444
 msgid "Copy to clipboard"
-msgstr "Skopiuj do schowka"
+msgstr "Mübadilə buferinə kopyala"
 
 #: src/widgets/receive_transfer.rs:452
 msgid "Save text as file"
-msgstr "Zapisz tekst do pliku"
+msgstr "Mətni fayl formatında saxla"
 
 #: src/widgets/receive_transfer.rs:509 src/widgets/receive_transfer.rs:627
 msgid "Open"
-msgstr "Otwórz"
+msgstr "Aç"
 
 #: src/widgets/receive_transfer.rs:619
 #, rust-format
 msgid "{} file received"
 msgid_plural "{} files received"
-msgstr[0] "Odebrano {} plik"
-msgstr[1] "Odebrano {} pliki"
-msgstr[2] "Odebrano {} plików"
+msgstr[0] "{} fayl qəbul edildi"
+msgstr[1] "{} fayl qəbul edildi"
 
 #: src/widgets/recipient_card.rs:221
 msgid "Unavailable"
-msgstr "Niedostępne"
+msgstr "Mövcud Deyil"
 
 #: src/widgets/recipient_card.rs:244
 msgid "Queued"
-msgstr "W kolejce"
+msgstr "Sırada"
 
 #: src/widgets/recipient_card.rs:291
 msgid "Retry"
-msgstr "Powtórz"
+msgstr "Yenidən Cəhd Et"
 
 #: src/widgets/recipient_card.rs:436
 msgid "Requested"
-msgstr "Wymagany"
+msgstr "Tələb Göndərildi"
 
 #: src/widgets/recipient_card.rs:499
 msgid "Failed"
-msgstr "Niepowodzenie"
+msgstr "Uğursuz"
 
 #: src/widgets/recipient_card.rs:542
 #, rust-format
 msgid "Sent {} file"
 msgid_plural "Sent {} files"
-msgstr[0] "Wysłano {} plik"
-msgstr[1] "Wysłano {} pliki"
-msgstr[2] "Wysłano {} plików"
+msgstr[0] "{} fayl göndərildi"
+msgstr[1] "{} fayl göndərildi"
 
 #: src/window.rs:442
 msgid "Can't rename device during an active transfer"
-msgstr "Nie można zmienić nazwy urządzenia podczas aktywnego transferu"
+msgstr "Aktiv ötürmə əsnasında faylın adını dəyişmək mümkün deyil"
 
 #: src/window.rs:583
 msgid "Invalid Port"
-msgstr "Nieprawidłowy port"
+msgstr "Keçərsiz Port"
 
 #: src/window.rs:587
 #, rust-format
@@ -334,96 +326,96 @@ msgid ""
 "The chosen static port \"{}\" is not available. Try a different port above "
 "1024."
 msgstr ""
-"Wybrany port statyczny \"{}\" jest niedostępny. Wypróbuj inny port powyżej "
-"1024."
+"Seçilmiş statik port \"{}\" uyğundeyil. 1024-dən yuxarı fərqli bir portu "
+"yoxlayın."
 
 #: src/window.rs:595
 msgid "_Ok"
-msgstr "Ok"
+msgstr "_Oldu"
 
 #: src/window.rs:643
 msgid "Can't access Downloads folder"
-msgstr "Nie można uzyskać dostępu do katalogu Pobrane"
+msgstr "Yüklənilənlər qovluğu əlçatan deyil"
 
 #: src/window.rs:644
 msgid "Pick Folder"
-msgstr "Wybierz katalog"
+msgstr "Qovluq Seç"
 
 #: src/window.rs:749
 msgid "Copied error report to clipboard"
-msgstr "Skopiowany raport o błędach do schowka"
+msgstr "Xəta mübadilə buferinə köçürüldü"
 
 #: src/window.rs:996
 msgid "Ready"
-msgstr "Gotowy"
+msgstr "Hazır"
 
 #: src/window.rs:1002
 #, rust-format
 msgid "Visible as {:?}"
-msgstr "Widoczne jako {:?}"
+msgstr "{:?} olaraq görünür"
 
 #: src/window.rs:1008
 msgid "Invisible"
-msgstr "Niewidoczne"
+msgstr "Görünməz"
 
 #: src/window.rs:1014
 msgid "No new devices can share with you"
-msgstr "Żadne nowe urządzenia nie mogą Ci udostępnić"
+msgstr "Yeni cihazlar sizinlə paylaşa bilməz"
 
 #: src/window.rs:1019
 msgid "Disconnected"
-msgstr "Rozłączono"
+msgstr "Əlaqə Kəsildi"
 
 #: src/window.rs:1025
 msgid "Connect to Wi-Fi and turn on Bluetooth"
-msgstr "Połącz się z Wi-Fi i włącz Bluetooth"
+msgstr "Wi-Fi-a bağlan və Bluetooth-u aç"
 
 #: src/window.rs:1028
 msgid "Connect to Wi-Fi"
-msgstr "Połącz się z Wi-Fi"
+msgstr "Wi-Fi-a Bağlan"
 
 #: src/window.rs:1031
 msgid "Turn on Bluetooth"
-msgstr "Włącz Bluetooth"
+msgstr "Bluetooth-u Aç"
 
 #: src/window.rs:1095
 msgid "Couldn't open files"
-msgstr "Nie można otworzyć plików"
+msgstr "Faylları açmaq baş tutmadı"
 
 #: data/io.github.nozwock.Packet.desktop.in.in:3
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
 msgid "Share files easily"
-msgstr "Udostępniaj pliki z łatwością"
+msgstr "Faylları asanlıqla paylaşın"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: data/io.github.nozwock.Packet.desktop.in.in:9
 msgid "Gnome;GTK;Quick;Nearby;Share;"
-msgstr "GNOME;GTK;Quick;Nearby;Share;"
+msgstr "Gnome;GTK;Quick;Nearby;Share;fayl;göndər;paylaş;yüklə;blutuz;"
 
 #. Trasnlators: The gschema strings won't be used in the app directly and aren't a priority
 #: data/io.github.nozwock.Packet.gschema.xml.in:7
 msgid "Window width"
-msgstr "Szerokość okna"
+msgstr "Pəncərə genişliyi"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:11
 msgid "Window height"
-msgstr "Wysokość okna"
+msgstr "Pəncərə yüksəkliyi"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:15
 msgid "Window maximized state"
-msgstr "Okno zmaksymalizowane"
+msgstr "Pəncərənin böyüdülmüş halı"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:19
 msgid "Device name"
-msgstr "Nazwa urządzenia"
+msgstr "Cihaz adı"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:23
 msgid "Device visibility"
-msgstr "Widoczność urządzenia"
+msgstr "Cihaz görünürlüyü"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:27
 msgid "Download folder"
-msgstr "Katalog pobierania"
+msgstr "Yükləmə qovluğu"
 
 #. Trasnlators: The metainfo strings are for Flathub and aren't a priority
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
@@ -431,26 +423,26 @@ msgid ""
 "Send and receive files wirelessly with Android devices using Quick Share or "
 "another device with Packet installed."
 msgstr ""
-"Wysyłaj i odbieraj pliki bezprzewodowo z urządzeń z Androidem za pomocą "
-"szybkiego udostępnienia lub innego urządzenia z zainstalowanym programem."
+"Packet quraşdırılmış başqa bir cihazla və yaxud Quick Share funksiyası olan "
+"Android cihazları ilə faylları simsiz şəkildə göndərin və qəbul edin."
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:11
 msgid ""
 "Packet requires Bluetooth to be enabled and the devices to be connected to a "
 "Wi-Fi network with mDNS."
 msgstr ""
-"Udostępnianie wymaga włączenia Bluetooth i podłączenia urządzeń do sieci Wi-"
-"Fi z mDNS."
+"Packet Bluetooth-un açıq olmağını və cihazların mDNS xüsusiyyəti olan Wi-Fi "
+"şəbəkəsinə bağlı olmasını tələb edir."
 
 #. Trasnlators: These are captions for the screenshots on Flathub
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:18
 msgid "Sent Share Request"
-msgstr "Wysłano żądanie udostępnienia"
+msgstr "Paylaşmaq Tələbi Göndərildi"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:22
 msgid "Main Page"
-msgstr "Strona główna"
+msgstr "Ana Səhifə"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:26
 msgid "Received Share Request"
-msgstr "Odebrano żądanie udostępnienia"
+msgstr "Paylaşma Tələbi Qəbul Edildi"
