@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-29 18:40+0530\n"
-"PO-Revision-Date: 2025-05-30 14:18+0000\n"
-"Last-Translator: Pascal Dietrich <pascal.1.dietrich@hotmail.com>\n"
+"PO-Revision-Date: 2025-06-02 15:27+0000\n"
+"Last-Translator: BennetK <bennetkrzenzck@pm.me>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/packet/main/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -128,9 +128,8 @@ msgstr "Statischer Netzwerkport"
 
 #. Translators: For whitelisting of the app.
 #: data/resources/ui/window.blp:457
-#, fuzzy
 msgid "For whitelisting through a firewall"
-msgstr "Zum Durchlassen durch eine Firewall"
+msgstr "Zur Freischaltung durch eine Firewall"
 
 #: data/resources/ui/window.blp:462
 msgid "Port Number"
