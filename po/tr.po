@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-29 18:40+0530\n"
-"PO-Revision-Date: 2025-05-30 10:16+0000\n"
-"Last-Translator: sassan <endwse@gmail.com>\n"
+"PO-Revision-Date: 2025-06-01 08:40+0000\n"
+"Last-Translator: Matin <matinhuseynzade@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/packet/main/tr/>"
 "\n"
 "Language: tr\n"
@@ -47,27 +47,26 @@ msgstr "Packet"
 #, fuzzy
 #| msgid "Setting up Packet..."
 msgid "Setting up Packet…"
-msgstr "Packet yapılandırılıyor..."
+msgstr "Packet yapılandırılıyor…"
 
 #: data/resources/ui/window.blp:71
 msgid "Copy error report"
 msgstr "Hata raporunu kopyala"
 
 #: data/resources/ui/window.blp:85
-#, fuzzy
-#| msgid "Couldn't open files"
 msgid "Couldn't Set Up"
-msgstr "Dosyalar açılamadı"
+msgstr "Yapılandırılamadı"
 
 #: data/resources/ui/window.blp:86
 msgid "An error occurred while trying to setup Packet"
-msgstr ""
+msgstr "Packet yapılandırılırken bir hata oluştu"
 
 #: data/resources/ui/window.blp:91
 msgid "Try Again"
 msgstr "Tekrar deneyin"
 
 #: data/resources/ui/window.blp:141
+#, fuzzy
 msgid "Add, or drop a file to send"
 msgstr "Göndermek için bir dosya ekleyin veya bırakın"
 
@@ -92,10 +91,8 @@ msgid "Looking for devices…"
 msgstr "Cihazlar aranıyor…"
 
 #: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
-#, fuzzy
-#| msgid "I don't see the other device"
 msgid "Can't see the other device?"
-msgstr "Diğer cihazı göremiyorum"
+msgstr "Diğer cihazı göremiyor musunuz?"
 
 #: data/resources/ui/window.blp:418
 msgid "Preferences"
@@ -103,7 +100,7 @@ msgstr "Tercihler"
 
 #: data/resources/ui/window.blp:423
 msgid "General"
-msgstr ""
+msgstr "Genel"
 
 #: data/resources/ui/window.blp:426
 msgid "Device Name"
@@ -124,10 +121,8 @@ msgid "Downloads Folder"
 msgstr "İndirme klasörü"
 
 #: data/resources/ui/window.blp:442
-#, fuzzy
-#| msgid "Download folder"
 msgid "Pick download folder"
-msgstr "İndirme klasörü"
+msgstr "İndirme klasörü seç"
 
 #: data/resources/ui/window.blp:452
 msgid "Advanced"
