@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-29 18:40+0530\n"
-"PO-Revision-Date: 2025-06-02 15:39+0000\n"
+"PO-Revision-Date: 2025-06-03 17:01+0000\n"
 "Last-Translator: Dwaipayan De <dwaipayan774@gmail.com>\n"
 "Language-Team: Bengali <https://hosted.weblate.org/projects/packet/main/bn/>"
 "\n"
@@ -28,9 +28,8 @@ msgid "Help"
 msgstr "সাহায্য"
 
 #: data/resources/ui/window.blp:17
-#, fuzzy
 msgid "_Keyboard Shortcuts"
-msgstr "কিবোর্ড শর্টকাট"
+msgstr "কীবোর্ড শর্টকাট"
 
 #: data/resources/ui/window.blp:22
 msgid "_About Packet"
@@ -50,15 +49,15 @@ msgstr "Packet সেটআপ করা হচ্ছে…"
 
 #: data/resources/ui/window.blp:71
 msgid "Copy error report"
-msgstr ""
+msgstr "ত্রুটি প্রতিবেদন অনুলিপি করুন"
 
 #: data/resources/ui/window.blp:85
 msgid "Couldn't Set Up"
-msgstr ""
+msgstr "সেটআপ করা যায়নি"
 
 #: data/resources/ui/window.blp:86
 msgid "An error occurred while trying to setup Packet"
-msgstr ""
+msgstr "Packet সেটআপ করার চেষ্টা করার সময় একটি ত্রুটি ঘটেছে"
 
 #: data/resources/ui/window.blp:91
 msgid "Try Again"
@@ -66,7 +65,7 @@ msgstr "আবার চেষ্টা করুন"
 
 #: data/resources/ui/window.blp:141
 msgid "Add, or drop a file to send"
-msgstr ""
+msgstr "পাঠানোর জন্য ফাইল যোগ করুন বা টেনে আনুন"
 
 #: data/resources/ui/window.blp:148
 msgid "Add Files"
@@ -82,240 +81,246 @@ msgstr "পাঠান"
 
 #: data/resources/ui/window.blp:321
 msgid "Select Recipients"
-msgstr ""
+msgstr "প্রাপক নির্বাচন করুন"
 
 #: data/resources/ui/window.blp:391
 msgid "Looking for devices…"
-msgstr ""
+msgstr "ডিভাইস খোঁজা হচ্ছে…"
 
 #: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
 msgid "Can't see the other device?"
-msgstr ""
+msgstr "অন্য ডিভাইস দেখতে পাচ্ছেন না?"
 
 #: data/resources/ui/window.blp:418
 msgid "Preferences"
-msgstr ""
+msgstr "পছন্দ"
 
 #: data/resources/ui/window.blp:423
 msgid "General"
-msgstr ""
+msgstr "সাধারণ"
 
 #: data/resources/ui/window.blp:426
 msgid "Device Name"
-msgstr ""
+msgstr "ডিভাইসের নাম"
 
 #: data/resources/ui/window.blp:431
 msgid "Visibility"
-msgstr ""
+msgstr "দৃশ্যমানতা"
 
 #: data/resources/ui/window.blp:432
 msgid "Whether others can see this device"
-msgstr ""
+msgstr "অন্যরা এই ডিভাইসটি দেখতে পারবে কিনা"
 
 #: data/resources/ui/window.blp:436
 msgid "Downloads Folder"
-msgstr ""
+msgstr "ডাউনলোড ফোল্ডার"
 
 #: data/resources/ui/window.blp:442
 msgid "Pick download folder"
-msgstr ""
+msgstr "ডাউনলোড ফোল্ডার নির্বাচন করুন"
 
 #: data/resources/ui/window.blp:452
 msgid "Advanced"
-msgstr ""
+msgstr "উন্নত"
 
 #: data/resources/ui/window.blp:455
 msgid "Static Network Port"
-msgstr ""
+msgstr "স্থির নেটওয়ার্ক পোর্ট"
 
 #. Translators: For whitelisting of the app.
 #: data/resources/ui/window.blp:457
 msgid "For whitelisting through a firewall"
-msgstr ""
+msgstr "ফায়ারওয়ালের মাধ্যমে হোয়াইটলিস্টিংয়ের জন্য"
 
 #: data/resources/ui/window.blp:462
 msgid "Port Number"
-msgstr ""
+msgstr "পোর্ট নম্বর"
 
 #: data/resources/ui/window.blp:522
 msgid ""
 "Make sure both devices are connected to the same Wi-Fi network and have "
 "Bluetooth turned on"
 msgstr ""
+"নিশ্চিত করুন যে উভয় ডিভাইস একই ওয়াই-ফাই নেটওয়ার্কের সাথে সংযুক্ত এবং ব্লুটুথ চালু "
+"রয়েছে"
 
 #: data/resources/ui/window.blp:545
 msgid "Make sure the device is set to be visible to all nearby devices"
 msgstr ""
+"নিশ্চিত করুন যে ডিভাইসটি কাছাকাছি সমস্ত ডিভাইসের কাছে দৃশ্যমান হওয়ার জন্য সেট করা "
+"আছে"
 
 #: data/resources/ui/window.blp:568
 msgid ""
 "For an Android device, try opening the <b>Quick Share</b> page in the "
 "<b>Files by Google</b> app"
 msgstr ""
+"অ্যান্ড্রয়েড ডিভাইসের জন্য, <b>Files by Google</b> অ্যাপে <b>Quick Share</b> পৃষ্ঠা�"
+" EDU_TD>ঠা খোলার চেষ্টা করুন"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/application.rs:144
 msgid "translator-credits"
-msgstr ""
+msgstr "দ্বৈপায়ন দে <dwaipayan774@gmail.com>"
 
 #: src/application.rs:151
 msgid "Similar Projects"
-msgstr ""
+msgstr "অনুরূপ প্রকল্প"
 
 #: src/objects/send_transfer.rs:50 src/objects/send_transfer.rs:58
 #: src/widgets/recipient_card.rs:108 src/widgets/recipient_card.rs:147
 msgid "Unknown device"
-msgstr ""
+msgstr "অজানা ডিভাইস"
 
 #: src/utils.rs:194
 msgid "hour"
 msgid_plural "hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ঘণ্টা"
+msgstr[1] "ঘণ্টা"
 
 #: src/utils.rs:196 src/utils.rs:206
 msgid "minute"
 msgid_plural "minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "মিনিট"
+msgstr[1] "মিনিট"
 
 #: src/utils.rs:208 src/utils.rs:211
 msgid "second"
 msgid_plural "seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "সেকেন্ড"
+msgstr[1] "সেকেন্ড"
 
 #: src/widgets/file_card.rs:116
 msgid "Remove"
-msgstr ""
+msgstr "অপসারণ করুন"
 
 #. Translators: An e.g. "4 Files"
 #: src/widgets/file_card.rs:134 src/window.rs:1106
 #, rust-format
 msgid "{} File"
 msgid_plural "{} Files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} ফাইল"
+msgstr[1] "{} ফাইল"
 
 #: src/widgets/receive_transfer.rs:20
 msgid "Link"
-msgstr ""
+msgstr "লিঙ্ক"
 
 #: src/widgets/receive_transfer.rs:21
 msgid "Text"
-msgstr ""
+msgstr "টেক্সট"
 
 #: src/widgets/receive_transfer.rs:22
 msgid "Wi-Fi"
-msgstr ""
+msgstr "ওয়াই-ফাই"
 
 #: src/widgets/receive_transfer.rs:59
 msgid "Receiving"
-msgstr ""
+msgstr "গ্রহণ করা হচ্ছে"
 
 #: src/widgets/receive_transfer.rs:62 src/widgets/recipient_card.rs:310
 msgid "Cancel"
-msgstr ""
+msgstr "বাতিল করুন"
 
 #: src/widgets/receive_transfer.rs:159
 msgid "Incoming Transfer"
-msgstr ""
+msgstr "আগত স্থানান্তর"
 
 #: src/widgets/receive_transfer.rs:183
 msgid "Decline"
-msgstr ""
+msgstr "প্রত্যাখ্যান করুন"
 
 #: src/widgets/receive_transfer.rs:184
 msgid "Accept"
-msgstr ""
+msgstr "গ্রহণ করুন"
 
 #. Translators: An e.g. "6 Files (42.3MB)"
 #: src/widgets/receive_transfer.rs:215
 #, rust-format
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} ফাইল ({})"
+msgstr[1] "{} ফাইল ({})"
 
 #: src/widgets/receive_transfer.rs:235
 #, rust-format
 msgid "Preview ({})"
-msgstr ""
+msgstr "প্রিভিউ ({})"
 
 #. Translators: This is the pin-code for the transfer
 #: src/widgets/receive_transfer.rs:251 src/widgets/recipient_card.rs:442
 #, rust-format
 msgid "Code: {}"
-msgstr ""
+msgstr "কোড: {}"
 
 #. Translators: {} will be replaced with an estimated remaining time string
 #. e.g. "About 4 minutes 32 seconds left"
 #: src/widgets/receive_transfer.rs:359 src/widgets/recipient_card.rs:473
 #, rust-format
 msgid "About {} left"
-msgstr ""
+msgstr "প্রায় {} বাকি"
 
 #: src/widgets/receive_transfer.rs:386
 msgid "Unexpected dissconnection"
-msgstr ""
+msgstr "অপ্রত্যাশিত সংযোগ বিচ্ছেদ"
 
 #: src/widgets/receive_transfer.rs:409
 msgid "Transfer cancelled by sender"
-msgstr ""
+msgstr "প্রেরক দ্বারা স্থানান্তর বাতিল করা হয়েছে"
 
 #: src/widgets/receive_transfer.rs:444
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "ক্লিপবোর্ডে অনুলিপি করুন"
 
 #: src/widgets/receive_transfer.rs:452
 msgid "Save text as file"
-msgstr ""
+msgstr "টেক্সট ফাইল হিসেবে সংরক্ষণ করুন"
 
 #: src/widgets/receive_transfer.rs:509 src/widgets/receive_transfer.rs:627
 msgid "Open"
-msgstr ""
+msgstr "খুলুন"
 
 #: src/widgets/receive_transfer.rs:619
 #, rust-format
 msgid "{} file received"
 msgid_plural "{} files received"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} ফাইল গৃহীত"
+msgstr[1] "{} ফাইল গৃহীত"
 
 #: src/widgets/recipient_card.rs:221
 msgid "Unavailable"
-msgstr ""
+msgstr "অনুপলব্ধ"
 
 #: src/widgets/recipient_card.rs:244
 msgid "Queued"
-msgstr ""
+msgstr "সারিবদ্ধ"
 
 #: src/widgets/recipient_card.rs:291
 msgid "Retry"
-msgstr ""
+msgstr "পুনরায় চেষ্টা করুন"
 
 #: src/widgets/recipient_card.rs:436
 msgid "Requested"
-msgstr ""
+msgstr "অনুরোধ করা হয়েছে"
 
 #: src/widgets/recipient_card.rs:499
 msgid "Failed"
-msgstr ""
+msgstr "ব্যর্থ হয়েছে"
 
 #: src/widgets/recipient_card.rs:542
 #, rust-format
 msgid "Sent {} file"
 msgid_plural "Sent {} files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} ফাইল পাঠানো হয়েছে"
+msgstr[1] "{} ফাইল পাঠানো হয়েছে"
 
 #: src/window.rs:442
 msgid "Can't rename device during an active transfer"
-msgstr ""
+msgstr "সক্রিয় স্থানান্তরের সময় ডিভাইসের নাম পরিবর্তন করা যায় না"
 
 #: src/window.rs:583
 msgid "Invalid Port"
-msgstr ""
+msgstr "অবৈধ পোর্ট"
 
 #: src/window.rs:587
 #, rust-format
@@ -323,94 +328,95 @@ msgid ""
 "The chosen static port \"{}\" is not available. Try a different port above "
 "1024."
 msgstr ""
+"নির্বাচিত স্থির পোর্ট \"{}\" উপলব্ধ নয়। 1024-এর উপরে একটি ভিন্ন পোর্ট চেষ্টা করুন।"
 
 #: src/window.rs:595
 msgid "_Ok"
-msgstr ""
+msgstr "ঠিক আছে"
 
 #: src/window.rs:643
 msgid "Can't access Downloads folder"
-msgstr ""
+msgstr "ডাউনলোড ফোল্ডারে প্রবেশ করা যায়নি"
 
 #: src/window.rs:644
 msgid "Pick Folder"
-msgstr ""
+msgstr "ফোল্ডার নির্বাচন করুন"
 
 #: src/window.rs:749
 msgid "Copied error report to clipboard"
-msgstr ""
+msgstr "ত্রুটি প্রতিবেদন ক্লিপবোর্ডে অনুলিপি করা হয়েছে"
 
 #: src/window.rs:996
 msgid "Ready"
-msgstr ""
+msgstr "প্রস্তুত"
 
 #: src/window.rs:1002
 #, rust-format
 msgid "Visible as {:?}"
-msgstr ""
+msgstr "{:?} হিসেবে দৃশ্যমান"
 
 #: src/window.rs:1008
 msgid "Invisible"
-msgstr ""
+msgstr "অদৃশ্য"
 
 #: src/window.rs:1014
 msgid "No new devices can share with you"
-msgstr ""
+msgstr "কোনো নতুন ডিভাইস আপনার সাথে শেয়ার করতে পারবে না"
 
 #: src/window.rs:1019
 msgid "Disconnected"
-msgstr ""
+msgstr "সংযোগ বিচ্ছিন্ন"
 
 #: src/window.rs:1025
 msgid "Connect to Wi-Fi and turn on Bluetooth"
-msgstr ""
+msgstr "ওয়াই-ফাইয়ের সাথে সংযোগ করুন এবং ব্লুটুথ চালু করুন"
 
 #: src/window.rs:1028
 msgid "Connect to Wi-Fi"
-msgstr ""
+msgstr "ওয়াই-ফাইয়ের সাথে সংযোগ করুন"
 
 #: src/window.rs:1031
 msgid "Turn on Bluetooth"
-msgstr ""
+msgstr "ব্লুটুথ চালু করুন"
 
 #: src/window.rs:1095
 msgid "Couldn't open files"
-msgstr ""
+msgstr "ফাইল খোলা যায়নি"
 
 #: data/io.github.nozwock.Packet.desktop.in.in:3
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:7
 msgid "Share files easily"
-msgstr ""
+msgstr "সহজে ফাইল শেয়ার করুন"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: data/io.github.nozwock.Packet.desktop.in.in:9
 msgid "Gnome;GTK;Quick;Nearby;Share;"
-msgstr ""
+msgstr "Gnome;GTK;Quick;Nearby;Share;"
 
 #. Trasnlators: The gschema strings won't be used in the app directly and aren't a priority
 #: data/io.github.nozwock.Packet.gschema.xml.in:7
 msgid "Window width"
-msgstr ""
+msgstr "উইন্ডোর প্রস্থ"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:11
 msgid "Window height"
-msgstr ""
+msgstr "উইন্ডোর উচ্চতা"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:15
 msgid "Window maximized state"
-msgstr ""
+msgstr "উইন্ডোর সর্বাধিকীকৃত অবস্থা"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:19
 msgid "Device name"
-msgstr ""
+msgstr "ডিভাইসের নাম"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:23
 msgid "Device visibility"
-msgstr ""
+msgstr "ডিভাইসের দৃশ্যমানতা"
 
 #: data/io.github.nozwock.Packet.gschema.xml.in:27
 msgid "Download folder"
-msgstr ""
+msgstr "ডাউনলোড ফোল্ডার"
 
 #. Trasnlators: The metainfo strings are for Flathub and aren't a priority
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:10
@@ -418,22 +424,26 @@ msgid ""
 "Send and receive files wirelessly with Android devices using Quick Share or "
 "another device with Packet installed."
 msgstr ""
+"Quick Share ব্যবহার করে অ্যান্ড্রয়েড ডিভাইসের সাথে বা Packet ইনস্টল করা অন্য "
+"ডিভাইসের সাথে বেতারভাবে ফাইল পাঠান এবং গ্রহণ করুন।"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:11
 msgid ""
 "Packet requires Bluetooth to be enabled and the devices to be connected to a "
 "Wi-Fi network with mDNS."
 msgstr ""
+"Packet-এর জন্য ব্লুটুথ সক্রিয় থাকা এবং ডিভাইসগুলো mDNS সহ একটি ওয়াই-ফাই নেটওয়ার্কের "
+"সাথে সংযুক্ত থাকা প্রয়োজন।"
 
 #. Trasnlators: These are captions for the screenshots on Flathub
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:18
 msgid "Sent Share Request"
-msgstr ""
+msgstr "শেয়ার অনুরোধ পাঠানো হয়েছে"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:22
 msgid "Main Page"
-msgstr ""
+msgstr "প্রধান পৃষ্ঠা"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:26
 msgid "Received Share Request"
-msgstr ""
+msgstr "শেয়ার অনুরোধ গৃহীত হয়েছে"

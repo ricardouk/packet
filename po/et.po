@@ -8,10 +8,10 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-29 18:40+0530\n"
-"PO-Revision-Date: 2025-05-29 01:10+0000\n"
+"PO-Revision-Date: 2025-06-03 17:01+0000\n"
 "Last-Translator: Priit Jõerüüt <hwlate@joeruut.com>\n"
-"Language-Team: Estonian <https://hosted.weblate.org/projects/packet/main/et/"
-">\n"
+"Language-Team: Estonian <https://hosted.weblate.org/projects/packet/main/et/>"
+"\n"
 "Language: et\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,21 +21,19 @@ msgstr ""
 
 #: data/resources/ui/window.blp:7
 msgid "_Preferences"
-msgstr ""
+msgstr "_Eelistused"
 
 #: data/resources/ui/window.blp:12 data/resources/ui/window.blp:471
 msgid "Help"
-msgstr ""
+msgstr "Abiteave"
 
 #: data/resources/ui/window.blp:17
 msgid "_Keyboard Shortcuts"
-msgstr ""
+msgstr "_Klaviatuuri kiirklahvid"
 
 #: data/resources/ui/window.blp:22
-#, fuzzy
-#| msgid "Packet"
 msgid "_About Packet"
-msgstr "Packet"
+msgstr "_Rakenduse teave: Packet"
 
 #. Translators: The name should remain untranslated
 #: data/resources/ui/window.blp:38 data/resources/ui/window.blp:63
@@ -47,128 +45,118 @@ msgstr "Packet"
 
 #: data/resources/ui/window.blp:52
 msgid "Setting up Packet…"
-msgstr ""
+msgstr "Packet on seadistamisel…"
 
 #: data/resources/ui/window.blp:71
 msgid "Copy error report"
-msgstr ""
+msgstr "Kopeeri veaaruanne"
 
 #: data/resources/ui/window.blp:85
-#, fuzzy
-#| msgid "Couldn't open files"
 msgid "Couldn't Set Up"
-msgstr "Faile polnud võimalik avada"
+msgstr "Algseadistamine ei õnnestunud"
 
 #: data/resources/ui/window.blp:86
 msgid "An error occurred while trying to setup Packet"
-msgstr ""
+msgstr "Packeti seadistamisel tekkis viga"
 
 #: data/resources/ui/window.blp:91
 msgid "Try Again"
-msgstr ""
+msgstr "Proovi uuesti"
 
 #: data/resources/ui/window.blp:141
 msgid "Add, or drop a file to send"
-msgstr ""
+msgstr "Lisa valijast või lohista siia saadetavad failid"
 
 #: data/resources/ui/window.blp:148
-#, fuzzy
-#| msgid "{} File"
-#| msgid_plural "{} Files"
 msgid "Add Files"
-msgstr "{} fail"
+msgstr "Lisa faile"
 
 #: data/resources/ui/window.blp:203
-#, fuzzy
-#| msgid "{} File"
-#| msgid_plural "{} Files"
 msgid "Add File"
-msgstr "{} fail"
+msgstr "Lisa fail"
 
 #: data/resources/ui/window.blp:298
 msgid "Send"
-msgstr ""
+msgstr "Saada"
 
 #: data/resources/ui/window.blp:321
 msgid "Select Recipients"
-msgstr ""
+msgstr "Vali vastuvõtjad"
 
 #: data/resources/ui/window.blp:391
 msgid "Looking for devices…"
-msgstr ""
+msgstr "Otsin seadmeid…"
 
 #: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
 msgid "Can't see the other device?"
-msgstr ""
+msgstr "Kas teine seade pole nähtav?"
 
 #: data/resources/ui/window.blp:418
 msgid "Preferences"
-msgstr ""
+msgstr "Eelistused"
 
 #: data/resources/ui/window.blp:423
 msgid "General"
-msgstr ""
+msgstr "Üldised"
 
 #: data/resources/ui/window.blp:426
-#, fuzzy
-#| msgid "Device name"
 msgid "Device Name"
 msgstr "Seadme nimi"
 
 #: data/resources/ui/window.blp:431
-#, fuzzy
-#| msgid "Device visibility"
 msgid "Visibility"
-msgstr "Seadme nähtavus"
+msgstr "Nähtavus"
 
 #: data/resources/ui/window.blp:432
 msgid "Whether others can see this device"
-msgstr ""
+msgstr "Kas muud kasutajad saavad seda seadet näha"
 
 #: data/resources/ui/window.blp:436
-#, fuzzy
-#| msgid "Download folder"
 msgid "Downloads Folder"
 msgstr "Allalaadimiste kaust"
 
 #: data/resources/ui/window.blp:442
-#, fuzzy
-#| msgid "Download folder"
 msgid "Pick download folder"
-msgstr "Allalaadimiste kaust"
+msgstr "Vali kaust allalaadimiste jaoks"
 
 #: data/resources/ui/window.blp:452
 msgid "Advanced"
-msgstr ""
+msgstr "Täiendavad seadistused"
 
 #: data/resources/ui/window.blp:455
 msgid "Static Network Port"
-msgstr ""
+msgstr "Staatiline võrguport"
 
 #. Translators: For whitelisting of the app.
 #: data/resources/ui/window.blp:457
 msgid "For whitelisting through a firewall"
-msgstr ""
+msgstr "Võimaldab sul seadistada päringute lubamist läbi tulemüüri"
 
 #: data/resources/ui/window.blp:462
 msgid "Port Number"
-msgstr ""
+msgstr "Pordi number"
 
 #: data/resources/ui/window.blp:522
 msgid ""
 "Make sure both devices are connected to the same Wi-Fi network and have "
 "Bluetooth turned on"
 msgstr ""
+"Palun kontrolli, et mõlemad seadmed on ühendatud samasse WiFi võrku ning "
+"Bluetooth on sisse lülitatud"
 
 #: data/resources/ui/window.blp:545
 msgid "Make sure the device is set to be visible to all nearby devices"
 msgstr ""
+"Palun kontrolli, et see seade on nähtav kõigile lähikonnas asuvatele "
+"seadmetele"
 
 #: data/resources/ui/window.blp:568
 msgid ""
 "For an Android device, try opening the <b>Quick Share</b> page in the "
 "<b>Files by Google</b> app"
 msgstr ""
+"Androidi seadmes proovi avada <b>Kiirjagamise (Quick Share)</b> leht "
+"<b>Google'i failihalduris (Files by Google)</b>"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
 #: src/application.rs:144
@@ -325,33 +313,31 @@ msgstr "Pooleli ülekande ajal polnud võimalik seadme nime muuta"
 
 #: src/window.rs:583
 msgid "Invalid Port"
-msgstr ""
+msgstr "Vigane port"
 
 #: src/window.rs:587
 msgid ""
 "The chosen static port \"{}\" is not available. Try a different port above "
 "1024."
 msgstr ""
+"Valitud staatline port „{}“ pole kasutatav. Proovi mõnda muud porti, mille "
+"number on suurem, kui 1024."
 
 #: src/window.rs:595
 msgid "_Ok"
-msgstr ""
+msgstr "S_obib"
 
 #: src/window.rs:643
-#, fuzzy
-#| msgid "Download folder"
 msgid "Can't access Downloads folder"
-msgstr "Allalaadimiste kaust"
+msgstr "Allalaadimiste kaustale puudub ligipääs"
 
 #: src/window.rs:644
 msgid "Pick Folder"
-msgstr ""
+msgstr "Vali kaust"
 
 #: src/window.rs:749
-#, fuzzy
-#| msgid "Copy to clipboard"
 msgid "Copied error report to clipboard"
-msgstr "Kopeeri lõikelauale"
+msgstr "Veateade on kopeeritud lõikelauale"
 
 #: src/window.rs:996
 msgid "Ready"
@@ -371,19 +357,19 @@ msgstr "Ükski uus seade ei saa enam faile jagada"
 
 #: src/window.rs:1019
 msgid "Disconnected"
-msgstr ""
+msgstr "Ühendus on katkestatud"
 
 #: src/window.rs:1025
 msgid "Connect to Wi-Fi and turn on Bluetooth"
-msgstr ""
+msgstr "Ühenda WiFi võrku ja lülita Bluetooth sisse"
 
 #: src/window.rs:1028
 msgid "Connect to Wi-Fi"
-msgstr ""
+msgstr "Ühenda WiFi-võrkku"
 
 #: src/window.rs:1031
 msgid "Turn on Bluetooth"
-msgstr ""
+msgstr "Lülita Bluetooth sisse"
 
 #: src/window.rs:1095
 msgid "Couldn't open files"
@@ -449,7 +435,7 @@ msgstr "Saadetud jagamispäring"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:22
 msgid "Main Page"
-msgstr ""
+msgstr "Põhivaade"
 
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:26
 msgid "Received Share Request"
