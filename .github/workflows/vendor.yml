@@ -35,7 +35,7 @@ jobs:
         run: |
           {
             echo 'RELEASE_NOTES<<EOF'
-            xmllint --xpath '//release[1]/description' data/io.github.nozwock.Packet.metainfo.xml.in.in \
+            xmllint --xpath '//release[1]/description' data/io.github.nozwock.Packet.releases.xml.in \
               | xmllint --format - \
               | pandoc -f html -t markdown
             echo EOF
