@@ -35,7 +35,7 @@
 
   <content_rating type="oars-1.1" />
 
-  <releases type="external" url="https://github.com/nozwock/packet/raw/refs/heads/main/data/io.github.nozwock.Packet.releases.xml.in" />
+  <releases type="external" url="https://github.com/nozwock/packet/raw/refs/heads/main/data/io.github.nozwock.Packet.releases.xml.in.in" />
 
   <developer id="io.github">
     <name translate="no">nozwock</name>

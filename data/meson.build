@@ -58,7 +58,7 @@ releases_conf.set('app-id', application_id)
 releases_conf.set('gettext-package', gettext_package)
 releases_file = i18n.merge_file(
   input: configure_file(
-    input: '@0@.releases.xml.in'.format(base_id),
+    input: '@0@.releases.xml.in.in'.format(base_id),
     output: '@BASENAME@',
     configuration: releases_conf,
   ),
