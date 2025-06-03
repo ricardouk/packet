@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <releases>
+  <release version="0.3.3" date="2025-06-4">
+    <description translatable="no">
+      <p>Fixes</p>
+      <ul>
+        <li>Fixed initial network state being wrongly shown as "Disconnected" sometimes</li>
+      </ul>
+      <p>Translations</p>
+      <ul>
+        <li>Updated Bengali translation</li>
+        <li>Updated Estonian translation</li>
+      </ul>
+    </description>
+  </release>
   <release version="0.3.2" date="2025-06-3">
     <description translatable="no">
       <p>Fixes</p>
