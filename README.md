@@ -18,7 +18,7 @@ A partial implementation of Google's Quick Share protocol that lets you send and
 Nightly Flatpak builds are available from [here][nightly-build].
 
 ## Requirements
-Packet requires Bluetooth to be enabled and the devices to be connected to a Wi-Fi network with mDNS.
+Since only the Wi-Fi LAN medium is implemented, Packet requires Bluetooth to be enabled and the devices to be connected to a Wi-Fi network with mDNS.
 
 ## Translations
 If you'd like to help translate Packet to your native language, you can do so using the [Weblate][translation-platform] platform.
