@@ -1323,7 +1323,8 @@ impl PacketApplicationWindow {
         let imp = self.imp();
 
         let (tx, mut network_rx) = watch::channel(false);
-        let tx_clone = tx.clone(); // Clone network tx for initial state update
+        // Set initial state
+        _ = tx.send(imp.network_monitor.is_network_available());
         imp.network_monitor
             .connect_network_changed(move |monitor, _| {
                 _ = tx.send(monitor.is_network_available());
@@ -1418,7 +1419,6 @@ impl PacketApplicationWindow {
                 ));
             }
         ));
-        tx_clone.send(imp.network_monitor.is_network_available()); // Updates network state on startup
     }
 
     fn setup_rqs_service(&self) -> glib::JoinHandle<()> {
