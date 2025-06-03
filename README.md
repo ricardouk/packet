@@ -27,6 +27,10 @@ If you'd like to help translate Packet to your native language, you can do so us
 
 ## FAQ
 
+#### Can't send to app from other devices
+
+Your firewall may be blocking Packet's port. Enable *Static Port* in Preferences and allow it through the firewall. See issue #35.
+
 #### Downloads folder keeps resetting
 
 In Flatpak, folder access is temporary and resets after a session restart because static access can't be requested. To set a permanent downloads folder, grant access in advance using Flatseal or run:
