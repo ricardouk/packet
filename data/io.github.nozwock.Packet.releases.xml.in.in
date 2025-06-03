@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <releases>
+  <release version="0.3.4" date="2025-06-4">
+  </release>
   <release version="0.3.3" date="2025-06-4">
     <description translatable="no">
       <p>Fixes</p>
