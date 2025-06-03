@@ -53,6 +53,21 @@ if appstreamcli.found()
   )
 endif
 
+releases_conf = configuration_data()
+releases_conf.set('app-id', application_id)
+releases_conf.set('gettext-package', gettext_package)
+releases_file = i18n.merge_file(
+  input: configure_file(
+    input: '@0@.releases.xml.in'.format(base_id),
+    output: '@BASENAME@',
+    configuration: releases_conf,
+  ),
+  output: '@0@.releases.xml'.format(application_id),
+  po_dir: podir,
+  install: true,
+  install_dir: datadir / 'metainfo',
+)
+
 # GSchema
 gschema_conf = configuration_data()
 gschema_conf.set('app-id', application_id)
