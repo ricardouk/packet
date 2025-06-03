@@ -1323,6 +1323,8 @@ impl PacketApplicationWindow {
         let imp = self.imp();
 
         let (tx, mut network_rx) = watch::channel(false);
+        // Set initial state
+        _ = tx.send(imp.network_monitor.is_network_available());
         imp.network_monitor
             .connect_network_changed(move |monitor, _| {
                 _ = tx.send(monitor.is_network_available());
