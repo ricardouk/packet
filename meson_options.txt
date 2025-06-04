@@ -8,3 +8,9 @@ option(
   value: 'default',
   description: 'The build profile for Packet. One of "default" or "development".',
 )
+
+option(
+  'offline',
+  type: 'boolean',
+  value: false
+)
