@@ -1,0 +1,12 @@
+diff --git a/src/meson.build b/src/meson.build
+index 70979b8..935b038 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -20,6 +20,7 @@ run_command(
+ 
+ cargo_options = [ '--manifest-path', meson.project_source_root() / 'Cargo.toml' ]
+ cargo_options += [ '--target-dir', meson.project_build_root() / 'src' ]
++cargo_options += [ '--frozen' ]
+ 
+ if get_option('profile') == 'default'
+   cargo_options += [ '--release' ]
