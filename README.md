@@ -29,7 +29,7 @@ If you'd like to help translate Packet to your native language, you can do so us
 
 #### Can't send to app from other devices
 
-Your firewall may be blocking Packet's port. Enable *Static Port* in Preferences and allow it through the firewall. See issue #35.
+Your firewall may be blocking Packet's port. Enable *Static Port* in Preferences and allow it through the firewall. See issue [#35](https://github.com/nozwock/packet/issues/35).
 
 #### Downloads folder keeps resetting
 
