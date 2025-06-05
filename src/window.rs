@@ -1486,18 +1486,27 @@ impl PacketApplicationWindow {
                                     cached_transfer.state.set_user_action(Some(UserAction::TransferCancel));
                                 },
                                 "open-folder" => {
-                                    gtk::FileLauncher::new(Some(&gio::File::for_path(
-                                        action.parameter()[0].downcast_ref::<String>().unwrap(),
-                                    )))
-                                    .launch(
-                                        Some(imp.obj().as_ref()),
-                                        None::<&gio::Cancellable>,
-                                        move |_| {},
-                                    );
+                                    if let Some(param) = action.parameter().get(0).and_then(|it| {
+                                        it.downcast_ref::<String>()
+                                            .inspect_err(|err| tracing::warn!("{err:#}"))
+                                            .ok()
+                                    }) {
+                                        gtk::FileLauncher::new(Some(&gio::File::for_path(param))).launch(
+                                            Some(imp.obj().as_ref()),
+                                            None::<&gio::Cancellable>,
+                                            move |_| {},
+                                        );
+                                    }
                                 },
                                 "copy-text" => {
-                                    let clipboard = imp.obj().clipboard();
-                                    clipboard.set_text(&action.parameter()[0].downcast_ref::<String>().unwrap());
+                                    if let Some(param) = action.parameter().get(0).and_then(|it| {
+                                        it.downcast_ref::<String>()
+                                            .inspect_err(|err| tracing::warn!("{err:#}"))
+                                            .ok()
+                                    }) {
+                                        let clipboard = imp.obj().clipboard();
+                                        clipboard.set_text(&param);
+                                    }
                                 },
                                 // Default actions, etc
                                 _ => {},
