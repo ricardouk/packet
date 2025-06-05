@@ -5,17 +5,20 @@ use std::rc::Rc;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use anyhow::{anyhow, Context};
+use ashpd::desktop::notification::NotificationProxy;
 use formatx::formatx;
+use futures_lite::StreamExt;
 use gettextrs::{gettext, ngettext};
 use gtk::gio::FILE_ATTRIBUTE_STANDARD_SIZE;
 use gtk::glib::clone;
 use gtk::{gdk, gio, glib};
 use tokio::sync::watch;
+use tokio_util::sync::CancellationToken;
 
 use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
-use crate::objects::TransferState;
 use crate::objects::{self, SendRequestState};
+use crate::objects::{TransferState, UserAction};
 use crate::utils::{strip_user_home_prefix, xdg_download_with_fallback};
 use crate::{monitors, tokio_runtime, widgets};
 
@@ -23,6 +26,14 @@ use crate::{monitors, tokio_runtime, widgets};
 pub enum LoopingTaskHandle {
     Tokio(tokio::task::JoinHandle<()>),
     Glib(glib::JoinHandle<()>),
+}
+
+#[derive(Debug, Clone)]
+pub struct ReceiveTransferCache {
+    pub transfer_id: String,
+    pub notification_id: String,
+    pub state: objects::ReceiveTransferState,
+    pub auto_decline_ctk: CancellationToken,
 }
 
 mod imp {
@@ -34,6 +45,8 @@ mod imp {
     };
 
     use tokio::sync::Mutex;
+
+    use crate::utils::remove_notification;
 
     use super::*;
 
@@ -123,7 +136,8 @@ mod imp {
         #[default(gio::ListStore::new::<SendRequestState>())]
         pub recipient_model: gio::ListStore,
 
-        pub send_transfers_id_cache: Arc<Mutex<HashMap<String, SendRequestState>>>,
+        pub send_transfers_id_cache: Arc<Mutex<HashMap<String, SendRequestState>>>, // id, state
+        pub receive_transfer_cache: Arc<Mutex<Option<ReceiveTransferCache>>>,
 
         #[default(gio::NetworkMonitor::default())]
         pub network_monitor: gio::NetworkMonitor,
@@ -180,6 +194,7 @@ mod imp {
             obj.setup_preferences();
             obj.setup_ui();
             obj.setup_connection_monitors();
+            obj.setup_notification_actions_monitor();
             obj.setup_rqs_service();
         }
     }
@@ -193,6 +208,22 @@ mod imp {
             }
             if let Err(err) = self.obj().save_app_state() {
                 tracing::warn!("Failed to save app state, {}", &err);
+            }
+
+            if let Some(cached_transfer) = self.receive_transfer_cache.blocking_lock().as_ref() {
+                use rqs_lib::State;
+                match cached_transfer
+                    .state
+                    .event()
+                    .state
+                    .as_ref()
+                    .unwrap_or(&State::Initial)
+                {
+                    State::Disconnected | State::Rejected | State::Cancelled | State::Finished => {}
+                    _ => {
+                        remove_notification(cached_transfer.notification_id.clone());
+                    }
+                }
             }
 
             // Abort all looping tasks before closing
@@ -1421,6 +1452,65 @@ impl PacketApplicationWindow {
         ));
     }
 
+    fn setup_notification_actions_monitor(&self) {
+        let imp = self.imp();
+
+        glib::spawn_future_local(clone!(
+            #[weak]
+            imp,
+            async move {
+                _ = async move || -> anyhow::Result<()> {
+                    let proxy = NotificationProxy::new().await?;
+
+                    let mut action_stream = proxy.receive_action_invoked().await?;
+                    loop {
+                        let action = action_stream.next().await.context("Stream exhausted")?;
+                        tracing::info!(action_name = ?action.name(), id = action.id(), params = ?action.parameter(), "Notification action received");
+
+                        if let Some(cached_transfer) = imp.receive_transfer_cache.lock().await.as_mut() {
+                            match action.name() {
+                                "consent-accept" => {
+                                    // TODO: Maybe Enum should contain transfer id
+                                    // since notifications can outlast the app, might as well
+                                    // put some safe guards in place in case we fail to cleanup
+                                    // some notification on app close.
+                                    //
+                                    // But, it doesn't seems like the action that doesn't start with `app.`
+                                    // really do anything while the app is closed, so maybe not.
+                                    cached_transfer.state.set_user_action(Some(UserAction::ConsentAccept));
+                                },
+                                "consent-decline" => {
+                                    cached_transfer.state.set_user_action(Some(UserAction::ConsentDecline));
+                                },
+                                "transfer-cancel" => {
+                                    cached_transfer.state.set_user_action(Some(UserAction::TransferCancel));
+                                },
+                                "open-folder" => {
+                                    gtk::FileLauncher::new(Some(&gio::File::for_path(
+                                        action.parameter()[0].downcast_ref::<String>().unwrap(),
+                                    )))
+                                    .launch(
+                                        Some(imp.obj().as_ref()),
+                                        None::<&gio::Cancellable>,
+                                        move |_| {},
+                                    );
+                                },
+                                "copy-text" => {
+                                    let clipboard = imp.obj().clipboard();
+                                    clipboard.set_text(&action.parameter()[0].downcast_ref::<String>().unwrap());
+                                },
+                                // Default actions, etc
+                                _ => {},
+                            };
+                        }
+                    }
+                }()
+                .await
+                .inspect_err(|err| tracing::error!("{err:#}"));
+            }
+        ));
+    }
+
     fn setup_rqs_service(&self) -> glib::JoinHandle<()> {
         let imp = self.imp();
 
@@ -1512,9 +1602,6 @@ impl PacketApplicationWindow {
                         match rx.recv().await {
                             Ok(channel_message) => {
                                 tx.send(channel_message).await.unwrap();
-
-                                // FIXME: Send desktop notification aswell
-                                // send_request_notification(name, channel_msg.id.clone());
                             }
                             Err(err) => {
                                 tracing::error!("{err:#}")
@@ -1531,7 +1618,6 @@ impl PacketApplicationWindow {
                 #[weak]
                 imp,
                 async move {
-                    let mut share_request_state: Option<objects::ReceiveTransferState> = None;
                     loop {
                         let channel_message = rx.recv().await.unwrap();
 
@@ -1556,11 +1642,26 @@ impl PacketApplicationWindow {
                             State::WaitingForUserConsent => {
                                 // Receive data transfer requests
                                 {
-                                    let state = objects::ReceiveTransferState::new(
-                                        &objects::ChannelMessage(channel_message),
+                                    let channel_message = objects::ChannelMessage(channel_message);
+
+                                    let notification_id = glib::uuid_string_random().to_string();
+                                    let state =
+                                        objects::ReceiveTransferState::new(&channel_message);
+                                    let ctk = CancellationToken::new();
+
+                                    widgets::present_receive_transfer_ui(
+                                        &imp.obj(),
+                                        &state,
+                                        notification_id.clone(),
+                                        ctk.clone(),
                                     );
-                                    widgets::present_receive_transfer_ui(&imp.obj(), &state);
-                                    share_request_state = Some(state);
+                                    *imp.receive_transfer_cache.lock().await =
+                                        Some(ReceiveTransferCache {
+                                            transfer_id: channel_message.id.to_string(),
+                                            notification_id,
+                                            state: state,
+                                            auto_decline_ctk: ctk,
+                                        });
                                 }
                             }
                             State::SentUkeyClientInit
@@ -1575,10 +1676,17 @@ impl PacketApplicationWindow {
                                 match channel_message.rtype {
                                     Some(rqs_lib::channel::TransferType::Inbound) => {
                                         // Receive
-                                        if let Some(state) = share_request_state.as_mut() {
-                                            state.set_event(objects::ChannelMessage(
-                                                channel_message,
-                                            ));
+                                        if let Some(cached_transfer) =
+                                            imp.receive_transfer_cache.lock().await.as_mut()
+                                        {
+                                            if !cached_transfer.auto_decline_ctk.is_cancelled() {
+                                                // Cancel auto-decline
+                                                cached_transfer.auto_decline_ctk.cancel();
+                                            }
+
+                                            cached_transfer.state.set_event(
+                                                objects::ChannelMessage(channel_message),
+                                            );
                                         }
                                     }
                                     Some(rqs_lib::channel::TransferType::Outbound) => {
@@ -1594,15 +1702,12 @@ impl PacketApplicationWindow {
                                     }
                                     _ => {
                                         // FIXME: the Disconnect message you'll get can have no rtype
-                                        // and so it's not received in the widget
-                                        // leaving the card in Sending Files state
-                                        // Take a look at what the hell is happening with rqs_lib
-                                        // rqs_lib::manager: TcpServer: error while handling client:
-                                        // packet::window: Received on UI thread, Disconnected message
-                                        // with None rtype (to differentiate Outbound/Inbound)
-
-                                        // As a bandit fix, assume this message is both
+                                        // and so it's not received in the widget leaving the card
+                                        // in Sending Files state
+                                        //
                                         // The issue occurs for both inbound/outbound.
+
+                                        // As a band aid fix, assume this message is for both
                                         if channel_message.state == Some(State::Disconnected) {
                                             {
                                                 let send_transfers_id_cache =
@@ -1618,11 +1723,15 @@ impl PacketApplicationWindow {
                                             }
 
                                             // Received Disconnected for incoming transfer
-                                            if let Some(state) = share_request_state.as_mut() {
-                                                if channel_message.id == state.event().id {
-                                                    state.set_event(objects::ChannelMessage(
-                                                        channel_message,
-                                                    ));
+                                            if let Some(cached_transfer) =
+                                                imp.receive_transfer_cache.lock().await.as_mut()
+                                            {
+                                                if channel_message.id
+                                                    == cached_transfer.state.event().id
+                                                {
+                                                    cached_transfer.state.set_event(
+                                                        objects::ChannelMessage(channel_message),
+                                                    );
                                                 }
                                             }
                                         }
@@ -1725,7 +1834,8 @@ impl PacketApplicationWindow {
                     loop {
                         match visibility_receiver.changed().await {
                             Ok(_) => {
-                                // FIXME: Update visibility in UI?
+                                // FIXME: Update visibility in UI, not used for now
+                                // since visibility is not being set from outside
                                 let visibility = visibility_receiver.borrow_and_update();
                                 tracing::debug!(?visibility, "Visibility change");
                             }
@@ -1743,7 +1853,7 @@ impl PacketApplicationWindow {
                 .borrow_mut()
                 .push(LoopingTaskHandle::Tokio(handle));
 
-            // A task the handles BLE advertisements from other nearby devices
+            // A task that handles BLE advertisements from other nearby devices
             //
             // Close previous tasks and restart service whenever running RQS::run,
             // since that resets the ble receiver and other stuff, and here the

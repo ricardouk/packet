@@ -4,6 +4,14 @@ use gtk::glib::{self};
 
 use crate::{objects, utils};
 
+#[derive(Debug, Clone, PartialEq, glib::Boxed)]
+#[boxed_type(name = "ConsentStateBoxed", nullable)]
+pub enum UserAction {
+    ConsentAccept,
+    ConsentDecline,
+    TransferCancel,
+}
+
 pub mod imp {
     use std::{cell::RefCell, rc::Rc};
 
@@ -15,6 +23,8 @@ pub mod imp {
     #[properties(wrapper_type = super::ReceiveTransferState)]
     pub struct ReceiveTransferState {
         pub eta: Rc<RefCell<utils::DataTransferEta>>,
+        #[property(get, set, nullable)]
+        user_action: RefCell<Option<UserAction>>,
         #[property(get, set)]
         event: RefCell<objects::ChannelMessage>,
     }
