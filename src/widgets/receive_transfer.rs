@@ -404,7 +404,12 @@ pub fn present_receive_transfer_ui(
                     ));
 
                     let body = formatx!(
-                        gettext("{} wants to share {}"),
+                        gettext(
+                            // Translators: This is when some device is sharing files or text
+                            // e.g. (Someone's Phone wants to share 4 files)
+                            // e.g. (Someone's Phone wants to share "lorem ipsum ...")
+                            "{} wants to share {}"
+                        ),
                         msg.get_device_name(),
                         if let Some(files) = msg.get_filenames() {
                             formatx!(
