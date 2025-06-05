@@ -5,7 +5,9 @@ use std::{
     time::{self},
 };
 
+use ashpd::desktop::notification::Notification;
 use gettextrs::ngettext;
+use gtk::glib;
 
 #[macro_export]
 macro_rules! impl_deref_for_newtype {
@@ -24,6 +26,34 @@ macro_rules! impl_deref_for_newtype {
             }
         }
     };
+}
+
+pub fn spawn_notification(id: String, notification: Notification) {
+    glib::spawn_future_local(async move {
+        _ = async move || -> anyhow::Result<()> {
+            use ashpd::desktop::notification::*;
+            let proxy = NotificationProxy::new().await?;
+
+            proxy.add_notification(&id, notification).await?;
+
+            Ok(())
+        }()
+        .await;
+    });
+}
+
+pub fn remove_notification(id: String) {
+    glib::spawn_future_local(async move {
+        _ = async move || -> anyhow::Result<()> {
+            use ashpd::desktop::notification::*;
+            let proxy = NotificationProxy::new().await?;
+
+            proxy.remove_notification(&id).await?;
+
+            Ok(())
+        }()
+        .await;
+    });
 }
 
 pub fn strip_user_home_prefix<P: AsRef<Path>>(path: P) -> PathBuf {
