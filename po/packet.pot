@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-29 18:40+0530\n"
+"POT-Creation-Date: 2025-06-05 21:27+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -165,19 +165,19 @@ msgstr ""
 msgid "Unknown device"
 msgstr ""
 
-#: src/utils.rs:194
+#: src/utils.rs:224
 msgid "hour"
 msgid_plural "hours"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/utils.rs:196 src/utils.rs:206
+#: src/utils.rs:226 src/utils.rs:236
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/utils.rs:208 src/utils.rs:211
+#: src/utils.rs:238 src/utils.rs:241
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] ""
@@ -188,92 +188,126 @@ msgid "Remove"
 msgstr ""
 
 #. Translators: An e.g. "4 Files"
-#: src/widgets/file_card.rs:134 src/window.rs:1106
+#: src/widgets/file_card.rs:134 src/window.rs:1137
 #, rust-format
 msgid "{} File"
 msgid_plural "{} Files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/widgets/receive_transfer.rs:20
+#: src/widgets/receive_transfer.rs:23
 msgid "Link"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:21
+#: src/widgets/receive_transfer.rs:24
 msgid "Text"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:22
+#: src/widgets/receive_transfer.rs:25
 msgid "Wi-Fi"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:59
+#: src/widgets/receive_transfer.rs:64
 msgid "Receiving"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:62 src/widgets/recipient_card.rs:310
+#: src/widgets/receive_transfer.rs:67 src/widgets/receive_transfer.rs:196
+#: src/widgets/recipient_card.rs:310
 msgid "Cancel"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:159
+#: src/widgets/receive_transfer.rs:148 src/widgets/receive_transfer.rs:437
 msgid "Incoming Transfer"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:183
+#: src/widgets/receive_transfer.rs:191
+msgid "Receiving..."
+msgstr ""
+
+#: src/widgets/receive_transfer.rs:270 src/widgets/receive_transfer.rs:444
 msgid "Decline"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:184
+#: src/widgets/receive_transfer.rs:271 src/widgets/receive_transfer.rs:448
 msgid "Accept"
 msgstr ""
 
 #. Translators: An e.g. "6 Files (42.3MB)"
-#: src/widgets/receive_transfer.rs:215
+#: src/widgets/receive_transfer.rs:302
 #, rust-format
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/widgets/receive_transfer.rs:235
+#: src/widgets/receive_transfer.rs:322
 #, rust-format
 msgid "Preview ({})"
 msgstr ""
 
 #. Translators: This is the pin-code for the transfer
-#: src/widgets/receive_transfer.rs:251 src/widgets/recipient_card.rs:442
+#: src/widgets/receive_transfer.rs:338 src/widgets/recipient_card.rs:442
 #, rust-format
 msgid "Code: {}"
 msgstr ""
 
+#: src/widgets/receive_transfer.rs:398
+msgid "Request timed out"
+msgstr ""
+
+#. Translators: This is when some device is sharing files or text
+#. e.g. (Someone's Phone wants to share 4 files)
+#. e.g. (Someone's Phone wants to share "lorem ipsum ...")
+#: src/widgets/receive_transfer.rs:411
+#, rust-format
+msgid "{} wants to share {}"
+msgstr ""
+
+#: src/widgets/receive_transfer.rs:416
+#, rust-format
+msgid "{} file"
+msgid_plural "{} files"
+msgstr[0] ""
+msgstr[1] ""
+
 #. Translators: {} will be replaced with an estimated remaining time string
 #. e.g. "About 4 minutes 32 seconds left"
-#: src/widgets/receive_transfer.rs:359 src/widgets/recipient_card.rs:473
+#: src/widgets/receive_transfer.rs:488 src/widgets/recipient_card.rs:473
 #, rust-format
 msgid "About {} left"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:386
+#: src/widgets/receive_transfer.rs:513
 msgid "Unexpected dissconnection"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:409
+#: src/widgets/receive_transfer.rs:546
 msgid "Transfer cancelled by sender"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:444
+#: src/widgets/receive_transfer.rs:593
 msgid "Copy to clipboard"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:452
+#: src/widgets/receive_transfer.rs:601
 msgid "Save text as file"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:509 src/widgets/receive_transfer.rs:627
+#: src/widgets/receive_transfer.rs:658 src/widgets/receive_transfer.rs:810
+#: src/widgets/receive_transfer.rs:816
 msgid "Open"
 msgstr ""
 
-#: src/widgets/receive_transfer.rs:619
+#: src/widgets/receive_transfer.rs:755
+#, rust-format
+msgid "Received \"{}\""
+msgstr ""
+
+#: src/widgets/receive_transfer.rs:770
+msgid "Copy"
+msgstr ""
+
+#: src/widgets/receive_transfer.rs:792
 #, rust-format
 msgid "{} file received"
 msgid_plural "{} files received"
@@ -307,71 +341,71 @@ msgid_plural "Sent {} files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/window.rs:442
+#: src/window.rs:473
 msgid "Can't rename device during an active transfer"
 msgstr ""
 
-#: src/window.rs:583
+#: src/window.rs:614
 msgid "Invalid Port"
 msgstr ""
 
-#: src/window.rs:587
+#: src/window.rs:618
 #, rust-format
 msgid ""
 "The chosen static port \"{}\" is not available. Try a different port above "
 "1024."
 msgstr ""
 
-#: src/window.rs:595
+#: src/window.rs:626
 msgid "_Ok"
 msgstr ""
 
-#: src/window.rs:643
+#: src/window.rs:674
 msgid "Can't access Downloads folder"
 msgstr ""
 
-#: src/window.rs:644
+#: src/window.rs:675
 msgid "Pick Folder"
 msgstr ""
 
-#: src/window.rs:749
+#: src/window.rs:780
 msgid "Copied error report to clipboard"
 msgstr ""
 
-#: src/window.rs:996
+#: src/window.rs:1027
 msgid "Ready"
 msgstr ""
 
-#: src/window.rs:1002
+#: src/window.rs:1033
 #, rust-format
 msgid "Visible as {:?}"
 msgstr ""
 
-#: src/window.rs:1008
+#: src/window.rs:1039
 msgid "Invisible"
 msgstr ""
 
-#: src/window.rs:1014
+#: src/window.rs:1045
 msgid "No new devices can share with you"
 msgstr ""
 
-#: src/window.rs:1019
+#: src/window.rs:1050
 msgid "Disconnected"
 msgstr ""
 
-#: src/window.rs:1025
+#: src/window.rs:1056
 msgid "Connect to Wi-Fi and turn on Bluetooth"
 msgstr ""
 
-#: src/window.rs:1028
+#: src/window.rs:1059
 msgid "Connect to Wi-Fi"
 msgstr ""
 
-#: src/window.rs:1031
+#: src/window.rs:1062
 msgid "Turn on Bluetooth"
 msgstr ""
 
-#: src/window.rs:1095
+#: src/window.rs:1126
 msgid "Couldn't open files"
 msgstr ""
 
