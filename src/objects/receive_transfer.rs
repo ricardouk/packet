@@ -26,7 +26,7 @@ pub mod imp {
         #[property(get, set, nullable)]
         user_action: RefCell<Option<UserAction>>,
         #[property(get, set)]
-        event: RefCell<objects::ChannelMessage>,
+        event: RefCell<Option<objects::ChannelMessage>>,
     }
 
     #[glib::object_subclass]

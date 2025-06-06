@@ -233,15 +233,22 @@ mod imp {
             }
 
             if let Some(cached_transfer) = self.receive_transfer_cache.blocking_lock().as_ref() {
-                use rqs_lib::State;
+                use rqs_lib::TransferState;
                 match cached_transfer
                     .state
                     .event()
+                    .unwrap()
+                    .msg
+                    .as_client()
+                    .expect("Cached TransferMessage is only of type User")
                     .state
                     .as_ref()
-                    .unwrap_or(&State::Initial)
+                    .unwrap_or(&TransferState::Initial)
                 {
-                    State::Disconnected | State::Rejected | State::Cancelled | State::Finished => {}
+                    TransferState::Disconnected
+                    | TransferState::Rejected
+                    | TransferState::Cancelled
+                    | TransferState::Finished => {}
                     _ => {
                         remove_notification(cached_transfer.notification_id.clone());
                     }
@@ -1184,7 +1191,7 @@ impl PacketApplicationWindow {
 
                         tracing::debug!(
                             endpoint_info = %obj.endpoint_info(),
-                            last_state = ?(obj.transfer_state(), &obj.event().state),
+                            last_state = ?(obj.transfer_state(), &obj.event().unwrap().msg.as_client().unwrap().state),
                             model_item_pos = actual_pos,
                             was_model_item_cached = removed_model_item.is_some(),
                             "Removed recipient card"
@@ -1465,18 +1472,22 @@ impl PacketApplicationWindow {
             .iter::<SendRequestState>()
             .filter_map(|it| it.ok())
         {
-            use rqs_lib::State;
+            use rqs_lib::TransferState;
             match model_item
                 .event()
+                .unwrap()
+                .msg
+                .as_client()
+                .unwrap()
                 .state
                 .as_ref()
-                .unwrap_or(&rqs_lib::State::Initial)
+                .unwrap_or(&rqs_lib::TransferState::Initial)
             {
-                State::Initial
-                | State::Disconnected
-                | State::Rejected
-                | State::Cancelled
-                | State::Finished => {}
+                TransferState::Initial
+                | TransferState::Disconnected
+                | TransferState::Rejected
+                | TransferState::Cancelled
+                | TransferState::Finished => {}
                 _ => {
                     return false;
                 }
@@ -1812,25 +1823,31 @@ impl PacketApplicationWindow {
                     loop {
                         let channel_message = rx.recv().await.unwrap();
 
+                        if channel_message.msg.as_client().is_none() {
+                            // Ignore library messages
+                            continue;
+                        }
+
                         tracing::debug!(event = ?channel_message, "Received event on UI thread");
 
                         let id = &channel_message.id;
+                        let client_msg = channel_message.msg.as_client().unwrap();
 
-                        use rqs_lib::State;
-                        match channel_message
+                        use rqs_lib::TransferState;
+                        match client_msg
                             .state
                             .clone()
-                            .unwrap_or(rqs_lib::State::Initial)
+                            .unwrap_or(rqs_lib::TransferState::Initial)
                         {
-                            State::Initial => {}
-                            State::ReceivedConnectionRequest => {}
-                            State::SentUkeyServerInit => {}
-                            State::SentPairedKeyEncryption => {}
-                            State::ReceivedUkeyClientFinish => {}
-                            State::SentConnectionResponse => {}
-                            State::SentPairedKeyResult => {}
-                            State::ReceivedPairedKeyResult => {}
-                            State::WaitingForUserConsent => {
+                            TransferState::Initial => {}
+                            TransferState::ReceivedConnectionRequest => {}
+                            TransferState::SentUkeyServerInit => {}
+                            TransferState::SentPairedKeyEncryption => {}
+                            TransferState::ReceivedUkeyClientFinish => {}
+                            TransferState::SentConnectionResponse => {}
+                            TransferState::SentPairedKeyResult => {}
+                            TransferState::ReceivedPairedKeyResult => {}
+                            TransferState::WaitingForUserConsent => {
                                 // Receive data transfer requests
                                 {
                                     let channel_message = objects::ChannelMessage(channel_message);
@@ -1855,17 +1872,17 @@ impl PacketApplicationWindow {
                                         });
                                 }
                             }
-                            State::SentUkeyClientInit
-                            | State::SentUkeyClientFinish
-                            | State::SentIntroduction
-                            | State::Disconnected
-                            | State::Rejected
-                            | State::Cancelled
-                            | State::Finished
-                            | State::SendingFiles
-                            | State::ReceivingFiles => {
-                                match channel_message.rtype {
-                                    Some(rqs_lib::channel::TransferType::Inbound) => {
+                            TransferState::SentUkeyClientInit
+                            | TransferState::SentUkeyClientFinish
+                            | TransferState::SentIntroduction
+                            | TransferState::Disconnected
+                            | TransferState::Rejected
+                            | TransferState::Cancelled
+                            | TransferState::Finished
+                            | TransferState::SendingFiles
+                            | TransferState::ReceivingFiles => {
+                                match client_msg.kind {
+                                    rqs_lib::channel::TransferKind::Inbound => {
                                         // Receive
                                         if let Some(cached_transfer) =
                                             imp.receive_transfer_cache.lock().await.as_mut()
@@ -1880,51 +1897,15 @@ impl PacketApplicationWindow {
                                             );
                                         }
                                     }
-                                    Some(rqs_lib::channel::TransferType::Outbound) => {
+                                    rqs_lib::channel::TransferKind::Outbound => {
                                         // Send
                                         let send_transfers_id_cache =
                                             imp.send_transfers_id_cache.lock().await;
 
                                         if let Some(model_item) = send_transfers_id_cache.get(id) {
-                                            model_item.set_event(objects::ChannelMessage(
+                                            model_item.set_event(Some(objects::ChannelMessage(
                                                 channel_message,
-                                            ));
-                                        }
-                                    }
-                                    _ => {
-                                        // FIXME: the Disconnect message you'll get can have no rtype
-                                        // and so it's not received in the widget leaving the card
-                                        // in Sending Files state
-                                        //
-                                        // The issue occurs for both inbound/outbound.
-
-                                        // As a band aid fix, assume this message is for both
-                                        if channel_message.state == Some(State::Disconnected) {
-                                            {
-                                                let send_transfers_id_cache =
-                                                    imp.send_transfers_id_cache.lock().await;
-
-                                                if let Some(model_item) =
-                                                    send_transfers_id_cache.get(id)
-                                                {
-                                                    model_item.set_event(objects::ChannelMessage(
-                                                        channel_message.clone(),
-                                                    ));
-                                                }
-                                            }
-
-                                            // Received Disconnected for incoming transfer
-                                            if let Some(cached_transfer) =
-                                                imp.receive_transfer_cache.lock().await.as_mut()
-                                            {
-                                                if channel_message.id
-                                                    == cached_transfer.state.event().id
-                                                {
-                                                    cached_transfer.state.set_event(
-                                                        objects::ChannelMessage(channel_message),
-                                                    );
-                                                }
-                                            }
+                                            )));
                                         }
                                     }
                                 };

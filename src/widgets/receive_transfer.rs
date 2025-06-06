@@ -55,7 +55,7 @@ pub fn present_receive_transfer_ui(
     notification_id: String,
     auto_decline_ctk: CancellationToken,
 ) {
-    let init_id = receive_state.event().id.clone();
+    let init_id = receive_state.event().unwrap().id.clone();
     let win = win.clone();
 
     // Progress dialog
@@ -94,7 +94,7 @@ pub fn present_receive_transfer_ui(
         .build();
     progress_stack.add_named(&progress_files_box, Some("progress_files"));
 
-    let device_name = receive_state.event().get_device_name();
+    let device_name = receive_state.event().unwrap().device_name();
     let device_name_box = create_device_name_box(&device_name);
     device_name_box.set_margin_bottom(4);
     progress_files_box.append(&device_name_box);
@@ -167,6 +167,8 @@ pub fn present_receive_transfer_ui(
             if !auto_decline_ctk.is_cancelled() {
                 auto_decline_ctk.cancel();
             }
+
+            let event = receive_state.event().unwrap();
             match receive_state.user_action() {
                 Some(UserAction::ConsentAccept) => {
                     consent_dialog.close();
@@ -178,16 +180,17 @@ pub fn present_receive_transfer_ui(
                         .unwrap()
                         .message_sender
                         .send(rqs_lib::channel::ChannelMessage {
-                            id: receive_state.event().id.to_string(),
-                            action: Some(rqs_lib::channel::ChannelAction::AcceptTransfer),
-                            ..Default::default()
+                            id: event.id.to_string(),
+                            msg: rqs_lib::channel::Message::Lib {
+                                action: rqs_lib::channel::TransferAction::ConsentAccept,
+                            },
                         })
                         .unwrap();
 
                     // Update the notification
                     spawn_notification(
                         notification_id.clone(),
-                        Notification::new(&receive_state.event().get_device_name())
+                        Notification::new(&event.device_name())
                             .body(gettext("Receiving...").as_str())
                             .priority(Priority::High)
                             .display_hint([DisplayHint::Persistent])
@@ -212,9 +215,10 @@ pub fn present_receive_transfer_ui(
                         .unwrap()
                         .message_sender
                         .send(rqs_lib::channel::ChannelMessage {
-                            id: receive_state.event().id.to_string(),
-                            action: Some(rqs_lib::channel::ChannelAction::RejectTransfer),
-                            ..Default::default()
+                            id: event.id.to_string(),
+                            msg: rqs_lib::channel::Message::Lib {
+                                action: rqs_lib::channel::TransferAction::ConsentDecline,
+                            },
                         })
                         .unwrap();
                 }
@@ -232,9 +236,10 @@ pub fn present_receive_transfer_ui(
                         .unwrap()
                         .message_sender
                         .send(rqs_lib::channel::ChannelMessage {
-                            id: receive_state.event().id.to_string(),
-                            action: Some(rqs_lib::channel::ChannelAction::CancelTransfer),
-                            ..Default::default()
+                            id: event.id.to_string(),
+                            msg: rqs_lib::channel::Message::Lib {
+                                action: rqs_lib::channel::TransferAction::TransferCancel,
+                            },
                         })
                         .unwrap();
                 }
@@ -249,23 +254,24 @@ pub fn present_receive_transfer_ui(
         #[strong]
         notification_id,
         move |receive_state| {
-            use rqs_lib::State;
+            use rqs_lib::TransferState;
 
-            let msg = receive_state.event();
+            let event_msg = receive_state.event().expect("Property setter isn't nullable");
+            let client_msg = event_msg.msg.as_client().unwrap();
 
-            match msg.state.clone().unwrap_or(State::Initial) {
-                State::Initial => {}
-                State::ReceivedConnectionRequest => {}
-                State::SentUkeyServerInit => {}
-                State::SentUkeyClientInit => {}
-                State::SentUkeyClientFinish => {}
-                State::SentPairedKeyEncryption => {}
-                State::ReceivedUkeyClientFinish => {}
-                State::SentConnectionResponse => {}
-                State::SentPairedKeyResult => {}
-                State::SentIntroduction => {}
-                State::ReceivedPairedKeyResult => {}
-                State::WaitingForUserConsent => {
+            match client_msg.state.clone().unwrap_or(TransferState::Initial) {
+                TransferState::Initial => {}
+                TransferState::ReceivedConnectionRequest => {}
+                TransferState::SentUkeyServerInit => {}
+                TransferState::SentUkeyClientInit => {}
+                TransferState::SentUkeyClientFinish => {}
+                TransferState::SentPairedKeyEncryption => {}
+                TransferState::ReceivedUkeyClientFinish => {}
+                TransferState::SentConnectionResponse => {}
+                TransferState::SentPairedKeyResult => {}
+                TransferState::SentIntroduction => {}
+                TransferState::ReceivedPairedKeyResult => {}
+                TransferState::WaitingForUserConsent => {
                     consent_dialog.add_responses(&[
                         ("decline", &gettext("Decline")),
                         ("accept", &gettext("Accept")),
@@ -283,15 +289,15 @@ pub fn present_receive_transfer_ui(
                         .build();
                     consent_dialog.set_extra_child(Some(&info_box));
 
-                    let device_name = msg.get_device_name();
+                    let device_name = event_msg.device_name();
 
                     let device_name_box = create_device_name_box(&device_name);
                     info_box.append(&device_name_box);
 
-                    let total_bytes = msg.meta.as_ref().unwrap().total_bytes;
+                    let total_bytes = client_msg.metadata.as_ref().unwrap().total_bytes;
                     let transfer_size = human_bytes::human_bytes(total_bytes as f64);
 
-                    if let Some(files) = msg.get_filenames() {
+                    if let Some(files) = event_msg.files() {
                         let file_count = files.len();
 
                         let files_label = gtk::Label::builder()
@@ -313,14 +319,13 @@ pub fn present_receive_transfer_ui(
                             .build();
                         info_box.append(&files_label);
                     } else {
-                        let text_data = msg.get_text_data().unwrap();
                         let text_info_label = gtk::Label::builder()
                             .ellipsize(gtk::pango::EllipsizeMode::End)
                             .max_width_chars(36)
                             .label(
                                 formatx!(
                                     gettext("Preview ({})"),
-                                    clean_preview_text_payload(&text_data.description)
+                                    clean_preview_text_payload(&event_msg.text_preview().unwrap())
                                 )
                                 .unwrap_or_else(|_| "badly formatted locale string".into()),
                             )
@@ -337,7 +342,8 @@ pub fn present_receive_transfer_ui(
                                     // Translators: This is the pin-code for the transfer
                                     "Code: {}"
                                 ),
-                                msg.meta
+                                client_msg
+                                    .metadata
                                     .as_ref()
                                     .unwrap()
                                     .pin_code
@@ -410,8 +416,8 @@ pub fn present_receive_transfer_ui(
                             // e.g. (Someone's Phone wants to share "lorem ipsum ...")
                             "{} wants to share {}"
                         ),
-                        msg.get_device_name(),
-                        if let Some(files) = msg.get_filenames() {
+                        event_msg.device_name(),
+                        if let Some(files) = event_msg.files() {
                             formatx!(
                                 ngettext("{} file", "{} files", files.len() as u32),
                                 files.len()
@@ -421,7 +427,7 @@ pub fn present_receive_transfer_ui(
                             format!(
                                 "\"{}\"",
                                 clean_preview_text_payload(
-                                    &msg.get_text_data().unwrap().description,
+                                    &event_msg.text_preview().unwrap(),
                                 )
                             )
                         }
@@ -454,20 +460,20 @@ pub fn present_receive_transfer_ui(
 
                     // TODO: show a progress dialog for both but with a delay?
                     // Create Progress bar dialog
-                    let total_bytes = msg.meta.as_ref().unwrap().total_bytes;
+                    let total_bytes = client_msg.metadata.as_ref().unwrap().total_bytes;
                     receive_state
                         .imp()
                         .eta
                         .borrow_mut()
                         .prepare_for_new_transfer(Some(total_bytes as usize));
-                    if msg.get_text_data().is_some() {
+                    if event_msg.is_text_type() {
                         progress_stack.set_visible_child_name("progress_text");
                     }
                 }
-                State::ReceivingFiles => {
-                    if msg.get_text_data().is_none() {
+                TransferState::ReceivingFiles => {
+                    if !event_msg.is_text_type() {
                         let eta_text = {
-                            if let Some(meta) = &msg.meta {
+                            if let Some(meta) = &client_msg.metadata {
                                 receive_state
                                     .imp()
                                     .eta
@@ -500,9 +506,9 @@ pub fn present_receive_transfer_ui(
                         eta_label.set_label(&eta_text);
                     }
                 }
-                State::SendingFiles => {}
-                State::Disconnected => {
-                    if msg.id == init_id {
+                TransferState::SendingFiles => {}
+                TransferState::Disconnected => {
+                    if event_msg.id == init_id {
                         progress_dialog.set_can_close(true);
                         if let Some(UserAction::ConsentAccept) = receive_state.user_action() {
                             progress_dialog.close();
@@ -514,7 +520,7 @@ pub fn present_receive_transfer_ui(
 
                         spawn_notification(
                             notification_id.clone(),
-                            Notification::new(&msg.get_device_name())
+                            Notification::new(&event_msg.device_name())
                                 .body(body.as_str())
                                 .priority(Priority::High)
                                 .default_action(None)
@@ -532,8 +538,8 @@ pub fn present_receive_transfer_ui(
                         // disconnected from the network
                     }
                 }
-                State::Rejected => {}
-                State::Cancelled => {
+                TransferState::Rejected => {}
+                TransferState::Cancelled => {
                     progress_dialog.set_can_close(true);
                     if let Some(UserAction::ConsentAccept) = receive_state.user_action() {
                         progress_dialog.close();
@@ -547,7 +553,7 @@ pub fn present_receive_transfer_ui(
 
                         spawn_notification(
                             notification_id.clone(),
-                            Notification::new(&msg.get_device_name())
+                            Notification::new(&event_msg.device_name())
                                 .body(body.as_str())
                                 .priority(Priority::High)
                                 .default_action(None)
@@ -561,7 +567,7 @@ pub fn present_receive_transfer_ui(
                         );
                     }
                 }
-                State::Finished => {
+                TransferState::Finished => {
                     progress_dialog.set_can_close(true);
                     if let Some(UserAction::ConsentAccept) = receive_state.user_action() {
                         progress_dialog.close();
@@ -569,8 +575,8 @@ pub fn present_receive_transfer_ui(
                         consent_dialog.close();
                     }
 
-                    if let Some(text_data) = msg.get_text_data() {
-                        let text_type = text_data.kind.unwrap();
+                    if let Some(text_data) = event_msg.transferred_text_data() {
+                        let text_type = text_data.1;
 
                         let dialog = adw::Dialog::builder()
                             .content_width(400)
@@ -736,20 +742,18 @@ pub fn present_receive_transfer_ui(
                             }
                         ));
 
-                        let text_type = msg.get_text_data().unwrap().kind.unwrap();
-
-                        let _text = msg.get_text_data().unwrap().text;
+                        let raw_text = text_data.0;
                         let text = if text_type.clone() as u32 == TextPayloadType::Text as u32 {
                             save_text_button.set_visible(true);
-                            clean_text_payload(&_text)
+                            clean_text_payload(&raw_text)
                         } else {
-                            &_text
+                            &raw_text
                         };
                         text_view.set_buffer(Some(&gtk::TextBuffer::builder().text(text).build()));
 
                         spawn_notification(
                             notification_id.clone(),
-                            Notification::new(&msg.get_device_name())
+                            Notification::new(&event_msg.device_name())
                                 .body(
                                     formatx!(
                                         gettext("Received \"{}\""),
@@ -774,18 +778,11 @@ pub fn present_receive_transfer_ui(
 
                         // FIXME: Redo the Wi-Fi view when we've more info such as the Wi-Fi security type
                         // and payload (password) available separately
-                        //
-                        // Removing "Unimplemented" as the issue about the Wi-Fi payload being empty for WpaPsk
-                        // has been fixed in the rqs_lib fork
-                        // if text_type.clone() as u32 == TextPayloadType::Wifi as u32 {
-                        //     caption_label.set_visible(true);
-                        //     caption_label.set_label(&gettext("Unimplemented"));
-                        // }
 
                         dialog.present(Some(&win));
                     } else {
                         // Received Files
-                        let file_count = msg.get_filenames().unwrap().len();
+                        let file_count = event_msg.files().unwrap().len();
 
                         let body = formatx!(
                             ngettext(
@@ -800,7 +797,7 @@ pub fn present_receive_transfer_ui(
                         let target = win.imp().settings.string("download-folder");
                         spawn_notification(
                             notification_id.clone(),
-                            Notification::new(&msg.get_device_name())
+                            Notification::new(&event_msg.device_name())
                                 .body(body.as_str())
                                 .priority(Priority::High)
                                 .display_hint([DisplayHint::ShowAsNew])

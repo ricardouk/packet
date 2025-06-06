@@ -9,7 +9,7 @@ use adw::subclass::prelude::*;
 use formatx::formatx;
 use gettextrs::{gettext, ngettext};
 use gtk::{gio, glib, glib::clone};
-use rqs_lib::channel::ChannelMessage;
+use rqs_lib::channel::{ChannelMessage, MessageClient};
 
 fn get_model_item_from_listbox<T>(
     model: &gio::ListStore,
@@ -324,21 +324,19 @@ pub fn create_recipient_card(
                     .message_sender
                     .send(ChannelMessage {
                         id: id.clone(),
-                        action: Some(rqs_lib::channel::ChannelAction::CancelTransfer),
-                        ..Default::default()
+                        msg: rqs_lib::channel::Message::Lib {
+                            action: rqs_lib::channel::TransferAction::TransferCancel,
+                        },
                     })
                     .inspect_err(|err| tracing::error!(%err));
             }
         }
     ));
 
-    fn set_progress_bar_fraction(
-        progress_bar: &gtk::ProgressBar,
-        channel_message: &ChannelMessage,
-    ) {
-        if let Some(meta) = &channel_message.meta {
-            if meta.total_bytes > 0 {
-                progress_bar.set_fraction(meta.ack_bytes as f64 / meta.total_bytes as f64);
+    fn set_progress_bar_fraction(progress_bar: &gtk::ProgressBar, client_msg: &MessageClient) {
+        if let Some(metadata) = &client_msg.metadata {
+            if metadata.total_bytes > 0 {
+                progress_bar.set_fraction(metadata.ack_bytes as f64 / metadata.total_bytes as f64);
             }
         }
     }
@@ -397,26 +395,28 @@ pub fn create_recipient_card(
         #[weak]
         imp,
         move |model_item| {
-            use rqs_lib::State;
+            use rqs_lib::TransferState as RqsState;
 
-            let channel_message = model_item.event();
             let eta_estimator = model_item.imp().eta.as_ref();
 
-            if let Some(ref state) = channel_message.0.state {
+            if let Some(event_msg) = model_item.event() {
+                let client_msg = event_msg.msg.as_client().unwrap();
+                let state = client_msg.state.as_ref().unwrap_or(&RqsState::Initial);
+
                 match state {
-                    State::Initial => {}
-                    State::ReceivedConnectionRequest => {}
-                    State::SentUkeyServerInit => {}
-                    State::SentPairedKeyEncryption => {}
-                    State::ReceivedUkeyClientFinish => {}
-                    State::SentConnectionResponse => {}
-                    State::SentPairedKeyResult => {}
-                    State::ReceivedPairedKeyResult => {}
-                    State::WaitingForUserConsent => {}
-                    State::ReceivingFiles => {}
-                    State::SentUkeyClientInit
-                    | State::SentUkeyClientFinish
-                    | State::SentIntroduction => {
+                    RqsState::Initial => {}
+                    RqsState::ReceivedConnectionRequest => {}
+                    RqsState::SentUkeyServerInit => {}
+                    RqsState::SentPairedKeyEncryption => {}
+                    RqsState::ReceivedUkeyClientFinish => {}
+                    RqsState::SentConnectionResponse => {}
+                    RqsState::SentPairedKeyResult => {}
+                    RqsState::ReceivedPairedKeyResult => {}
+                    RqsState::WaitingForUserConsent => {}
+                    RqsState::ReceivingFiles => {}
+                    RqsState::SentUkeyClientInit
+                    | RqsState::SentUkeyClientFinish
+                    | RqsState::SentIntroduction => {
                         model_item.set_transfer_state(TransferState::RequestedForConsent);
 
                         let listbox_row = get_listbox_row_from_model_item::<SendRequestState>(
@@ -440,8 +440,8 @@ pub fn create_recipient_card(
                         pincode_label.set_label(
                             &formatx!(
                                 gettext("Code: {}"),
-                                channel_message
-                                    .meta
+                                client_msg
+                                    .metadata
                                     .as_ref()
                                     .unwrap()
                                     .pin_code
@@ -453,7 +453,7 @@ pub fn create_recipient_card(
 
                         eta_estimator.borrow_mut().prepare_for_new_transfer(None);
                     }
-                    State::SendingFiles => {
+                    RqsState::SendingFiles => {
                         model_item.set_transfer_state(TransferState::OngoingTransfer);
 
                         cancel_transfer_button.set_visible(true);
@@ -463,10 +463,10 @@ pub fn create_recipient_card(
                         retry_button.set_visible(false);
 
                         let eta_text = {
-                            if let Some(meta) = &channel_message.meta {
+                            if let Some(metadata) = &client_msg.metadata {
                                 eta_estimator
                                     .borrow_mut()
-                                    .step_with(meta.ack_bytes as usize);
+                                    .step_with(metadata.ack_bytes as usize);
                             }
 
                             formatx!(
@@ -479,9 +479,9 @@ pub fn create_recipient_card(
                         eta_label.set_label(&eta_text);
 
                         progress_bar.set_visible(true);
-                        set_progress_bar_fraction(&progress_bar, &channel_message);
+                        set_progress_bar_fraction(&progress_bar, &client_msg);
                     }
-                    State::Disconnected => {
+                    RqsState::Disconnected => {
                         model_item.set_transfer_state(TransferState::Failed);
                         // FIXME: Wait for 5~10 seconds after a send and timeout
                         // if did not receive SendingFiles within that timeframe
@@ -499,12 +499,12 @@ pub fn create_recipient_card(
                         result_label.set_label(&gettext("Failed"));
                         result_label.set_css_classes(&["error"]);
                     }
-                    State::Rejected => {
+                    RqsState::Rejected => {
                         model_item.set_transfer_state(TransferState::Failed);
-                        // FIXME: Outbound(Reject) is not handled on lib side
+                        // Outbound(Reject) is not handled on lib side
                         // rqs_lib::hdl::outbound: Cannot process: consent denied: Reject
                     }
-                    State::Cancelled => {
+                    RqsState::Cancelled => {
                         model_item.set_transfer_state(TransferState::AwaitingConsentOrIdle);
 
                         let listbox_row = get_listbox_row_from_model_item::<SendRequestState>(
@@ -524,9 +524,9 @@ pub fn create_recipient_card(
                         unavailibility_label
                             .set_visible(model_item.endpoint_info().present.is_none());
 
-                        model_item.set_event(objects::ChannelMessage::default());
+                        model_item.set_event(None::<objects::ChannelMessage>);
                     }
-                    State::Finished => {
+                    RqsState::Finished => {
                         model_item.set_transfer_state(TransferState::Done);
 
                         cancel_transfer_button.set_visible(false);

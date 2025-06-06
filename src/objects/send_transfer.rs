@@ -2,14 +2,17 @@ use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::glib;
-use rqs_lib::hdl::TextPayloadType;
+use rqs_lib::hdl::{
+    TextPayloadType,
+    info::{TransferPayload, TransferPayloadKind},
+};
 
 use crate::{impl_deref_for_newtype, utils};
 
 #[derive(Debug, Clone, Default, glib::Boxed)]
 #[boxed_type(name = "StateBoxed")]
-pub struct State(pub rqs_lib::State);
-impl_deref_for_newtype!(State, rqs_lib::State);
+pub struct State(pub rqs_lib::TransferState);
+impl_deref_for_newtype!(State, rqs_lib::TransferState);
 
 #[derive(Debug, Clone, Default, glib::Boxed)]
 #[boxed_type(name = "EndpointInfoBoxed")]
@@ -28,59 +31,76 @@ impl std::fmt::Display for EndpointInfo {
     }
 }
 
-#[derive(Debug, Clone, Default, glib::Boxed)]
-#[boxed_type(name = "ChannelMessageBoxed")]
+#[derive(Debug, Clone, glib::Boxed)]
+#[boxed_type(name = "ChannelMessageBoxed", nullable)]
 pub struct ChannelMessage(pub rqs_lib::channel::ChannelMessage);
 impl_deref_for_newtype!(ChannelMessage, rqs_lib::channel::ChannelMessage);
 
-#[derive(Debug, Clone)]
-pub struct TextData {
-    pub description: String,
-    pub text: String,
-    pub kind: Option<TextPayloadType>,
-}
-
 impl ChannelMessage {
-    pub fn _get_device_name(channel_message: &rqs_lib::channel::ChannelMessage) -> String {
-        channel_message
-            .meta
+    pub fn device_name(&self) -> String {
+        self.msg
+            .as_client()
+            .unwrap()
+            .metadata
             .as_ref()
             .and_then(|meta| meta.source.as_ref())
             .map(|source| source.name.clone())
             .unwrap_or(gettext("Unknown device"))
     }
 
-    pub fn get_device_name(&self) -> String {
-        self.meta
+    pub fn files(&self) -> Option<&Vec<String>> {
+        self.msg
+            .as_client()
+            .unwrap()
+            .metadata
             .as_ref()
-            .and_then(|meta| meta.source.as_ref())
-            .map(|source| source.name.clone())
-            .unwrap_or(gettext("Unknown device"))
-    }
-
-    pub fn get_filenames(&self) -> Option<Vec<String>> {
-        self.0.meta.as_ref().and_then(|it| it.files.clone())
-    }
-
-    pub fn get_text_data(&self) -> Option<TextData> {
-        self.0.meta.as_ref().and_then(|meta| {
-            meta.text_description.as_ref().and_then(|description| {
-                Some(TextData {
-                    description: description.clone(),
-                    text: meta.text_payload.clone().unwrap_or_default(),
-                    kind: meta.text_type.clone(),
-                })
+            .and_then(|it| match &it.payload {
+                Some(TransferPayload::Files(files)) => Some(files),
+                _ => None,
             })
-        })
     }
-}
 
-#[derive(Debug, Clone, Default, PartialEq, glib::Boxed)]
-#[boxed_type(name = "TransferKindBoxed")]
-pub enum TransferKind {
-    #[default]
-    Receive,
-    Send,
+    pub fn text_preview(&self) -> Option<String> {
+        self.msg
+            .as_client()
+            .unwrap()
+            .metadata
+            .as_ref()
+            .and_then(|meta| meta.payload_preview.clone())
+    }
+
+    pub fn is_text_type(&self) -> bool {
+        self.msg
+            .as_client()
+            .unwrap()
+            .metadata
+            .as_ref()
+            .map(|meta| match meta.payload_kind {
+                TransferPayloadKind::Text
+                | TransferPayloadKind::Url
+                | TransferPayloadKind::WiFi => true,
+                TransferPayloadKind::Files => false,
+            })
+            .unwrap_or_default()
+    }
+
+    pub fn transferred_text_data(&self) -> Option<(String, TextPayloadType)> {
+        self.msg
+            .as_client()
+            .unwrap()
+            .metadata
+            .as_ref()
+            .and_then(|meta| match &meta.payload {
+                Some(TransferPayload::Text(text)) => Some((text.clone(), TextPayloadType::Text)),
+                Some(TransferPayload::Url(text)) => Some((text.clone(), TextPayloadType::Url)),
+                Some(TransferPayload::Wifi {
+                    ssid,
+                    password,
+                    security_type: _,
+                }) => Some((format!("{ssid}: {password}"), TextPayloadType::Wifi)),
+                _ => None,
+            })
+    }
 }
 
 #[derive(Debug, Clone, Default, PartialEq, glib::Boxed)]
@@ -116,8 +136,8 @@ pub mod imp {
         // For modifying widget by listening for events
         #[property(get, set)]
         endpoint_info: RefCell<EndpointInfo>,
-        #[property(get, set)]
-        event: RefCell<ChannelMessage>,
+        #[property(get, set, nullable)]
+        event: RefCell<Option<ChannelMessage>>,
     }
 
     #[glib::object_subclass]
