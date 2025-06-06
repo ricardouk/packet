@@ -4,7 +4,7 @@ use std::rc::Rc;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use ashpd::desktop::background::Background;
 use ashpd::desktop::notification::NotificationProxy;
 use formatx::formatx;
