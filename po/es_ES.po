@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-29 18:40+0530\n"
-"PO-Revision-Date: 2025-05-29 01:10+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"POT-Creation-Date: 2025-06-07 04:00+0530\n"
+"PO-Revision-Date: 2025-06-06 22:31+0000\n"
+"Last-Translator: Pvl Abrmv <selfmademan@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/packet/main/es/"
 ">\n"
 "Language: es_ES\n"
@@ -27,7 +27,7 @@ msgstr ""
 msgid "_Preferences"
 msgstr "_Preferencias"
 
-#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:471
+#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:483
 msgid "Help"
 msgstr "Ayuda"
 
@@ -41,7 +41,7 @@ msgstr "_Acerca de Packet"
 
 #. Translators: The name should remain untranslated
 #: data/resources/ui/window.blp:38 data/resources/ui/window.blp:63
-#: data/resources/ui/window.blp:140 src/application.rs:131 src/main.rs:35
+#: data/resources/ui/window.blp:140 src/application.rs:154 src/main.rs:35
 #: data/io.github.nozwock.Packet.desktop.in.in:2
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
 msgid "Packet"
@@ -53,7 +53,7 @@ msgstr "Configurando Packet..."
 
 #: data/resources/ui/window.blp:71
 msgid "Copy error report"
-msgstr ""
+msgstr "Copiar reporte de error"
 
 #: data/resources/ui/window.blp:85
 #, fuzzy
@@ -63,11 +63,11 @@ msgstr "No se puedieron abrir los archivos"
 
 #: data/resources/ui/window.blp:86
 msgid "An error occurred while trying to setup Packet"
-msgstr ""
+msgstr "Ha ocurrido un error al intentar configurar Packet"
 
 #: data/resources/ui/window.blp:91
 msgid "Try Again"
-msgstr ""
+msgstr "Intentar de nuevo"
 
 #: data/resources/ui/window.blp:141
 msgid "Add, or drop a file to send"
@@ -93,11 +93,9 @@ msgstr "Elige a dónde enviarlo"
 msgid "Looking for devices…"
 msgstr "Buscando dispositivos..."
 
-#: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
-#, fuzzy
-#| msgid "I don't see the other device"
+#: data/resources/ui/window.blp:399 data/resources/ui/window.blp:509
 msgid "Can't see the other device?"
-msgstr "No veo el otro dispositivo"
+msgstr "¿No ves el otro dispositivo?"
 
 #: data/resources/ui/window.blp:418
 msgid "Preferences"
@@ -129,68 +127,90 @@ msgstr "Carpeta de descargas"
 msgid "Pick download folder"
 msgstr "Elige una carpeta para las descargas"
 
-#: data/resources/ui/window.blp:452
+#: data/resources/ui/window.blp:453
+msgid "Run in Background"
+msgstr "Ejecutar en segundo plano"
+
+#: data/resources/ui/window.blp:454
+msgid "Allow running in the background"
+msgstr "Permitir actividad en segundo plano"
+
+#: data/resources/ui/window.blp:458
+msgid "Auto Start"
+msgstr ""
+
+#: data/resources/ui/window.blp:459
+msgid "Start automatically at login"
+msgstr ""
+
+#: data/resources/ui/window.blp:464
 msgid "Advanced"
 msgstr "Avanazado"
 
-#: data/resources/ui/window.blp:455
+#: data/resources/ui/window.blp:467
 msgid "Static Network Port"
 msgstr "Puerto de red estático"
 
 #. Translators: For whitelisting of the app.
-#: data/resources/ui/window.blp:457
+#: data/resources/ui/window.blp:469
 #, fuzzy
 #| msgid "Allows whitelisting Packet through a firewall"
 msgid "For whitelisting through a firewall"
 msgstr "Permite añadir Packet a una lista blanca del cortafuegos"
 
-#: data/resources/ui/window.blp:462
+#: data/resources/ui/window.blp:474
 msgid "Port Number"
 msgstr "Puerto"
 
-#: data/resources/ui/window.blp:522
+#: data/resources/ui/window.blp:534
 msgid ""
 "Make sure both devices are connected to the same Wi-Fi network and have "
 "Bluetooth turned on"
 msgstr ""
+"Asegúrate de que ambos dispositivos estén conectados a la misma red Wi-Fi y "
+"tengan el Bluetooth activado"
 
-#: data/resources/ui/window.blp:545
+#: data/resources/ui/window.blp:557
 msgid "Make sure the device is set to be visible to all nearby devices"
 msgstr ""
+"Asegúrate de que el dispositivo esté configurado para que sea visible para "
+"todos los dispositivos cercanos"
 
-#: data/resources/ui/window.blp:568
+#: data/resources/ui/window.blp:580
 msgid ""
 "For an Android device, try opening the <b>Quick Share</b> page in the "
 "<b>Files by Google</b> app"
 msgstr ""
+"En un dispositivo Android, prueba a abrir la página <b>Quick Share</b> en la "
+"aplicación <b>Files by Google</b>"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/application.rs:144
+#: src/application.rs:167
 msgid "translator-credits"
 msgstr "Créditos de la traducción"
 
-#: src/application.rs:151
+#: src/application.rs:174
 msgid "Similar Projects"
 msgstr "Proyectos parecidos"
 
-#: src/objects/send_transfer.rs:50 src/objects/send_transfer.rs:58
-#: src/widgets/recipient_card.rs:108 src/widgets/recipient_card.rs:147
+#: src/objects/send_transfer.rs:48 src/widgets/recipient_card.rs:108
+#: src/widgets/recipient_card.rs:147
 msgid "Unknown device"
 msgstr "Dispositivo desconocido"
 
-#: src/utils.rs:194
+#: src/utils.rs:244
 msgid "hour"
 msgid_plural "hours"
 msgstr[0] "hora"
 msgstr[1] "horas"
 
-#: src/utils.rs:196 src/utils.rs:206
+#: src/utils.rs:246 src/utils.rs:256
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "minuto"
 msgstr[1] "minutos"
 
-#: src/utils.rs:208 src/utils.rs:211
+#: src/utils.rs:258 src/utils.rs:261
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "segundo"
@@ -201,87 +221,125 @@ msgid "Remove"
 msgstr "Borrar"
 
 #. Translators: An e.g. "4 Files"
-#: src/widgets/file_card.rs:134 src/window.rs:1106
+#: src/widgets/file_card.rs:134 src/window.rs:1326
 msgid "{} File"
 msgid_plural "{} Files"
 msgstr[0] "{} Archivo"
 msgstr[1] "{} Archivos"
 
-#: src/widgets/receive_transfer.rs:20
+#: src/widgets/receive_transfer.rs:23
 msgid "Link"
 msgstr "Enlace"
 
-#: src/widgets/receive_transfer.rs:21
+#: src/widgets/receive_transfer.rs:24
 msgid "Text"
 msgstr "Texto"
 
-#: src/widgets/receive_transfer.rs:22
+#: src/widgets/receive_transfer.rs:25
 msgid "Wi-Fi"
 msgstr "Wi-Fi"
 
-#: src/widgets/receive_transfer.rs:59
+#: src/widgets/receive_transfer.rs:64
 msgid "Receiving"
 msgstr "Recbiendo"
 
-#: src/widgets/receive_transfer.rs:62 src/widgets/recipient_card.rs:310
+#: src/widgets/receive_transfer.rs:67 src/widgets/receive_transfer.rs:199
+#: src/widgets/recipient_card.rs:310
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: src/widgets/receive_transfer.rs:159
+#: src/widgets/receive_transfer.rs:148 src/widgets/receive_transfer.rs:443
 msgid "Incoming Transfer"
 msgstr "Transferencia entrante"
 
-#: src/widgets/receive_transfer.rs:183
+#: src/widgets/receive_transfer.rs:194
+#, fuzzy
+#| msgid "Receiving"
+msgid "Receiving..."
+msgstr "Recbiendo"
+
+#: src/widgets/receive_transfer.rs:276 src/widgets/receive_transfer.rs:450
 msgid "Decline"
 msgstr "Rechazar"
 
-#: src/widgets/receive_transfer.rs:184
+#: src/widgets/receive_transfer.rs:277 src/widgets/receive_transfer.rs:454
 msgid "Accept"
 msgstr "aceptar"
 
 #. Translators: An e.g. "6 Files (42.3MB)"
-#: src/widgets/receive_transfer.rs:215
+#: src/widgets/receive_transfer.rs:308
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
 msgstr[0] "{} Archivo ({})"
 msgstr[1] "{} Archivos ({})"
 
-#: src/widgets/receive_transfer.rs:235
+#: src/widgets/receive_transfer.rs:327
 msgid "Preview ({})"
 msgstr "Previsualizar ({})"
 
 #. Translators: This is the pin-code for the transfer
-#: src/widgets/receive_transfer.rs:251 src/widgets/recipient_card.rs:442
+#: src/widgets/receive_transfer.rs:343 src/widgets/recipient_card.rs:442
 msgid "Code: {}"
 msgstr "Código: {}"
 
+#: src/widgets/receive_transfer.rs:404
+#, fuzzy
+#| msgid "Requested"
+msgid "Request timed out"
+msgstr "Solicitado"
+
+#. Translators: This is when some device is sharing files or text
+#. e.g. (Someone's Phone wants to share 4 files)
+#. e.g. (Someone's Phone wants to share "lorem ipsum ...")
+#: src/widgets/receive_transfer.rs:417
+msgid "{} wants to share {}"
+msgstr ""
+
+#: src/widgets/receive_transfer.rs:422
+#, fuzzy
+#| msgid "{} file ({})"
+#| msgid_plural "{} files ({})"
+msgid "{} file"
+msgid_plural "{} files"
+msgstr[0] "{} Archivo ({})"
+msgstr[1] "{} Archivos ({})"
+
 #. Translators: {} will be replaced with an estimated remaining time string
 #. e.g. "About 4 minutes 32 seconds left"
-#: src/widgets/receive_transfer.rs:359 src/widgets/recipient_card.rs:473
+#: src/widgets/receive_transfer.rs:494 src/widgets/recipient_card.rs:473
 msgid "About {} left"
 msgstr "Quedan {} aproximadamente"
 
-#: src/widgets/receive_transfer.rs:386
+#: src/widgets/receive_transfer.rs:519
 msgid "Unexpected dissconnection"
 msgstr "Conexión interrumpida inesperadamente"
 
-#: src/widgets/receive_transfer.rs:409
+#: src/widgets/receive_transfer.rs:552
 msgid "Transfer cancelled by sender"
 msgstr "Transferencia cancelado por el emisor"
 
-#: src/widgets/receive_transfer.rs:444
+#: src/widgets/receive_transfer.rs:599
 msgid "Copy to clipboard"
 msgstr "Copiar al portapapeles"
 
-#: src/widgets/receive_transfer.rs:452
+#: src/widgets/receive_transfer.rs:607
 msgid "Save text as file"
 msgstr "Guardar texto como archivo"
 
-#: src/widgets/receive_transfer.rs:509 src/widgets/receive_transfer.rs:627
+#: src/widgets/receive_transfer.rs:664 src/widgets/receive_transfer.rs:807
+#: src/widgets/receive_transfer.rs:813
 msgid "Open"
 msgstr "Abrir"
 
-#: src/widgets/receive_transfer.rs:619
+#: src/widgets/receive_transfer.rs:759
+msgid "Received \"{}\""
+msgstr ""
+
+#: src/widgets/receive_transfer.rs:774
+msgid "Copy"
+msgstr ""
+
+#: src/widgets/receive_transfer.rs:789
 msgid "{} file received"
 msgid_plural "{} files received"
 msgstr[0] "{} archivo recibido"
@@ -313,73 +371,85 @@ msgid_plural "Sent {} files"
 msgstr[0] "Enviar {} archivo"
 msgstr[1] "Enviar {} archivos"
 
-#: src/window.rs:442
+#: src/window.rs:491 src/window.rs:877
+msgid "Packet cannot run in the background"
+msgstr ""
+
+#: src/window.rs:527
+msgid "Packet cannot run at login"
+msgstr ""
+
+#: src/window.rs:592
 msgid "Can't rename device during an active transfer"
 msgstr "No se puede renombrar el dispositivo si hay una transferencia activa"
 
-#: src/window.rs:583
+#: src/window.rs:733
 msgid "Invalid Port"
 msgstr ""
 
-#: src/window.rs:587
+#: src/window.rs:737
 msgid ""
 "The chosen static port \"{}\" is not available. Try a different port above "
 "1024."
 msgstr ""
 
-#: src/window.rs:595
+#: src/window.rs:745
 msgid "_Ok"
 msgstr ""
 
-#: src/window.rs:643
+#: src/window.rs:793
 msgid "Can't access Downloads folder"
 msgstr "No se puede acceder a la carpeta de descargas"
 
-#: src/window.rs:644
+#: src/window.rs:794
 #, fuzzy
 #| msgid "Pick downloads folder"
 msgid "Pick Folder"
 msgstr "Elige una carpeta para las descargas"
 
-#: src/window.rs:749
+#: src/window.rs:821
+msgid "Packet wants to run in the background"
+msgstr ""
+
+#: src/window.rs:969
 #, fuzzy
 #| msgid "Copy to clipboard"
 msgid "Copied error report to clipboard"
 msgstr "Copiar al portapapeles"
 
-#: src/window.rs:996
+#: src/window.rs:1216
 msgid "Ready"
 msgstr "Preparado"
 
-#: src/window.rs:1002
+#: src/window.rs:1222
 msgid "Visible as {:?}"
 msgstr "Visible como {:?}"
 
-#: src/window.rs:1008
+#: src/window.rs:1228
 msgid "Invisible"
 msgstr "Oculto"
 
-#: src/window.rs:1014
+#: src/window.rs:1234
 msgid "No new devices can share with you"
 msgstr "Ningún dispositivo nuevo puede compartir contigo"
 
-#: src/window.rs:1019
+#: src/window.rs:1239
 msgid "Disconnected"
 msgstr ""
 
-#: src/window.rs:1025
+#: src/window.rs:1245
 msgid "Connect to Wi-Fi and turn on Bluetooth"
 msgstr ""
 
-#: src/window.rs:1028
+#: src/window.rs:1248
 msgid "Connect to Wi-Fi"
 msgstr ""
 
-#: src/window.rs:1031
+#: src/window.rs:1251
 msgid "Turn on Bluetooth"
 msgstr ""
 
-#: src/window.rs:1095
+#: src/window.rs:1315
 msgid "Couldn't open files"
 msgstr "No se puedieron abrir los archivos"
 
