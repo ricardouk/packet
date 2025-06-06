@@ -855,6 +855,7 @@ impl PacketApplicationWindow {
             #[weak(rename_to = this)]
             self,
             async move {
+                let is_run_in_background = this.imp().settings.boolean("run-in-background");
                 if let Some(response) = this.portal_request_background().await {
                     tracing::debug!(?response, "Background request successful");
 
@@ -865,6 +866,8 @@ impl PacketApplicationWindow {
                             app.imp().start_in_background.replace(false);
                         }
                     }
+                } else if is_run_in_background {
+                    this.add_toast(&gettext("Packet cannot run in the background"));
                 }
             }
         ));
