@@ -1,5 +1,4 @@
 use std::{
-    cell::RefCell,
     collections::VecDeque,
     fmt,
     path::{Path, PathBuf},
@@ -8,7 +7,7 @@ use std::{
 
 use ashpd::desktop::notification::Notification;
 use gettextrs::ngettext;
-use gtk::glib::{self, object::IsA};
+use gtk::glib::{self};
 
 #[macro_export]
 macro_rules! impl_deref_for_newtype {
