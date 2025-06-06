@@ -8,7 +8,9 @@ mod utils;
 mod widgets;
 mod window;
 
+use adw::subclass::prelude::ObjectSubclassIsExt;
 use gettextrs::{gettext, LocaleCategory};
+use gtk::prelude::WidgetExt;
 use gtk::{gio, glib};
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::EnvFilter;

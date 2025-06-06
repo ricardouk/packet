@@ -11,11 +11,13 @@ use crate::window::PacketApplicationWindow;
 mod imp {
     use super::*;
     use glib::WeakRef;
-    use std::cell::OnceCell;
+    use std::cell::{Cell, OnceCell};
 
     #[derive(Debug, Default)]
     pub struct PacketApplication {
         pub window: OnceCell<WeakRef<PacketApplicationWindow>>,
+
+        pub start_in_background: Cell<bool>,
     }
 
     #[glib::object_subclass]
@@ -44,7 +46,9 @@ mod imp {
                 .set(window.downgrade())
                 .expect("Window already set.");
 
-            app.main_window().present();
+            if !self.start_in_background.get() {
+                app.main_window().present();
+            }
         }
 
         fn startup(&self) {
@@ -58,6 +62,19 @@ mod imp {
             app.setup_css();
             app.setup_gactions();
             app.setup_accels();
+        }
+
+        fn handle_local_options(&self, options: &glib::VariantDict) -> glib::ExitCode {
+            tracing::debug!(background = ?options.lookup::<bool>("background"), "Parsing command line");
+            self.start_in_background
+                .replace(options.contains("background"));
+
+            self.parent_handle_local_options(options)
+        }
+
+        fn shutdown(&self) {
+            debug!("GtkApplication<PacketApplication>::shutdown");
+            self.parent_shutdown();
         }
     }
 
@@ -80,7 +97,11 @@ impl PacketApplication {
         // Quit
         let action_quit = gio::ActionEntry::builder("quit")
             .activate(move |app: &Self, _, _| {
-                // This is needed to trigger the delete event and saving the window state
+                tracing::debug!("Invoked action app.quit");
+
+                // On GNOME, closing the background app from their "Background Apps" UI seems to invoke app.quit
+                app.main_window().imp().should_quit.replace(true);
+
                 app.main_window().close();
                 app.quit();
             })
@@ -97,7 +118,9 @@ impl PacketApplication {
 
     // Sets up keyboard shortcuts
     fn setup_accels(&self) {
+        // This will close the app regardless of "Run in Background"
         self.set_accels_for_action("app.quit", &["<Control>q"]);
+
         self.set_accels_for_action("window.close", &["<Control>w"]);
         self.set_accels_for_action("win.preferences", &["<Control>comma"]);
         self.set_accels_for_action("win.help", &["F1"]);
@@ -158,10 +181,23 @@ impl PacketApplication {
         dialog.present(Some(&self.main_window()));
     }
 
+    fn setup_options(&self) {
+        self.add_main_option(
+            "background",
+            b'b'.into(),
+            glib::OptionFlags::NONE,
+            glib::OptionArg::None,
+            "Start the application in background",
+            None,
+        );
+    }
+
     pub fn run(&self) -> glib::ExitCode {
         info!("Packet ({})", APP_ID);
         info!("Version: {} ({})", VERSION, PROFILE);
         info!("Datadir: {}", PKGDATADIR);
+
+        self.setup_options();
 
         ApplicationExtManual::run(self)
     }

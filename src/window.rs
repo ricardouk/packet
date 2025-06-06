@@ -5,6 +5,7 @@ use std::rc::Rc;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use anyhow::{anyhow, Context};
+use ashpd::desktop::background::Background;
 use ashpd::desktop::notification::NotificationProxy;
 use formatx::formatx;
 use futures_lite::StreamExt;
@@ -19,7 +20,7 @@ use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
 use crate::objects::{self, SendRequestState};
 use crate::objects::{TransferState, UserAction};
-use crate::utils::{strip_user_home_prefix, xdg_download_with_fallback};
+use crate::utils::{strip_user_home_prefix, with_signals_blocked, xdg_download_with_fallback};
 use crate::{monitors, tokio_runtime, widgets};
 
 #[derive(Debug)]
@@ -102,6 +103,12 @@ mod imp {
         pub download_folder_row: TemplateChild<adw::ActionRow>,
         #[template_child]
         pub download_folder_pick_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub run_in_background_switch: TemplateChild<adw::SwitchRow>,
+        pub run_in_background_switch_handler_id: RefCell<Option<glib::SignalHandlerId>>,
+        #[template_child]
+        pub auto_start_switch: TemplateChild<adw::SwitchRow>,
+        pub auto_start_switch_handler_id: RefCell<Option<glib::SignalHandlerId>>,
 
         #[template_child]
         pub main_box: TemplateChild<gtk::Box>,
@@ -159,6 +166,9 @@ mod imp {
         pub is_mdns_discovery_on: Rc<Cell<bool>>,
 
         pub looping_async_tasks: RefCell<Vec<LoopingTaskHandle>>,
+
+        pub is_background_allowed: Cell<bool>,
+        pub should_quit: Cell<bool>,
     }
 
     #[glib::object_subclass]
@@ -196,6 +206,7 @@ mod imp {
             obj.setup_connection_monitors();
             obj.setup_notification_actions_monitor();
             obj.setup_rqs_service();
+            obj.request_background();
         }
     }
 
@@ -203,6 +214,17 @@ mod imp {
     impl WindowImpl for PacketApplicationWindow {
         // Save window state on delete event
         fn close_request(&self) -> glib::Propagation {
+            if self.is_background_allowed.get()
+                && self.settings.boolean("run-in-background")
+                && !self.should_quit.get()
+            {
+                tracing::info!("Running Packet in background");
+                self.obj().set_visible(false);
+                return glib::Propagation::Stop;
+            }
+
+            tracing::debug!("GtkApplicationWindow<PacketApplicationWindow>::close");
+
             if let Err(err) = self.obj().save_window_size() {
                 tracing::warn!("Failed to save window state, {}", &err);
             }
@@ -381,6 +403,10 @@ impl PacketApplicationWindow {
         ]);
     }
 
+    fn add_toast(&self, msg: &str) {
+        self.imp().toast_overlay.add_toast(adw::Toast::new(msg));
+    }
+
     fn get_device_name_state(&self) -> glib::GString {
         self.imp().settings.string("device-name")
     }
@@ -401,6 +427,16 @@ impl PacketApplicationWindow {
                 "active",
             )
             .build();
+        imp.settings
+            .bind(
+                "run-in-background",
+                &imp.run_in_background_switch.get(),
+                "active",
+            )
+            .build();
+        imp.settings
+            .bind("auto-start", &imp.auto_start_switch.get(), "active")
+            .build();
 
         let device_name = &self.get_device_name_state();
         let device_name_entry = imp.device_name_entry.get();
@@ -416,6 +452,82 @@ impl PacketApplicationWindow {
                 device_name_entry.set_text(device_name);
             }
         }
+
+        let _signal_handle = imp.run_in_background_switch.connect_active_notify(clone!(
+            #[weak]
+            imp,
+            move |switch| {
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    imp,
+                    #[weak]
+                    switch,
+                    async move {
+                        switch.set_sensitive(false);
+
+                        {
+                            let is_run_in_background = switch.is_active();
+                            tracing::info!(
+                                is_active = is_run_in_background,
+                                "Setting run in background"
+                            );
+
+                            let is_run_in_background_allowed = imp
+                                .obj()
+                                .portal_request_background()
+                                .await
+                                .map(|it| it.run_in_background())
+                                .unwrap_or_default();
+
+                            if is_run_in_background && !is_run_in_background_allowed {
+                                imp.obj()
+                                    .add_toast(&gettext("Packet cannot run in the background"));
+                            }
+                        }
+
+                        switch.set_sensitive(true);
+                    }
+                ));
+            }
+        ));
+        imp.run_in_background_switch_handler_id
+            .replace(Some(_signal_handle));
+
+        let _signal_handle = imp.auto_start_switch.connect_active_notify(clone!(
+            #[weak]
+            imp,
+            move |switch| {
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    imp,
+                    #[weak]
+                    switch,
+                    async move {
+                        switch.set_sensitive(false);
+
+                        {
+                            let is_auto_start = switch.is_active();
+                            tracing::info!(is_active = is_auto_start, "Setting auto-start");
+
+                            let is_auto_start_allowed = imp
+                                .obj()
+                                .portal_request_background()
+                                .await
+                                .map(|it| it.auto_start())
+                                .unwrap_or_default();
+
+                            if is_auto_start && !is_auto_start_allowed {
+                                imp.obj().add_toast(&gettext("Packet cannot run at login"));
+                            }
+                        }
+
+                        switch.set_sensitive(true);
+                    }
+                ));
+            }
+        ));
+        imp.auto_start_switch_handler_id
+            .replace(Some(_signal_handle));
 
         let prev_validation_state = Rc::new(Cell::new(None));
         let changed_signal_handle = Rc::new(RefCell::new(None));
@@ -687,6 +799,73 @@ impl PacketApplicationWindow {
             imp,
             move |_| {
                 imp.obj().pick_download_folder();
+            }
+        ));
+    }
+
+    async fn portal_request_background(&self) -> Option<Background> {
+        let imp = self.imp();
+
+        let response = Background::request()
+            .identifier(ashpd::WindowIdentifier::from_native(&self.native().unwrap()).await)
+            .auto_start(self.imp().settings.boolean("auto-start"))
+            .command(["packet", "--background"])
+            .dbus_activatable(false)
+            .reason(gettext("Packet wants to run in the background").as_str())
+            .send()
+            .await
+            .and_then(|it| it.response());
+
+        match response {
+            Ok(response) => {
+                self.imp().is_background_allowed.replace(true);
+
+                Some(response)
+            }
+            Err(err) => {
+                tracing::warn!("Background request denied: {:#}", err);
+
+                imp.is_background_allowed.replace(false);
+
+                with_signals_blocked(
+                    &[
+                        (
+                            &imp.run_in_background_switch.get(),
+                            imp.run_in_background_switch_handler_id.borrow().as_ref(),
+                        ),
+                        (
+                            &imp.auto_start_switch.get(),
+                            imp.auto_start_switch_handler_id.borrow().as_ref(),
+                        ),
+                    ],
+                    || {
+                        // Reset preferences to false in case request fails
+                        _ = imp.settings.set_boolean("auto-start", false);
+                        _ = imp.settings.set_boolean("run-in-background", false);
+                    },
+                );
+
+                None
+            }
+        }
+    }
+
+    fn request_background(&self) {
+        glib::spawn_future_local(clone!(
+            #[weak(rename_to = this)]
+            self,
+            async move {
+                if let Some(response) = this.portal_request_background().await {
+                    tracing::debug!(?response, "Background request successful");
+
+                    if !response.auto_start() {
+                        if let Some(app) =
+                            this.application().and_downcast_ref::<PacketApplication>()
+                        {
+                            app.imp().start_in_background.replace(false);
+                        }
+                    }
+                }
             }
         ));
     }
