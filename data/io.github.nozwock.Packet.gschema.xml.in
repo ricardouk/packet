@@ -32,5 +32,11 @@
     <key name="static-port-number" type="i">
       <default>9300</default>
     </key>
+    <key name="run-in-background" type="b">
+      <default>false</default>
+    </key>
+    <key name="auto-start" type="b">
+      <default>false</default>
+    </key>
   </schema>
 </schemalist>

@@ -416,7 +416,7 @@ Adw.Dialog select_recipients_dialog {
 
 Adw.PreferencesDialog preferences_dialog {
     title: _("Preferences");
-    content-width: 360;
+    content-width: 520;
 
     Adw.PreferencesPage {
         Adw.PreferencesGroup {
@@ -445,6 +445,18 @@ Adw.PreferencesDialog preferences_dialog {
                         "flat",
                     ]
                 }
+            }
+        }
+
+        Adw.PreferencesGroup {
+            Adw.SwitchRow run_in_background_switch {
+                title: _("Run in Background");
+                subtitle: _("Allow running in the background");
+            }
+
+            Adw.SwitchRow auto_start_switch {
+                title: _("Auto Start");
+                subtitle: _("Start automatically at login");
             }
         }
 

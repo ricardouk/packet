@@ -1,4 +1,5 @@
 use std::{
+    cell::RefCell,
     collections::VecDeque,
     fmt,
     path::{Path, PathBuf},
@@ -7,7 +8,7 @@ use std::{
 
 use ashpd::desktop::notification::Notification;
 use gettextrs::ngettext;
-use gtk::glib;
+use gtk::glib::{self, object::IsA};
 
 #[macro_export]
 macro_rules! impl_deref_for_newtype {
@@ -26,6 +27,26 @@ macro_rules! impl_deref_for_newtype {
             }
         }
     };
+}
+
+pub fn with_signals_blocked<O, F>(blocks: &[(&O, Option<&glib::SignalHandlerId>)], f: F)
+where
+    O: glib::object::ObjectExt,
+    F: FnOnce(),
+{
+    for (widget, id) in blocks {
+        if let Some(id) = id {
+            widget.block_signal(id);
+        }
+    }
+
+    f();
+
+    for (widget, id) in blocks {
+        if let Some(id) = id {
+            widget.unblock_signal(id);
+        }
+    }
 }
 
 pub fn spawn_notification(id: String, notification: Notification) {
