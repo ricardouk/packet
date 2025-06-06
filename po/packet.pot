@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-05 21:27+0530\n"
+"POT-Creation-Date: 2025-06-06 14:15+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "_Preferences"
 msgstr ""
 
-#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:471
+#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:483
 msgid "Help"
 msgstr ""
 
@@ -36,7 +36,7 @@ msgstr ""
 
 #. Translators: The name should remain untranslated
 #: data/resources/ui/window.blp:38 data/resources/ui/window.blp:63
-#: data/resources/ui/window.blp:140 src/application.rs:131 src/main.rs:35
+#: data/resources/ui/window.blp:140 src/application.rs:154 src/main.rs:37
 #: data/io.github.nozwock.Packet.desktop.in.in:2
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
 msgid "Packet"
@@ -86,7 +86,7 @@ msgstr ""
 msgid "Looking for devices…"
 msgstr ""
 
-#: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
+#: data/resources/ui/window.blp:399 data/resources/ui/window.blp:509
 msgid "Can't see the other device?"
 msgstr ""
 
@@ -118,45 +118,61 @@ msgstr ""
 msgid "Pick download folder"
 msgstr ""
 
-#: data/resources/ui/window.blp:452
+#: data/resources/ui/window.blp:453
+msgid "Run in Background"
+msgstr ""
+
+#: data/resources/ui/window.blp:454
+msgid "Allow running in the background"
+msgstr ""
+
+#: data/resources/ui/window.blp:458
+msgid "Auto Start"
+msgstr ""
+
+#: data/resources/ui/window.blp:459
+msgid "Start automatically at login"
+msgstr ""
+
+#: data/resources/ui/window.blp:464
 msgid "Advanced"
 msgstr ""
 
-#: data/resources/ui/window.blp:455
+#: data/resources/ui/window.blp:467
 msgid "Static Network Port"
 msgstr ""
 
 #. Translators: For whitelisting of the app.
-#: data/resources/ui/window.blp:457
+#: data/resources/ui/window.blp:469
 msgid "For whitelisting through a firewall"
 msgstr ""
 
-#: data/resources/ui/window.blp:462
+#: data/resources/ui/window.blp:474
 msgid "Port Number"
 msgstr ""
 
-#: data/resources/ui/window.blp:522
+#: data/resources/ui/window.blp:534
 msgid ""
 "Make sure both devices are connected to the same Wi-Fi network and have "
 "Bluetooth turned on"
 msgstr ""
 
-#: data/resources/ui/window.blp:545
+#: data/resources/ui/window.blp:557
 msgid "Make sure the device is set to be visible to all nearby devices"
 msgstr ""
 
-#: data/resources/ui/window.blp:568
+#: data/resources/ui/window.blp:580
 msgid ""
 "For an Android device, try opening the <b>Quick Share</b> page in the "
 "<b>Files by Google</b> app"
 msgstr ""
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/application.rs:144
+#: src/application.rs:167
 msgid "translator-credits"
 msgstr ""
 
-#: src/application.rs:151
+#: src/application.rs:174
 msgid "Similar Projects"
 msgstr ""
 
@@ -165,19 +181,19 @@ msgstr ""
 msgid "Unknown device"
 msgstr ""
 
-#: src/utils.rs:224
+#: src/utils.rs:245
 msgid "hour"
 msgid_plural "hours"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/utils.rs:226 src/utils.rs:236
+#: src/utils.rs:247 src/utils.rs:257
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/utils.rs:238 src/utils.rs:241
+#: src/utils.rs:259 src/utils.rs:262
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] ""
@@ -188,7 +204,7 @@ msgid "Remove"
 msgstr ""
 
 #. Translators: An e.g. "4 Files"
-#: src/widgets/file_card.rs:134 src/window.rs:1137
+#: src/widgets/file_card.rs:134 src/window.rs:1319
 #, rust-format
 msgid "{} File"
 msgid_plural "{} Files"
@@ -341,71 +357,83 @@ msgid_plural "Sent {} files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/window.rs:473
+#: src/window.rs:484 src/window.rs:870
+msgid "Packet cannot run in the background"
+msgstr ""
+
+#: src/window.rs:520
+msgid "Packet cannot run at login"
+msgstr ""
+
+#: src/window.rs:585
 msgid "Can't rename device during an active transfer"
 msgstr ""
 
-#: src/window.rs:614
+#: src/window.rs:726
 msgid "Invalid Port"
 msgstr ""
 
-#: src/window.rs:618
+#: src/window.rs:730
 #, rust-format
 msgid ""
 "The chosen static port \"{}\" is not available. Try a different port above "
 "1024."
 msgstr ""
 
-#: src/window.rs:626
+#: src/window.rs:738
 msgid "_Ok"
 msgstr ""
 
-#: src/window.rs:674
+#: src/window.rs:786
 msgid "Can't access Downloads folder"
 msgstr ""
 
-#: src/window.rs:675
+#: src/window.rs:787
 msgid "Pick Folder"
 msgstr ""
 
-#: src/window.rs:780
+#: src/window.rs:814
+msgid "Packet wants to run in the background"
+msgstr ""
+
+#: src/window.rs:962
 msgid "Copied error report to clipboard"
 msgstr ""
 
-#: src/window.rs:1027
+#: src/window.rs:1209
 msgid "Ready"
 msgstr ""
 
-#: src/window.rs:1033
+#: src/window.rs:1215
 #, rust-format
 msgid "Visible as {:?}"
 msgstr ""
 
-#: src/window.rs:1039
+#: src/window.rs:1221
 msgid "Invisible"
 msgstr ""
 
-#: src/window.rs:1045
+#: src/window.rs:1227
 msgid "No new devices can share with you"
 msgstr ""
 
-#: src/window.rs:1050
+#: src/window.rs:1232
 msgid "Disconnected"
 msgstr ""
 
-#: src/window.rs:1056
+#: src/window.rs:1238
 msgid "Connect to Wi-Fi and turn on Bluetooth"
 msgstr ""
 
-#: src/window.rs:1059
+#: src/window.rs:1241
 msgid "Connect to Wi-Fi"
 msgstr ""
 
-#: src/window.rs:1062
+#: src/window.rs:1244
 msgid "Turn on Bluetooth"
 msgstr ""
 
-#: src/window.rs:1126
+#: src/window.rs:1308
 msgid "Couldn't open files"
 msgstr ""
 
