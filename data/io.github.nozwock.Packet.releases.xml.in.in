@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <releases>
+  <release version="0.4.0" date="2025-06-7">
+    <description translatable="no">
+      <p>Changes</p>
+      <ul>
+        <li>Added desktop notifications for incoming transfers</li>
+        <li>Added an option to let Packet run in the background</li>
+        <li>Added an option to let Packet auto start at login</li>
+        <li>Improved naming of received files in case of a conflict, from "1_lorem.txt" to "lorem (1).txt"</li>
+      </ul>
+    </description>
+  </release>
   <release version="0.3.4" date="2025-06-4">
   </release>
   <release version="0.3.3" date="2025-06-4">
