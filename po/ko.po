@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: packet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-29 18:40+0530\n"
+"POT-Creation-Date: 2025-06-07 04:00+0530\n"
 "PO-Revision-Date: 2025-06-01 09:05+0000\n"
 "Last-Translator: honnip <me@honnip.page>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/packet/main/ko/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "_Preferences"
 msgstr "설정(_P)"
 
-#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:471
+#: data/resources/ui/window.blp:12 data/resources/ui/window.blp:483
 msgid "Help"
 msgstr "도움말"
 
@@ -36,7 +36,7 @@ msgstr "Packet 정보(_A)"
 
 #. Translators: The name should remain untranslated
 #: data/resources/ui/window.blp:38 data/resources/ui/window.blp:63
-#: data/resources/ui/window.blp:140 src/application.rs:131 src/main.rs:35
+#: data/resources/ui/window.blp:140 src/application.rs:154 src/main.rs:35
 #: data/io.github.nozwock.Packet.desktop.in.in:2
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:6
 msgid "Packet"
@@ -86,7 +86,7 @@ msgstr "받는 사람 선택"
 msgid "Looking for devices…"
 msgstr "기기 찾는 중…"
 
-#: data/resources/ui/window.blp:399 data/resources/ui/window.blp:497
+#: data/resources/ui/window.blp:399 data/resources/ui/window.blp:509
 msgid "Can't see the other device?"
 msgstr "다른 기기가 보이지 않나요?"
 
@@ -118,66 +118,84 @@ msgstr "다운로드 폴더"
 msgid "Pick download folder"
 msgstr "다운로드 폴더를 선택하세요"
 
-#: data/resources/ui/window.blp:452
+#: data/resources/ui/window.blp:453
+msgid "Run in Background"
+msgstr ""
+
+#: data/resources/ui/window.blp:454
+msgid "Allow running in the background"
+msgstr ""
+
+#: data/resources/ui/window.blp:458
+msgid "Auto Start"
+msgstr ""
+
+#: data/resources/ui/window.blp:459
+msgid "Start automatically at login"
+msgstr ""
+
+#: data/resources/ui/window.blp:464
 msgid "Advanced"
 msgstr "고급"
 
-#: data/resources/ui/window.blp:455
+#: data/resources/ui/window.blp:467
 msgid "Static Network Port"
 msgstr "네트워크 포트 고정"
 
 #. Translators: For whitelisting of the app.
-#: data/resources/ui/window.blp:457
+#: data/resources/ui/window.blp:469
 msgid "For whitelisting through a firewall"
 msgstr "방화벽이 있는 환경에서 Packet을 허용 목록에 추가하기 위함입니다"
 
-#: data/resources/ui/window.blp:462
+#: data/resources/ui/window.blp:474
 msgid "Port Number"
 msgstr "포트"
 
-#: data/resources/ui/window.blp:522
+#: data/resources/ui/window.blp:534
 msgid ""
 "Make sure both devices are connected to the same Wi-Fi network and have "
 "Bluetooth turned on"
-msgstr "두 기기가 동일한 Wi-Fi 네트워크에 연결되어 있고 블루투스가 활성화되어 있는지 "
+msgstr ""
+"두 기기가 동일한 Wi-Fi 네트워크에 연결되어 있고 블루투스가 활성화되어 있는지 "
 "확인하세요"
 
-#: data/resources/ui/window.blp:545
+#: data/resources/ui/window.blp:557
 msgid "Make sure the device is set to be visible to all nearby devices"
 msgstr "주변의 모든 기기에 보이도록 설정되어 있는지 확인하세요"
 
-#: data/resources/ui/window.blp:568
+#: data/resources/ui/window.blp:580
 msgid ""
 "For an Android device, try opening the <b>Quick Share</b> page in the "
 "<b>Files by Google</b> app"
-msgstr "안드로이드 기기의 경우, <b>Files by Google</b> 앱에서 <b>Quick Share</b> "
-"페이지를 열어보세요"
+msgstr ""
+"안드로이드 기기의 경우, <b>Files by Google</b> 앱에서 <b>Quick Share</b> 페이"
+"지를 열어보세요"
 
 #. Translators: Replace "translator-credits" with your names, one name per line
-#: src/application.rs:144
+#: src/application.rs:167
 msgid "translator-credits"
 msgstr "Honnip <me@honnip.page>"
 
-#: src/application.rs:151
+#: src/application.rs:174
 msgid "Similar Projects"
 msgstr "비슷한 프로젝트"
 
-#: src/objects/send_transfer.rs:50 src/objects/send_transfer.rs:58
-#: src/widgets/recipient_card.rs:108 src/widgets/recipient_card.rs:147
+#: src/objects/send_transfer.rs:48 src/widgets/recipient_card.rs:108
+#: src/widgets/recipient_card.rs:147
 msgid "Unknown device"
 msgstr "알 수 없는 기기"
 
-#: src/utils.rs:194
+#: src/utils.rs:244
 msgid "hour"
 msgid_plural "hours"
 msgstr[0] "시간"
 
-#: src/utils.rs:196 src/utils.rs:206
+#: src/utils.rs:246 src/utils.rs:256
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "분"
 
-#: src/utils.rs:208 src/utils.rs:211
+#: src/utils.rs:258 src/utils.rs:261
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "초"
@@ -187,85 +205,122 @@ msgid "Remove"
 msgstr "삭제"
 
 #. Translators: An e.g. "4 Files"
-#: src/widgets/file_card.rs:134 src/window.rs:1106
+#: src/widgets/file_card.rs:134 src/window.rs:1326
 msgid "{} File"
 msgid_plural "{} Files"
 msgstr[0] "{} 파일"
 
-#: src/widgets/receive_transfer.rs:20
+#: src/widgets/receive_transfer.rs:23
 msgid "Link"
 msgstr "링크"
 
-#: src/widgets/receive_transfer.rs:21
+#: src/widgets/receive_transfer.rs:24
 msgid "Text"
 msgstr "텍스트"
 
-#: src/widgets/receive_transfer.rs:22
+#: src/widgets/receive_transfer.rs:25
 msgid "Wi-Fi"
 msgstr "Wi-Fi"
 
-#: src/widgets/receive_transfer.rs:59
+#: src/widgets/receive_transfer.rs:64
 msgid "Receiving"
 msgstr "받는 중"
 
-#: src/widgets/receive_transfer.rs:62 src/widgets/recipient_card.rs:310
+#: src/widgets/receive_transfer.rs:67 src/widgets/receive_transfer.rs:199
+#: src/widgets/recipient_card.rs:310
 msgid "Cancel"
 msgstr "취소"
 
-#: src/widgets/receive_transfer.rs:159
+#: src/widgets/receive_transfer.rs:148 src/widgets/receive_transfer.rs:443
 msgid "Incoming Transfer"
 msgstr "전송 요청"
 
-#: src/widgets/receive_transfer.rs:183
+#: src/widgets/receive_transfer.rs:194
+#, fuzzy
+#| msgid "Receiving"
+msgid "Receiving..."
+msgstr "받는 중"
+
+#: src/widgets/receive_transfer.rs:276 src/widgets/receive_transfer.rs:450
 msgid "Decline"
 msgstr "거절"
 
-#: src/widgets/receive_transfer.rs:184
+#: src/widgets/receive_transfer.rs:277 src/widgets/receive_transfer.rs:454
 msgid "Accept"
 msgstr "수락"
 
 #. Translators: An e.g. "6 Files (42.3MB)"
-#: src/widgets/receive_transfer.rs:215
+#: src/widgets/receive_transfer.rs:308
 msgid "{} file ({})"
 msgid_plural "{} files ({})"
 msgstr[0] "{} 파일 ({})"
 
-#: src/widgets/receive_transfer.rs:235
+#: src/widgets/receive_transfer.rs:327
 msgid "Preview ({})"
 msgstr "미리 보기 ({})"
 
 #. Translators: This is the pin-code for the transfer
-#: src/widgets/receive_transfer.rs:251 src/widgets/recipient_card.rs:442
+#: src/widgets/receive_transfer.rs:343 src/widgets/recipient_card.rs:442
 msgid "Code: {}"
 msgstr "PIN: {}"
 
+#: src/widgets/receive_transfer.rs:404
+#, fuzzy
+#| msgid "Requested"
+msgid "Request timed out"
+msgstr "요청함"
+
+#. Translators: This is when some device is sharing files or text
+#. e.g. (Someone's Phone wants to share 4 files)
+#. e.g. (Someone's Phone wants to share "lorem ipsum ...")
+#: src/widgets/receive_transfer.rs:417
+msgid "{} wants to share {}"
+msgstr ""
+
+#: src/widgets/receive_transfer.rs:422
+#, fuzzy
+#| msgid "{} file ({})"
+#| msgid_plural "{} files ({})"
+msgid "{} file"
+msgid_plural "{} files"
+msgstr[0] "{} 파일 ({})"
+
 #. Translators: {} will be replaced with an estimated remaining time string
 #. e.g. "About 4 minutes 32 seconds left"
-#: src/widgets/receive_transfer.rs:359 src/widgets/recipient_card.rs:473
+#: src/widgets/receive_transfer.rs:494 src/widgets/recipient_card.rs:473
 msgid "About {} left"
 msgstr "약 {} 남음"
 
-#: src/widgets/receive_transfer.rs:386
+#: src/widgets/receive_transfer.rs:519
 msgid "Unexpected dissconnection"
 msgstr "예기치 않게 연결이 끊어졌습니다"
 
-#: src/widgets/receive_transfer.rs:409
+#: src/widgets/receive_transfer.rs:552
 msgid "Transfer cancelled by sender"
 msgstr "보낸 사람이 전송을 취소했습니다"
 
-#: src/widgets/receive_transfer.rs:444
+#: src/widgets/receive_transfer.rs:599
 msgid "Copy to clipboard"
 msgstr "클립보드에 복사하기"
 
-#: src/widgets/receive_transfer.rs:452
+#: src/widgets/receive_transfer.rs:607
 msgid "Save text as file"
 msgstr "텍스트를 파일로 저장하기"
 
-#: src/widgets/receive_transfer.rs:509 src/widgets/receive_transfer.rs:627
+#: src/widgets/receive_transfer.rs:664 src/widgets/receive_transfer.rs:807
+#: src/widgets/receive_transfer.rs:813
 msgid "Open"
 msgstr "열기"
 
-#: src/widgets/receive_transfer.rs:619
+#: src/widgets/receive_transfer.rs:759
+msgid "Received \"{}\""
+msgstr ""
+
+#: src/widgets/receive_transfer.rs:774
+msgid "Copy"
+msgstr ""
+
+#: src/widgets/receive_transfer.rs:789
 msgid "{} file received"
 msgid_plural "{} files received"
 msgstr[0] "파일 {}개를 받았습니다"
@@ -295,69 +350,82 @@ msgid "Sent {} file"
 msgid_plural "Sent {} files"
 msgstr[0] "파일 {}개를 보냈습니다"
 
-#: src/window.rs:442
+#: src/window.rs:491 src/window.rs:877
+msgid "Packet cannot run in the background"
+msgstr ""
+
+#: src/window.rs:527
+msgid "Packet cannot run at login"
+msgstr ""
+
+#: src/window.rs:592
 msgid "Can't rename device during an active transfer"
 msgstr "전송 중에는 기기 이름을 바꿀 수 없습니다"
 
-#: src/window.rs:583
+#: src/window.rs:733
 msgid "Invalid Port"
 msgstr "잘못된 포트"
 
-#: src/window.rs:587
+#: src/window.rs:737
 msgid ""
 "The chosen static port \"{}\" is not available. Try a different port above "
 "1024."
-msgstr "선택한 포트 \"{}\"를 사용할 수 없습니다. 1024보다 큰 포트를 시도해 보세요."
+msgstr ""
+"선택한 포트 \"{}\"를 사용할 수 없습니다. 1024보다 큰 포트를 시도해 보세요."
 
-#: src/window.rs:595
+#: src/window.rs:745
 msgid "_Ok"
 msgstr "예(_O)"
 
-#: src/window.rs:643
+#: src/window.rs:793
 msgid "Can't access Downloads folder"
 msgstr "다운로드 폴더에 접근할 수 없습니다"
 
-#: src/window.rs:644
+#: src/window.rs:794
 msgid "Pick Folder"
 msgstr "폴더 선택"
 
-#: src/window.rs:749
+#: src/window.rs:821
+msgid "Packet wants to run in the background"
+msgstr ""
+
+#: src/window.rs:969
 msgid "Copied error report to clipboard"
 msgstr "오류 보고서를 클립보드에 복사했습니다"
 
-#: src/window.rs:996
+#: src/window.rs:1216
 msgid "Ready"
 msgstr "준비됨"
 
-#: src/window.rs:1002
+#: src/window.rs:1222
 msgid "Visible as {:?}"
 msgstr "{:?}로 표시됩니다"
 
-#: src/window.rs:1008
+#: src/window.rs:1228
 msgid "Invisible"
 msgstr "검색 허용 꺼짐"
 
-#: src/window.rs:1014
+#: src/window.rs:1234
 msgid "No new devices can share with you"
 msgstr "새로운 기기는 이 기기와 공유할 수 없습니다"
 
-#: src/window.rs:1019
+#: src/window.rs:1239
 msgid "Disconnected"
 msgstr "연결 해제됨"
 
-#: src/window.rs:1025
+#: src/window.rs:1245
 msgid "Connect to Wi-Fi and turn on Bluetooth"
 msgstr "Wi-Fi에 연결하고 블루투스를 활성화하십시오"
 
-#: src/window.rs:1028
+#: src/window.rs:1248
 msgid "Connect to Wi-Fi"
 msgstr "Wi-Fi에 연결하십시오"
 
-#: src/window.rs:1031
+#: src/window.rs:1251
 msgid "Turn on Bluetooth"
 msgstr "블루투스를 활성화하십시오"
 
-#: src/window.rs:1095
+#: src/window.rs:1315
 msgid "Couldn't open files"
 msgstr "파일을 열 수 없습니다"
 
