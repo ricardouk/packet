@@ -419,7 +419,7 @@ pub fn present_receive_transfer_ui(
                         event_msg.device_name(),
                         if let Some(files) = event_msg.files() {
                             formatx!(
-                                ngettext("{} file", "{} files", files.len() as u32),
+                                ngettext("{} File", "{} Files", files.len() as u32),
                                 files.len()
                             )
                             .unwrap_or_default()
