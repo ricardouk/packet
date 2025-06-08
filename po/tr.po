@@ -65,11 +65,6 @@ msgstr "Packet kurulurken bir hata oluştu"
 msgid "Try Again"
 msgstr "Tekrar deneyin"
 
-#: data/resources/ui/window.blp:120
-#: data/io.github.nozwock.Packet.metainfo.xml.in.in:22
-msgid "Main Page"
-msgstr ""
-
 #: data/resources/ui/window.blp:141
 #, fuzzy
 msgid "Add, or drop a file to send"
@@ -507,6 +502,7 @@ msgstr ""
 msgid "Sent Share Request"
 msgstr "Paylaşım İsteği Gönderildi"
 
+#: data/resources/ui/window.blp:120
 #: data/io.github.nozwock.Packet.metainfo.xml.in.in:22
 msgid "Main Page"
 msgstr "Ana Sayfa"
