@@ -12,11 +12,7 @@
   </gresource>
 
   <gresource prefix="/io/github/nozwock/Packet/">
-    <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/vertical-arrows-long-down-symbolic.svg</file>
-    <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/vertical-arrows-long-up-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/cross-large-symbolic.svg</file>
-    <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/sliders-horizontal-symbolic.svg</file>
-    <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/plus-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/visible-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/eye-not-looking-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/eye-looking-symbolic.svg</file>
