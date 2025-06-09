@@ -169,6 +169,8 @@ mod imp {
 
         pub is_background_allowed: Cell<bool>,
         pub should_quit: Cell<bool>,
+
+        pub is_recipients_dialog_opened: Cell<bool>,
     }
 
     #[glib::object_subclass]
@@ -947,6 +949,53 @@ impl PacketApplicationWindow {
         self.setup_recipient_page();
     }
 
+    pub async fn spawn_send_files_receiver(&self, rx: async_channel::Receiver<Vec<String>>) {
+        let imp = self.imp();
+
+        while let Ok(files) = rx.recv().await {
+            let success = self.handle_added_files_to_send(
+                &imp.manage_files_model,
+                files
+                    .into_iter()
+                    .map(|it| gio::File::for_path(it))
+                    .collect::<Vec<_>>(),
+            );
+            if success {
+                self.present_recipients_dialog();
+            } else {
+                self.close_recipients_dialog();
+            }
+        }
+    }
+
+    fn present_recipients_dialog(&self) {
+        let imp = self.imp();
+
+        if imp.is_recipients_dialog_opened.get() {
+            return;
+        }
+
+        // Clear previous recipients
+        imp.send_transfers_id_cache.blocking_lock().clear();
+        imp.recipient_model.remove_all();
+
+        imp.obj().start_mdns_discovery(None);
+
+        imp.select_recipients_dialog.present(self.root().as_ref());
+        imp.is_recipients_dialog_opened.set(true);
+    }
+
+    fn close_recipients_dialog(&self) {
+        let imp = self.imp();
+
+        if !imp.is_recipients_dialog_opened.get() {
+            return;
+        }
+
+        // is_recipients_dialog_opened is set in `closed` signal handler
+        imp.select_recipients_dialog.close();
+    }
+
     fn setup_status_pages(&self) {
         let imp = self.imp();
 
@@ -1007,10 +1056,8 @@ impl PacketApplicationWindow {
             move |_, value, _, _| {
                 imp.manage_files_model.remove_all();
                 if let Ok(file_list) = value.get::<gdk::FileList>() {
-                    Self::handle_added_files_to_send(
-                        &imp,
-                        Self::filter_added_files(&imp.manage_files_model, file_list.files()),
-                    );
+                    imp.obj()
+                        .handle_added_files_to_send(&imp.manage_files_model, file_list.files());
                 }
 
                 false
@@ -1032,14 +1079,7 @@ impl PacketApplicationWindow {
             #[weak]
             imp,
             move |_| {
-                // Clear previous recipients
-                imp.send_transfers_id_cache.blocking_lock().clear();
-                imp.recipient_model.remove_all();
-
-                imp.obj().start_mdns_discovery(None);
-
-                imp.select_recipients_dialog
-                    .present(imp.obj().root().as_ref());
+                imp.obj().present_recipients_dialog();
             }
         ));
 
@@ -1058,10 +1098,8 @@ impl PacketApplicationWindow {
             false,
             move |_, value, _, _| {
                 if let Ok(file_list) = value.get::<gdk::FileList>() {
-                    Self::handle_added_files_to_send(
-                        &imp,
-                        Self::filter_added_files(&imp.manage_files_model, file_list.files()),
-                    );
+                    imp.obj()
+                        .handle_added_files_to_send(&imp.manage_files_model, file_list.files());
                 }
 
                 false
@@ -1087,6 +1125,7 @@ impl PacketApplicationWindow {
             #[weak]
             imp,
             move |_| {
+                imp.is_recipients_dialog_opened.set(false);
                 imp.obj().stop_mdns_discovery();
             }
         ));
@@ -1309,17 +1348,24 @@ impl PacketApplicationWindow {
         ));
     }
 
-    fn handle_added_files_to_send(imp: &imp::PacketApplicationWindow, files: Vec<gio::File>) {
-        if files.len() == 0 {
-            imp.toast_overlay.add_toast(
-                adw::Toast::builder()
-                    .title(&gettext("Couldn't open files"))
-                    .build(),
-            );
-        } else {
-            tracing::debug!(files_added = ?files.iter().map(|it| it.path()).collect::<Vec<_>>());
+    fn handle_added_files_to_send(&self, model: &gio::ListStore, files: Vec<gio::File>) -> bool {
+        let imp = self.imp();
 
-            let file_count = files.len() + imp.manage_files_model.n_items() as usize;
+        tracing::debug!(selected_files = ?files.iter().map(|it| it.path()).collect::<Vec<_>>());
+
+        let (files, is_already_in_model) = Self::filter_added_files(model, files);
+        if is_already_in_model {
+            return true;
+        }
+
+        if files.len() == 0 {
+            // TODO: Maybe don't show this if the only filtered out files
+            // are the 0 byte sized
+            self.add_toast(&gettext("Couldn't open files"));
+
+            false
+        } else {
+            let file_count = files.len() + model.n_items() as usize;
             imp.manage_files_header.set_title(
                 &formatx!(
                     ngettext(
@@ -1333,15 +1379,19 @@ impl PacketApplicationWindow {
                 .unwrap_or_else(|_| "badly formatted locale string".into()),
             );
 
-            if let Some(tag) = imp.main_nav_view.visible_page_tag() {
-                if &tag != "manage_files_nav_page" {
-                    imp.main_nav_view.push_by_tag("manage_files_nav_page");
-                }
+            for file in &files {
+                model.append(file);
             }
 
-            for file in &files {
-                imp.manage_files_model.append(file);
+            let Some(tag) = imp.main_nav_view.visible_page_tag() else {
+                return false;
+            };
+
+            if &tag != "manage_files_nav_page" {
+                imp.main_nav_view.push_by_tag("manage_files_nav_page");
             }
+
+            true
         }
     }
 
@@ -1363,18 +1413,19 @@ impl PacketApplicationWindow {
                             files_vec.push(file);
                         }
 
-                        Self::handle_added_files_to_send(
-                            &imp,
-                            Self::filter_added_files(&imp.manage_files_model, files_vec),
-                        );
+                        imp.obj()
+                            .handle_added_files_to_send(&imp.manage_files_model, files_vec);
                     };
                 }
             ),
         );
     }
 
-    fn filter_added_files(model: &gio::ListStore, files: Vec<gio::File>) -> Vec<gio::File> {
-        files
+    fn filter_added_files(model: &gio::ListStore, files: Vec<gio::File>) -> (Vec<gio::File>, bool) {
+        let files_len = files.len();
+
+        let mut already_included_count = 0usize;
+        let filtered_files = files
             .into_iter()
             .filter(|file| {
                 file.query_file_type(
@@ -1400,13 +1451,17 @@ impl PacketApplicationWindow {
             .filter(|file| {
                 for existing_file in model.iter::<gio::File>().filter_map(|it| it.ok()) {
                     if existing_file.parse_name() == file.parse_name() {
+                        already_included_count += 1;
                         return false;
                     }
                 }
 
                 true
             })
-            .collect::<Vec<_>>()
+            .collect::<Vec<_>>();
+
+        let is_already_in_model = already_included_count == files_len;
+        (filtered_files, is_already_in_model)
     }
 
     fn start_mdns_discovery(&self, force: Option<bool>) {
