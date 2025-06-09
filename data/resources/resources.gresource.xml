@@ -13,7 +13,7 @@
 
   <gresource prefix="/io/github/nozwock/Packet/">
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/cross-large-symbolic.svg</file>
-    <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/visible-symbolic.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/network-available-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/eye-not-looking-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/eye-looking-symbolic.svg</file>
     <file compressed="true" preprocess="xml-stripblanks">icons/scalable/actions/radiowaves-1-symbolic.svg</file>

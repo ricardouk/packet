@@ -1215,7 +1215,8 @@ impl PacketApplicationWindow {
             if is_visible {
                 imp.bottom_bar_title.set_label(&gettext("Ready"));
                 imp.bottom_bar_title.add_css_class("accent");
-                imp.bottom_bar_image.set_icon_name(Some("visible-symbolic"));
+                imp.bottom_bar_image
+                    .set_icon_name(Some("network-available-symbolic"));
                 imp.bottom_bar_image.add_css_class("accent");
                 imp.bottom_bar_caption.set_label(
                     &formatx!(
