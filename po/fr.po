@@ -141,7 +141,7 @@ msgstr "Démarrage automatique"
 
 #: data/resources/ui/window.blp:459
 msgid "Start automatically at login"
-msgstr "Démarrer automatiquement après allumage"
+msgstr "Démarrer automatiquement lors de la connexion"
 
 #: data/resources/ui/window.blp:464
 msgid "Advanced"
@@ -363,7 +363,7 @@ msgstr "Packet ne peut pas s'exécuter en arrière-plan"
 
 #: src/window.rs:527
 msgid "Packet cannot run at login"
-msgstr "Packet ne peut pas s'exécuter au démarrage"
+msgstr "Packet ne peut pas se lancer automatiquement à la connexion"
 
 #: src/window.rs:592
 msgid "Can't rename device during an active transfer"
@@ -407,7 +407,7 @@ msgstr "Prêt"
 
 #: src/window.rs:1222
 msgid "Visible as {:?}"
-msgstr "Visible comme {:?}"
+msgstr "Visible en tant que {:?}"
 
 #: src/window.rs:1228
 msgid "Invisible"
