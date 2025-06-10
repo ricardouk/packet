@@ -74,6 +74,7 @@ pub fn is_file_same(file1: impl AsRef<Path>, file2: impl AsRef<Path>) -> anyhow:
     Ok(true)
 }
 
+// TODO: Don't take option, callback should only be called if all signals are blocked
 pub fn with_signals_blocked<O, F>(blocks: &[(&O, Option<&glib::SignalHandlerId>)], f: F)
 where
     O: glib::object::ObjectExt,

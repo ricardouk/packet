@@ -20,6 +20,7 @@ use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
 use crate::objects::{self, SendRequestState};
 use crate::objects::{TransferState, UserAction};
+use crate::plugins::{FileBasedPlugin, NautilusPlugin, Plugin};
 use crate::utils::{strip_user_home_prefix, with_signals_blocked, xdg_download_with_fallback};
 use crate::{monitors, tokio_runtime, widgets};
 
@@ -109,6 +110,9 @@ mod imp {
         #[template_child]
         pub auto_start_switch: TemplateChild<adw::SwitchRow>,
         pub auto_start_switch_handler_id: RefCell<Option<glib::SignalHandlerId>>,
+        #[template_child]
+        pub nautilus_plugin_switch: TemplateChild<adw::SwitchRow>,
+        pub nautilus_plugin_switch_handler_id: RefCell<Option<glib::SignalHandlerId>>,
 
         #[template_child]
         pub main_box: TemplateChild<gtk::Box>,
@@ -171,6 +175,8 @@ mod imp {
         pub should_quit: Cell<bool>,
 
         pub is_recipients_dialog_opened: Cell<bool>,
+
+        pub nautilus_plugin: NautilusPlugin,
     }
 
     #[glib::object_subclass]
@@ -446,6 +452,13 @@ impl PacketApplicationWindow {
         imp.settings
             .bind("auto-start", &imp.auto_start_switch.get(), "active")
             .build();
+        imp.settings
+            .bind(
+                "enable-nautilus-plugin",
+                &imp.nautilus_plugin_switch.get(),
+                "active",
+            )
+            .build();
 
         let device_name = &self.get_device_name_state();
         let device_name_entry = imp.device_name_entry.get();
@@ -461,6 +474,62 @@ impl PacketApplicationWindow {
                 device_name_entry.set_text(device_name);
             }
         }
+
+        let _signal_handle = imp.nautilus_plugin_switch.connect_active_notify(clone!(
+            #[weak]
+            imp,
+            move |switch| {
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    imp,
+                    #[weak]
+                    switch,
+                    async move {
+                        switch.set_sensitive(false);
+
+                        let enable_plugin = switch.is_active();
+
+                        tracing::info!(enable_plugin, "Setting Nautilus plugin state");
+
+                        let plugin = imp.nautilus_plugin.clone();
+                        let success = tokio_runtime()
+                            .spawn_blocking(move || {
+                                if enable_plugin {
+                                    plugin.install_plugin()
+                                } else {
+                                    plugin.uninstall_plugin()
+                                }
+                            })
+                            .await
+                            .inspect_err(|err| tracing::error!("{err:#}"))
+                            .is_ok();
+
+                        if enable_plugin {
+                            if success {
+                                imp.obj().present_plugin_success_dialog();
+                            } else {
+                                imp.obj().present_plugin_error_dialog(
+                                        NautilusPlugin::help_install_dir(),
+                                    );
+                                with_signals_blocked(
+                                    &[(
+                                        &switch,
+                                        imp.nautilus_plugin_switch_handler_id.borrow().as_ref(),
+                                    )],
+                                    || {
+                                        switch.set_active(false);
+                                    },
+                                );
+                            }
+                        }
+
+                        switch.set_sensitive(true);
+                    }
+                ));
+            }
+        ));
+        imp.nautilus_plugin_switch_handler_id
+            .replace(Some(_signal_handle));
 
         let _signal_handle = imp.run_in_background_switch.connect_active_notify(clone!(
             #[weak]
@@ -947,6 +1016,105 @@ impl PacketApplicationWindow {
         self.setup_main_page();
         self.setup_manage_files_page();
         self.setup_recipient_page();
+    }
+
+    fn present_plugin_success_dialog(&self) {
+        let dialog = adw::AlertDialog::builder()
+            .heading(&gettext("Plugin Installed"))
+            .default_response("ok")
+            .build();
+
+        dialog.add_response("ok", &gettext("Ok"));
+        dialog.set_response_appearance("ok", adw::ResponseAppearance::Suggested);
+
+        let info_box = gtk::Box::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .halign(gtk::Align::Center)
+            .spacing(8)
+            .build();
+        dialog.set_extra_child(Some(&info_box));
+
+        let pkg_info_label = gtk::Label::builder()
+            .use_markup(true)
+            .wrap(true)
+            .label(
+                &formatx!(
+                    gettext(
+                        "The plugin was installed successfully, but requires the \
+                        following packages to function: {}"
+                    ),
+                    "<tt>nautilus-python, python-dbus</tt>",
+                )
+                .unwrap_or_default(),
+            )
+            .build();
+        info_box.append(&pkg_info_label);
+
+        let pkg_info_link_label = gtk::Label::builder()
+            .use_markup(true)
+            .wrap(true)
+            .label(
+                &formatx!(
+                    gettext(
+                        "Package names may vary by distribution, see <a {}>this \
+                        link</a> for details."
+                    ),
+                    // Keeping it out of the msgid so that translators are less
+                    // likely to mess something in here
+                    "href=\"https://github.com/nozwock/packet?tab=readme-ov-file#plugin-requirements\""
+                )
+                .unwrap_or_default(),
+            )
+            .build();
+        info_box.append(&pkg_info_link_label);
+
+        let restart_info_label = gtk::Label::builder()
+            .wrap(true)
+            .label(&gettext(
+                "Once that's done, restart Nautilus (e.g., by logging out and back in) to load the plugin.",
+            ))
+            .build();
+        info_box.append(&restart_info_label);
+
+        dialog.present(self.root().as_ref());
+    }
+
+    fn present_plugin_error_dialog(&self, extensions_display_dir: &str) {
+        let dialog = adw::AlertDialog::builder()
+            .heading(&gettext("Installation Failed"))
+            .default_response("ok")
+            .build();
+
+        dialog.add_response("ok", &gettext("Ok"));
+        dialog.set_response_appearance("ok", adw::ResponseAppearance::Suggested);
+
+        let info_box = gtk::Box::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .halign(gtk::Align::Center)
+            .spacing(8)
+            .build();
+        dialog.set_extra_child(Some(&info_box));
+
+        let info_label = gtk::Label::builder()
+            .use_markup(true)
+            .wrap(true)
+            .label(&gettext(
+                "Plugin installation failed. Make sure the following directory \
+                exists and is accessible by Packet:",
+            ))
+            .build();
+        info_box.append(&info_label);
+
+        let extensions_dir_label = gtk::Label::builder()
+            .selectable(true)
+            .wrap(true)
+            .wrap_mode(gtk::pango::WrapMode::WordChar)
+            .label(extensions_display_dir)
+            .css_classes(["command_snippet"])
+            .build();
+        info_box.append(&extensions_dir_label);
+
+        dialog.present(self.root().as_ref());
     }
 
     pub async fn spawn_send_files_receiver(&self, rx: async_channel::Receiver<Vec<String>>) {
