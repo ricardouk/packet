@@ -1553,9 +1553,9 @@ impl PacketApplicationWindow {
             return true;
         }
 
+        // TODO: Maybe don't show this if the only filtered out files
+        // are the 0 byte sized
         if files.len() == 0 {
-            // TODO: Maybe don't show this if the only filtered out files
-            // are the 0 byte sized
             self.add_toast(&gettext("Couldn't open files"));
 
             false
