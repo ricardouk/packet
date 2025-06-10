@@ -475,6 +475,31 @@ impl PacketApplicationWindow {
             }
         }
 
+        if imp.settings.boolean("enable-nautilus-plugin") {
+            // Update plugin
+            // This takes care of cases of applying updates to the python extension
+            // script as well as reinstalling it if it got removed for some reason.
+            let plugin = imp.nautilus_plugin.clone();
+            glib::spawn_future_local(clone!(
+                #[weak]
+                imp,
+                async move {
+                    let success = tokio_runtime()
+                        .spawn_blocking(move || plugin.install_plugin())
+                        .await
+                        .map_err(|err| anyhow::anyhow!(err))
+                        .and_then(|it| it)
+                        .inspect_err(|err| tracing::error!("{err:#}"))
+                        .is_ok();
+
+                    if !success {
+                        imp.obj()
+                            .add_toast(&gettext("Couldn't update the Nautilus plugin"));
+                    }
+                }
+            ));
+        }
+
         let _signal_handle = imp.nautilus_plugin_switch.connect_active_notify(clone!(
             #[weak]
             imp,
@@ -501,6 +526,8 @@ impl PacketApplicationWindow {
                                 }
                             })
                             .await
+                            .map_err(|err| anyhow::anyhow!(err))
+                            .and_then(|it| it)
                             .inspect_err(|err| tracing::error!("{err:#}"))
                             .is_ok();
 
