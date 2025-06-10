@@ -2,7 +2,10 @@ use std::path::PathBuf;
 
 use anyhow::Context;
 
-use crate::utils::is_file_same;
+use crate::{
+    config::PKGDATADIR,
+    utils::{is_file_same, xdg_data_dirs},
+};
 
 pub trait Plugin {
     /// Installs and updates the plugin.
@@ -16,7 +19,7 @@ pub trait FileBasedPlugin: Plugin {
     fn plugin_files(&self) -> &[PathBuf];
     fn install_dir(&self) -> Option<PathBuf>;
     /// It's the path to show to the user for troubleshooting purposes.
-    fn help_install_dir(&self) -> &'static str;
+    fn help_install_dir() -> &'static str;
 }
 impl<T: FileBasedPlugin> Plugin for T {
     fn install_plugin(&self) -> anyhow::Result<()> {
@@ -99,5 +102,53 @@ impl<T: FileBasedPlugin> Plugin for T {
         }
 
         Ok(())
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct NautilusPlugin {
+    files: Vec<PathBuf>,
+}
+
+impl FileBasedPlugin for NautilusPlugin {
+    fn plugin_files(&self) -> &[PathBuf] {
+        self.files.as_slice()
+    }
+
+    fn install_dir(&self) -> Option<PathBuf> {
+        let mut base_dirs = xdg_data_dirs();
+
+        // https://gitlab.gnome.org/GNOME/nautilus-python/-/tree/master#running-extensions
+        if let Some(data_home_dir) = std::env::var_os("XDG_DATA_HOME")
+            .and_then(|it| (!it.is_empty()).then_some(PathBuf::from(it)))
+        {
+            base_dirs.insert(0, data_home_dir);
+        }
+        if let Some(home) = dirs::home_dir() {
+            base_dirs.insert(0, home.join(".local/share"));
+        }
+
+        base_dirs
+            .into_iter()
+            .map(|it| it.join("nautilus-python/extensions"))
+            .find(|it| it.is_dir())
+    }
+
+    fn help_install_dir() -> &'static str {
+        "~/.local/share/nautilus-python/extensions"
+    }
+}
+
+impl Default for NautilusPlugin {
+    fn default() -> Self {
+        Self {
+            files: vec![PathBuf::from(PKGDATADIR).join("plugins/packet_nautilus.py")],
+        }
+    }
+}
+
+impl NautilusPlugin {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
