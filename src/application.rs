@@ -1,4 +1,5 @@
 use gettextrs::gettext;
+use gtk::glib::clone;
 use tracing::{debug, info};
 
 use adw::prelude::*;
@@ -8,16 +9,22 @@ use gtk::{gdk, gio, glib};
 use crate::config::{APP_ID, PKGDATADIR, PROFILE, VERSION};
 use crate::window::PacketApplicationWindow;
 
+type AsyncChannel<T> = (async_channel::Sender<T>, async_channel::Receiver<T>);
+
 mod imp {
+
     use super::*;
     use glib::WeakRef;
     use std::cell::{Cell, OnceCell};
 
-    #[derive(Debug, Default)]
+    #[derive(Debug, better_default::Default)]
     pub struct PacketApplication {
         pub window: OnceCell<WeakRef<PacketApplicationWindow>>,
 
         pub start_in_background: Cell<bool>,
+
+        #[default(async_channel::bounded(1))]
+        pub send_files_channel: AsyncChannel<Vec<String>>,
     }
 
     #[glib::object_subclass]
@@ -46,6 +53,16 @@ mod imp {
                 .set(window.downgrade())
                 .expect("Window already set.");
 
+            // Setup receiver
+            let rx = self.send_files_channel.1.clone();
+            glib::spawn_future_local(glib::clone!(
+                #[weak]
+                app,
+                async move {
+                    app.main_window().spawn_send_files_receiver(rx).await;
+                }
+            ));
+
             if !self.start_in_background.get() {
                 app.main_window().present();
             }
@@ -64,11 +81,76 @@ mod imp {
             app.setup_accels();
         }
 
-        fn handle_local_options(&self, options: &glib::VariantDict) -> glib::ExitCode {
-            tracing::debug!(background = ?options.lookup::<bool>("background"), "Parsing command line");
-            self.start_in_background
-                .replace(options.contains("background"));
+        fn dbus_register(
+            &self,
+            connection: &gio::DBusConnection,
+            object_path: &str,
+        ) -> Result<(), glib::Error> {
+            // Multiple approaches were considered for sending a list of paths from
+            // the nautilus extension to the instance of app, or to launch the app
+            // first if it wasn't running, such as:
+            //
+            // 1. Figuring out the exec command from the Desktop file using
+            // Gio.DesktopAppInfo and running the command with some `--send-files`
+            // arg that takes in a list of paths. But, the issue being in passing
+            // these options from a remote instance to the primary instance of the
+            // app while using the same binary instead. `is_remote()` couldn't be
+            // used to set the HANDLES_COMMAND_LINE application flag dynamically.
+            //
+            // 2. Having our own D-Bus API using zbus, but that'd require us to use a
+            // separate service name and file than the one GApplication will be
+            // using.
+            //
+            // 3. Or, to export our Dbus objects using DBusConnection, unfortunately
+            // the documentation is quite lackluster. But, thankfully it allows for
+            // exporting ActionGroup which is easy enough to do even though the
+            // resulting generated API is not too ergonomic.
+            //
+            // #3 is currently how it's implemented. The ActionGroup is exported
+            // under `/<APP_ID Path>/Share` and the action can be called from the
+            // `Activate` method over the interface `org.gtk.Actions` with parameters
+            // such as:
+            //
+            // ```
+            // ('send-files', [<['~/file_1', '~/file_2']>], {})
+            // ```
+            let group = gio::SimpleActionGroup::new();
+            {
+                let send_files_action =
+                    gio::SimpleAction::new("send-files", Some(glib::VariantTy::STRING_ARRAY));
+                send_files_action.connect_activate(clone!(
+                    #[weak(rename_to = this)]
+                    self,
+                    move |_, variant| {
+                        if let Some(variant) = variant {
+                            let files = variant
+                                .get::<Vec<String>>()
+                                .expect("Parameter of the Action isn't array of string");
+                            glib::spawn_future_local(clone!(
+                                #[weak]
+                                this,
+                                async move {
+                                    _ = this
+                                        .send_files_channel
+                                        .0
+                                        .send(files)
+                                        .await
+                                        .inspect_err(|err| tracing::warn!("{err:#}"));
+                                }
+                            ));
+                        }
+                    }
+                ));
+                group.add_action(&send_files_action);
+            }
 
+            connection.export_action_group(&format!("{object_path}/Share"), &group)?;
+
+            Ok(())
+        }
+
+        fn handle_local_options(&self, options: &glib::VariantDict) -> glib::ExitCode {
+            self.obj().handle_command_line(options);
             self.parent_handle_local_options(options)
         }
 
@@ -181,7 +263,19 @@ impl PacketApplication {
         dialog.present(Some(&self.main_window()));
     }
 
-    fn setup_options(&self) {
+    fn handle_command_line(&self, options: &glib::VariantDict) {
+        let imp = self.imp();
+
+        tracing::debug!(
+            background = ?options.lookup::<bool>("background"),
+            "Processing command line options"
+        );
+
+        imp.start_in_background
+            .replace(options.contains("background"));
+    }
+
+    fn setup_command_line_options(&self) {
         self.add_main_option(
             "background",
             b'b'.into(),
@@ -197,7 +291,7 @@ impl PacketApplication {
         info!("Version: {} ({})", VERSION, PROFILE);
         info!("Datadir: {}", PKGDATADIR);
 
-        self.setup_options();
+        self.setup_command_line_options();
 
         ApplicationExtManual::run(self)
     }

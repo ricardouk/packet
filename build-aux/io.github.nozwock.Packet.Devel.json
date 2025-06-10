@@ -9,6 +9,7 @@
     ],
     "command": "packet",
     "finish-args": [
+        "--filesystem=home/.local/share/nautilus-python/extensions",
         "--allow=bluetooth",
         "--share=network",
         "--filesystem=xdg-download",

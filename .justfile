@@ -38,6 +38,7 @@ potfiles:
     fd --ignore-file .gitignore -tf --extension rs '.*' src >> {{ potfiles_path }}
 
     cat <<EOF >> {{ potfiles_path }}
+    data/resources/plugins/packet_nautilus.py.in
     data/io.github.nozwock.Packet.desktop.in.in
     data/io.github.nozwock.Packet.gschema.xml.in
     data/io.github.nozwock.Packet.metainfo.xml.in.in

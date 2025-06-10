@@ -20,6 +20,7 @@ use crate::application::PacketApplication;
 use crate::config::{APP_ID, PROFILE};
 use crate::objects::{self, SendRequestState};
 use crate::objects::{TransferState, UserAction};
+use crate::plugins::{FileBasedPlugin, NautilusPlugin, Plugin};
 use crate::utils::{strip_user_home_prefix, with_signals_blocked, xdg_download_with_fallback};
 use crate::{monitors, tokio_runtime, widgets};
 
@@ -109,6 +110,9 @@ mod imp {
         #[template_child]
         pub auto_start_switch: TemplateChild<adw::SwitchRow>,
         pub auto_start_switch_handler_id: RefCell<Option<glib::SignalHandlerId>>,
+        #[template_child]
+        pub nautilus_plugin_switch: TemplateChild<adw::SwitchRow>,
+        pub nautilus_plugin_switch_handler_id: RefCell<Option<glib::SignalHandlerId>>,
 
         #[template_child]
         pub main_box: TemplateChild<gtk::Box>,
@@ -169,6 +173,10 @@ mod imp {
 
         pub is_background_allowed: Cell<bool>,
         pub should_quit: Cell<bool>,
+
+        pub is_recipients_dialog_opened: Cell<bool>,
+
+        pub nautilus_plugin: NautilusPlugin,
     }
 
     #[glib::object_subclass]
@@ -444,6 +452,13 @@ impl PacketApplicationWindow {
         imp.settings
             .bind("auto-start", &imp.auto_start_switch.get(), "active")
             .build();
+        imp.settings
+            .bind(
+                "enable-nautilus-plugin",
+                &imp.nautilus_plugin_switch.get(),
+                "active",
+            )
+            .build();
 
         let device_name = &self.get_device_name_state();
         let device_name_entry = imp.device_name_entry.get();
@@ -459,6 +474,89 @@ impl PacketApplicationWindow {
                 device_name_entry.set_text(device_name);
             }
         }
+
+        if imp.settings.boolean("enable-nautilus-plugin") {
+            // Update plugin
+            // This takes care of cases of applying updates to the python extension
+            // script as well as reinstalling it if it got removed for some reason.
+            let plugin = imp.nautilus_plugin.clone();
+            glib::spawn_future_local(clone!(
+                #[weak]
+                imp,
+                async move {
+                    let success = tokio_runtime()
+                        .spawn_blocking(move || plugin.install_plugin())
+                        .await
+                        .map_err(|err| anyhow::anyhow!(err))
+                        .and_then(|it| it)
+                        .inspect_err(|err| tracing::error!("{err:#}"))
+                        .is_ok();
+
+                    if !success {
+                        imp.obj()
+                            .add_toast(&gettext("Couldn't update the Nautilus plugin"));
+                    }
+                }
+            ));
+        }
+
+        let _signal_handle = imp.nautilus_plugin_switch.connect_active_notify(clone!(
+            #[weak]
+            imp,
+            move |switch| {
+                glib::spawn_future_local(clone!(
+                    #[weak]
+                    imp,
+                    #[weak]
+                    switch,
+                    async move {
+                        switch.set_sensitive(false);
+
+                        let enable_plugin = switch.is_active();
+
+                        tracing::info!(enable_plugin, "Setting Nautilus plugin state");
+
+                        let plugin = imp.nautilus_plugin.clone();
+                        let success = tokio_runtime()
+                            .spawn_blocking(move || {
+                                if enable_plugin {
+                                    plugin.install_plugin()
+                                } else {
+                                    plugin.uninstall_plugin()
+                                }
+                            })
+                            .await
+                            .map_err(|err| anyhow::anyhow!(err))
+                            .and_then(|it| it)
+                            .inspect_err(|err| tracing::error!("{err:#}"))
+                            .is_ok();
+
+                        if enable_plugin {
+                            if success {
+                                imp.obj().present_plugin_success_dialog();
+                            } else {
+                                imp.obj().present_plugin_error_dialog(
+                                        NautilusPlugin::help_install_dir(),
+                                    );
+                                with_signals_blocked(
+                                    &[(
+                                        &switch,
+                                        imp.nautilus_plugin_switch_handler_id.borrow().as_ref(),
+                                    )],
+                                    || {
+                                        switch.set_active(false);
+                                    },
+                                );
+                            }
+                        }
+
+                        switch.set_sensitive(true);
+                    }
+                ));
+            }
+        ));
+        imp.nautilus_plugin_switch_handler_id
+            .replace(Some(_signal_handle));
 
         let _signal_handle = imp.run_in_background_switch.connect_active_notify(clone!(
             #[weak]
@@ -947,6 +1045,152 @@ impl PacketApplicationWindow {
         self.setup_recipient_page();
     }
 
+    fn present_plugin_success_dialog(&self) {
+        let dialog = adw::AlertDialog::builder()
+            .heading(&gettext("Plugin Installed"))
+            .default_response("done")
+            .build();
+
+        dialog.add_response("done", &gettext("Done"));
+        dialog.set_response_appearance("done", adw::ResponseAppearance::Suggested);
+
+        let info_box = gtk::Box::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .halign(gtk::Align::Center)
+            .spacing(8)
+            .build();
+        dialog.set_extra_child(Some(&info_box));
+
+        let pkg_info_label = gtk::Label::builder()
+            .use_markup(true)
+            .wrap(true)
+            .label(
+                &formatx!(
+                    gettext(
+                        "The plugin was installed successfully, but requires the \
+                        following packages to function: {}"
+                    ),
+                    "<tt>nautilus-python, python-dbus</tt>",
+                )
+                .unwrap_or_default(),
+            )
+            .build();
+        info_box.append(&pkg_info_label);
+
+        let pkg_info_link_label = gtk::Label::builder()
+            .use_markup(true)
+            .wrap(true)
+            .label(
+                &formatx!(
+                    gettext(
+                        "Package names may vary by distribution, visit <a {}>this \
+                        link</a> for details."
+                    ),
+                    // Keeping it out of the msgid so that translators are less
+                    // likely to mess something in here
+                    "href=\"https://github.com/nozwock/packet?tab=readme-ov-file#plugin-requirements\""
+                )
+                .unwrap_or_default(),
+            )
+            .build();
+        info_box.append(&pkg_info_link_label);
+
+        let restart_info_label = gtk::Label::builder()
+            .wrap(true)
+            .label(&gettext(
+                "Once that's done, restart Nautilus (e.g., by logging out and back in) to load the plugin.",
+            ))
+            .build();
+        info_box.append(&restart_info_label);
+
+        dialog.present(self.root().as_ref());
+    }
+
+    fn present_plugin_error_dialog(&self, extensions_display_dir: &str) {
+        let dialog = adw::AlertDialog::builder()
+            .heading(&gettext("Installation Failed"))
+            .default_response("close")
+            .build();
+
+        dialog.add_response("close", &gettext("Close"));
+        dialog.set_response_appearance("close", adw::ResponseAppearance::Suggested);
+
+        let info_box = gtk::Box::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .halign(gtk::Align::Center)
+            .spacing(8)
+            .build();
+        dialog.set_extra_child(Some(&info_box));
+
+        let info_label = gtk::Label::builder()
+            .use_markup(true)
+            .wrap(true)
+            .label(&gettext(
+                "Plugin installation failed. Make sure the following directory \
+                exists and is accessible by Packet:",
+            ))
+            .build();
+        info_box.append(&info_label);
+
+        let extensions_dir_label = gtk::Label::builder()
+            .selectable(true)
+            .wrap(true)
+            .wrap_mode(gtk::pango::WrapMode::WordChar)
+            .label(extensions_display_dir)
+            .css_classes(["command_snippet"])
+            .build();
+        info_box.append(&extensions_dir_label);
+
+        dialog.present(self.root().as_ref());
+    }
+
+    pub async fn spawn_send_files_receiver(&self, rx: async_channel::Receiver<Vec<String>>) {
+        let imp = self.imp();
+
+        while let Ok(files) = rx.recv().await {
+            let success = self.handle_added_files_to_send(
+                &imp.manage_files_model,
+                files
+                    .into_iter()
+                    .map(|it| gio::File::for_path(it))
+                    .collect::<Vec<_>>(),
+            );
+            if success {
+                self.present_recipients_dialog();
+            } else {
+                self.close_recipients_dialog();
+            }
+        }
+    }
+
+    fn present_recipients_dialog(&self) {
+        let imp = self.imp();
+
+        if imp.is_recipients_dialog_opened.get() {
+            return;
+        }
+
+        // Clear previous recipients
+        imp.send_transfers_id_cache.blocking_lock().clear();
+        imp.recipient_model.remove_all();
+
+        imp.obj().start_mdns_discovery(None);
+
+        imp.select_recipients_dialog.present(self.root().as_ref());
+        imp.is_recipients_dialog_opened.set(true);
+    }
+
+    fn close_recipients_dialog(&self) {
+        let imp = self.imp();
+
+        if !imp.is_recipients_dialog_opened.get() {
+            return;
+        }
+
+        // is_recipients_dialog_opened is set in `closed` signal handler
+        imp.select_recipients_dialog.close();
+    }
+
     fn setup_status_pages(&self) {
         let imp = self.imp();
 
@@ -1007,10 +1251,8 @@ impl PacketApplicationWindow {
             move |_, value, _, _| {
                 imp.manage_files_model.remove_all();
                 if let Ok(file_list) = value.get::<gdk::FileList>() {
-                    Self::handle_added_files_to_send(
-                        &imp,
-                        Self::filter_added_files(&imp.manage_files_model, file_list.files()),
-                    );
+                    imp.obj()
+                        .handle_added_files_to_send(&imp.manage_files_model, file_list.files());
                 }
 
                 false
@@ -1032,14 +1274,7 @@ impl PacketApplicationWindow {
             #[weak]
             imp,
             move |_| {
-                // Clear previous recipients
-                imp.send_transfers_id_cache.blocking_lock().clear();
-                imp.recipient_model.remove_all();
-
-                imp.obj().start_mdns_discovery(None);
-
-                imp.select_recipients_dialog
-                    .present(imp.obj().root().as_ref());
+                imp.obj().present_recipients_dialog();
             }
         ));
 
@@ -1058,10 +1293,8 @@ impl PacketApplicationWindow {
             false,
             move |_, value, _, _| {
                 if let Ok(file_list) = value.get::<gdk::FileList>() {
-                    Self::handle_added_files_to_send(
-                        &imp,
-                        Self::filter_added_files(&imp.manage_files_model, file_list.files()),
-                    );
+                    imp.obj()
+                        .handle_added_files_to_send(&imp.manage_files_model, file_list.files());
                 }
 
                 false
@@ -1087,6 +1320,7 @@ impl PacketApplicationWindow {
             #[weak]
             imp,
             move |_| {
+                imp.is_recipients_dialog_opened.set(false);
                 imp.obj().stop_mdns_discovery();
             }
         ));
@@ -1309,17 +1543,24 @@ impl PacketApplicationWindow {
         ));
     }
 
-    fn handle_added_files_to_send(imp: &imp::PacketApplicationWindow, files: Vec<gio::File>) {
-        if files.len() == 0 {
-            imp.toast_overlay.add_toast(
-                adw::Toast::builder()
-                    .title(&gettext("Couldn't open files"))
-                    .build(),
-            );
-        } else {
-            tracing::debug!(files_added = ?files.iter().map(|it| it.path()).collect::<Vec<_>>());
+    fn handle_added_files_to_send(&self, model: &gio::ListStore, files: Vec<gio::File>) -> bool {
+        let imp = self.imp();
 
-            let file_count = files.len() + imp.manage_files_model.n_items() as usize;
+        tracing::debug!(selected_files = ?files.iter().map(|it| it.path()).collect::<Vec<_>>());
+
+        let (files, is_already_in_model) = Self::filter_added_files(model, files);
+        if is_already_in_model {
+            return true;
+        }
+
+        // TODO: Maybe don't show this if the only filtered out files
+        // are the 0 byte sized
+        if files.len() == 0 {
+            self.add_toast(&gettext("Couldn't open files"));
+
+            false
+        } else {
+            let file_count = files.len() + model.n_items() as usize;
             imp.manage_files_header.set_title(
                 &formatx!(
                     ngettext(
@@ -1333,15 +1574,19 @@ impl PacketApplicationWindow {
                 .unwrap_or_else(|_| "badly formatted locale string".into()),
             );
 
-            if let Some(tag) = imp.main_nav_view.visible_page_tag() {
-                if &tag != "manage_files_nav_page" {
-                    imp.main_nav_view.push_by_tag("manage_files_nav_page");
-                }
+            for file in &files {
+                model.append(file);
             }
 
-            for file in &files {
-                imp.manage_files_model.append(file);
+            let Some(tag) = imp.main_nav_view.visible_page_tag() else {
+                return false;
+            };
+
+            if &tag != "manage_files_nav_page" {
+                imp.main_nav_view.push_by_tag("manage_files_nav_page");
             }
+
+            true
         }
     }
 
@@ -1363,18 +1608,19 @@ impl PacketApplicationWindow {
                             files_vec.push(file);
                         }
 
-                        Self::handle_added_files_to_send(
-                            &imp,
-                            Self::filter_added_files(&imp.manage_files_model, files_vec),
-                        );
+                        imp.obj()
+                            .handle_added_files_to_send(&imp.manage_files_model, files_vec);
                     };
                 }
             ),
         );
     }
 
-    fn filter_added_files(model: &gio::ListStore, files: Vec<gio::File>) -> Vec<gio::File> {
-        files
+    fn filter_added_files(model: &gio::ListStore, files: Vec<gio::File>) -> (Vec<gio::File>, bool) {
+        let files_len = files.len();
+
+        let mut already_included_count = 0usize;
+        let filtered_files = files
             .into_iter()
             .filter(|file| {
                 file.query_file_type(
@@ -1400,13 +1646,17 @@ impl PacketApplicationWindow {
             .filter(|file| {
                 for existing_file in model.iter::<gio::File>().filter_map(|it| it.ok()) {
                     if existing_file.parse_name() == file.parse_name() {
+                        already_included_count += 1;
                         return false;
                     }
                 }
 
                 true
             })
-            .collect::<Vec<_>>()
+            .collect::<Vec<_>>();
+
+        let is_already_in_model = already_included_count == files_len;
+        (filtered_files, is_already_in_model)
     }
 
     fn start_mdns_discovery(&self, force: Option<bool>) {

@@ -1,6 +1,7 @@
 use std::{
     collections::VecDeque,
     fmt,
+    io::Read,
     path::{Path, PathBuf},
     time::{self},
 };
@@ -28,6 +29,52 @@ macro_rules! impl_deref_for_newtype {
     };
 }
 
+pub fn xdg_data_dirs() -> Vec<PathBuf> {
+    std::env::var_os("XDG_DATA_DIRS")
+        .and_then(|it| {
+            let paths = std::env::split_paths(&it)
+                .map(PathBuf::from)
+                .filter(|it| it.is_absolute())
+                .collect::<Vec<_>>();
+            (!paths.is_empty()).then_some(paths)
+        })
+        .unwrap_or_else(|| {
+            vec![
+                PathBuf::from("/usr/local/share"),
+                PathBuf::from("/usr/share"),
+            ]
+        })
+}
+
+/// Based on strict byte-by-byte comparison.
+// https://users.rust-lang.org/t/efficient-way-of-checking-if-two-files-have-the-same-content/74735/11
+pub fn is_file_same(file1: impl AsRef<Path>, file2: impl AsRef<Path>) -> anyhow::Result<bool> {
+    use std::io::BufReader;
+    let mut reader1 = BufReader::new(fs_err::File::open(file1.as_ref())?);
+    let mut reader2 = BufReader::new(fs_err::File::open(file2.as_ref())?);
+
+    let mut buf1 = [0u8; 4096];
+    let mut buf2 = [0u8; 4096];
+
+    loop {
+        let bytes_read1 = reader1.read(&mut buf1)?;
+        let bytes_read2 = reader2.read(&mut buf2)?;
+
+        if bytes_read1 != bytes_read2 || buf1 != buf2 {
+            return Ok(false);
+        }
+
+        assert_eq!(bytes_read1, bytes_read2); // Sanity check
+        if bytes_read1 == 0 {
+            // EOF
+            break;
+        }
+    }
+
+    Ok(true)
+}
+
+// TODO: Don't take option, callback should only be called if all signals are blocked
 pub fn with_signals_blocked<O, F>(blocks: &[(&O, Option<&glib::SignalHandlerId>)], f: F)
 where
     O: glib::object::ObjectExt,

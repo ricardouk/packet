@@ -4,6 +4,7 @@ mod config;
 mod constants;
 mod monitors;
 mod objects;
+mod plugins;
 mod utils;
 mod widgets;
 mod window;

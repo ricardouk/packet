@@ -9,7 +9,7 @@ menu primary_menu {
         }
 
         item {
-            label: _("Help");
+            label: _("_Help");
             action: "win.help";
         }
 
@@ -463,6 +463,13 @@ Adw.PreferencesDialog preferences_dialog {
         Adw.PreferencesGroup {
             title: _("Advanced");
 
+            Adw.SwitchRow nautilus_plugin_switch {
+                title: _("Nautilus Plugin");
+                subtitle: _("Integrate with Nautilus file menu");
+            }
+        }
+
+        Adw.PreferencesGroup {
             Adw.ExpanderRow static_port_expander {
                 title: _("Static Network Port");
                 // Translators: For whitelisting of the app.
