@@ -39,6 +39,21 @@ In Flatpak, folder access is temporary and resets after a session restart becaus
 flatpak override --user io.github.nozwock.Packet --filesystem='/path/to/your/folder/here'
 ```
 
+## Plugin Requirements
+
+<!-- Don't change the heading since a link to it is being used in the app. -->
+
+To use the Nautilus plugin, install the required packages:
+
+- Ubuntu/Debian:\
+`sudo apt install python3-dbus python3-nautilus`
+- Fedora:\
+`sudo dnf install python3-dbus nautilus-python`
+- Arch:\
+`sudo pacman -S python-dbus nautilus-python`
+- Fedora Silverblue (rpm-ostree):\
+`rpm-ostree install python3-dbus nautilus-python`
+
 ## Acknowledgments
 - [Dominik Baran][dominik] for creating the icon and working on the app's design.
 - [NearDrop][neardrop] for reverse-engineering the closed-source Quick Share implementation in Android's GMS.

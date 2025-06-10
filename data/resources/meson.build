@@ -21,3 +21,5 @@ resources = gnome.compile_resources(
   install_dir: pkgdatadir,
   dependencies: blueprints,
 )
+
+subdir('plugins')
