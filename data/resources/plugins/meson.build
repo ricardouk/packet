@@ -1,5 +1,6 @@
 plugins_conf = configuration_data()
 plugins_conf.set('APP_ID', application_id)
+plugins_conf.set('LOCALE_DOMAIN', gettext_package)
 
 configure_file(
   input: 'packet_nautilus.py.in',

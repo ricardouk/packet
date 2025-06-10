@@ -1,4 +1,8 @@
+import gettext
+import locale
+import subprocess
 import sys
+from pathlib import Path
 from typing import Any, List
 
 import dbus
@@ -9,14 +13,51 @@ gi.require_version("GObject", "2.0")
 from gi.repository import GLib, GObject, Nautilus  # type: ignore  # noqa: E402
 
 APP_ID = "@APP_ID@"
-
-
-# https://lazka.github.io/pgi-docs/
-# https://blog.victor.co.zm/custom-nautilus-context-menu-python-extension
+LOCALE_DOMAIN = "@LOCALE_DOMAIN@"
 
 
 def log(*vals: Any):
     print("Packet:", *vals, file=sys.stderr)
+
+
+# TODO: Maybe have a separate gettext package for plugin scripts that gets
+# copied over alongside the script. Seems more robust?
+def init_i18n() -> gettext.NullTranslations | gettext.GNUTranslations:
+    locale_dirs: List[Path | None] = [None]  # None for system default locale dir
+    (lang, enc) = locale.getlocale()
+
+    flatpak_info = None
+    try:
+        flatpak_info = subprocess.run(
+            ["flatpak", "info", "-l", APP_ID], capture_output=True, check=True
+        )
+    except subprocess.CalledProcessError:
+        pass
+
+    if flatpak_info:
+        locale_dirs.append(
+            Path(flatpak_info.stdout.decode().strip()) / "files" / "share" / "locale"
+        )
+
+    i18n = None
+    for locale_dir in locale_dirs:
+        try:
+            i18n = gettext.translation(LOCALE_DOMAIN, localedir=locale_dir)
+            break
+        except (OSError, IOError):
+            pass
+
+    if i18n is None:
+        i18n = gettext.translation(LOCALE_DOMAIN, fallback=True)
+        log(f"No {lang} localization found for domain: {LOCALE_DOMAIN!r}")
+    else:
+        log(f"Found {lang} localization for domain: {LOCALE_DOMAIN!r}")
+
+    return i18n
+
+
+i18n = init_i18n()
+_ = i18n.gettext
 
 
 class PacketShareProxy:
@@ -41,6 +82,8 @@ class PacketShareProxy:
         )
 
 
+# https://lazka.github.io/pgi-docs/
+# https://blog.victor.co.zm/custom-nautilus-context-menu-python-extension
 class PacketMenuProvider(GObject.GObject, Nautilus.MenuProvider):
     def __init__(self):
         super().__init__()
@@ -67,7 +110,7 @@ class PacketMenuProvider(GObject.GObject, Nautilus.MenuProvider):
 
         item = Nautilus.MenuItem(
             name=f"{PacketMenuProvider.__name__}::SendFiles",
-            label="Send with Packet",
+            label=_("Send with Packet"),
         )
 
         item.connect("activate", self.on_menu_item_activate, files)
