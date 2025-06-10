@@ -1083,7 +1083,7 @@ impl PacketApplicationWindow {
             .label(
                 &formatx!(
                     gettext(
-                        "Package names may vary by distribution, see <a {}>this \
+                        "Package names may vary by distribution, visit <a {}>this \
                         link</a> for details."
                     ),
                     // Keeping it out of the msgid so that translators are less
