@@ -1048,11 +1048,11 @@ impl PacketApplicationWindow {
     fn present_plugin_success_dialog(&self) {
         let dialog = adw::AlertDialog::builder()
             .heading(&gettext("Plugin Installed"))
-            .default_response("ok")
+            .default_response("done")
             .build();
 
-        dialog.add_response("ok", &gettext("Ok"));
-        dialog.set_response_appearance("ok", adw::ResponseAppearance::Suggested);
+        dialog.add_response("done", &gettext("Done"));
+        dialog.set_response_appearance("done", adw::ResponseAppearance::Suggested);
 
         let info_box = gtk::Box::builder()
             .orientation(gtk::Orientation::Vertical)
@@ -1109,11 +1109,11 @@ impl PacketApplicationWindow {
     fn present_plugin_error_dialog(&self, extensions_display_dir: &str) {
         let dialog = adw::AlertDialog::builder()
             .heading(&gettext("Installation Failed"))
-            .default_response("ok")
+            .default_response("close")
             .build();
 
-        dialog.add_response("ok", &gettext("Ok"));
-        dialog.set_response_appearance("ok", adw::ResponseAppearance::Suggested);
+        dialog.add_response("close", &gettext("Close"));
+        dialog.set_response_appearance("close", adw::ResponseAppearance::Suggested);
 
         let info_box = gtk::Box::builder()
             .orientation(gtk::Orientation::Vertical)
