@@ -28,6 +28,23 @@ macro_rules! impl_deref_for_newtype {
     };
 }
 
+pub fn xdg_data_dirs() -> Vec<PathBuf> {
+    std::env::var_os("XDG_DATA_DIRS")
+        .and_then(|it| {
+            let paths = std::env::split_paths(&it)
+                .map(PathBuf::from)
+                .filter(|it| it.is_absolute())
+                .collect::<Vec<_>>();
+            (!paths.is_empty()).then_some(paths)
+        })
+        .unwrap_or_else(|| {
+            vec![
+                PathBuf::from("/usr/local/share"),
+                PathBuf::from("/usr/share"),
+            ]
+        })
+}
+
 pub fn with_signals_blocked<O, F>(blocks: &[(&O, Option<&glib::SignalHandlerId>)], f: F)
 where
     O: glib::object::ObjectExt,
